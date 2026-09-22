@@ -2,6 +2,24 @@
   "name": "mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "App móvil de Fiaro para Collectors — registro de visitas de cobro en campo.",
+  "author": "Alejo Zuleta <valenciazuletaj@gmail.com>",
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/fiaro-app/mobile#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fiaro-app/mobile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fiaro-app/mobile/issues"
+  },
+  "keywords": [
+    "fiaro",
+    "expo",
+    "react-native",
+    "cobranza",
+    "fintech"
+  ],
   "dependencies": {
     "@expo/ui": "~57.0.19",
     "expo": "~57.0.24",
