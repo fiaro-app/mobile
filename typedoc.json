@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["src/lib"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "skipErrorChecking": true
+}
