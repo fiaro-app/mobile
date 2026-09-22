@@ -4,6 +4,8 @@ App móvil para los Collectors de Fiaro: registro en campo de visitas de cobro (
 
 Repo privado. Software propietario — ver [LICENSE](./LICENSE).
 
+Documento de dominio y producto (entidades, multi-tenancy, suscripciones, roadmap): [api/PRODUCT.md](https://github.com/fiaro-app/api/blob/dev/PRODUCT.md).
+
 ## Stack
 
 Expo (React Native, managed workflow) · TypeScript · Expo Router · pnpm
