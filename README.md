@@ -1,56 +1,80 @@
-# Welcome to your Expo app 👋
+# Fiaro — Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App móvil para los Collectors de Fiaro: registro en campo de visitas de cobro (`PAID`, `PARTIAL`, `NOT_FOUND`, `REFUSED`, `RESCHEDULED`) contra la cartera gestionada en la [API de Fiaro](https://github.com/fiaro-app/api).
 
-## Get started
+Repo privado. Software propietario — ver [LICENSE](./LICENSE).
 
-1. Install dependencies
+Documento de dominio y producto (entidades, multi-tenancy, suscripciones, roadmap): [api/PRODUCT.md](https://github.com/fiaro-app/api/blob/dev/PRODUCT.md).
 
-   ```bash
-   npm install
-   ```
+## Stack
 
-2. Start the app
+Expo (React Native, managed workflow) · TypeScript · Expo Router · pnpm
 
-   ```bash
-   npx expo start
-   ```
+> Expo cambia cada release. Antes de tocar cualquier API de Expo/EAS/React Native, revisar la versión del SDK en `package.json` y la documentación versionada correspondiente — ver `AGENTS.md`.
 
-In the output, you'll find options to open the app in a
+## Distribución
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Sin Google Play ni App Store por ahora:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Distribución directa del APK** (Android). iOS queda pendiente de confirmar — requeriría cuenta Apple Developer (99 USD/año).
+- **EAS Update (OTA)** para la mayoría de cambios (lógica, UI, textos), sin que el cobrador tenga que reinstalar nada.
+- **Firebase App Distribution** para los cambios que requieren build nativa nueva (SDK de Expo, permisos nuevos).
+- **Version-gate obligatorio**: la app consulta `GET /mobile/version` antes de mostrar cualquier pantalla; si está por debajo de la mínima soportada, bloquea con pantalla de actualización.
 
-## Get a fresh project
+## Requisitos
 
-When you're ready, run:
+- Node 24
+- pnpm 11 (`corepack enable` si no lo tienes activado)
+- Expo Go (para probar rápido) o un build de desarrollo si el proyecto ya usa módulos nativos
+
+## Empezar
 
 ```bash
-npm run reset-project
+pnpm install
+pnpm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Desde ahí, abre la app en un [build de desarrollo](https://docs.expo.dev/develop/development-builds/introduction/), [emulador Android](https://docs.expo.dev/workflow/android-studio-emulator/), [simulador iOS](https://docs.expo.dev/workflow/ios-simulator/) o [Expo Go](https://expo.dev/go).
 
-### Other setup steps
+## Scripts
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+| Comando | Qué hace |
+|---|---|
+| `pnpm start` | Servidor de desarrollo de Expo |
+| `pnpm android` / `pnpm ios` / `pnpm web` | Arranca en esa plataforma |
+| `pnpm lint` | `expo lint` |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm test` | Tests (Jest + `jest-expo`) |
+| `pnpm docs` | Genera documentación (TypeDoc) de `src/lib` en `docs/` |
 
-## Learn more
+El pipeline de CI (`.github/workflows/ci.yml`) corre lint → typecheck → test → docs → análisis de Sonar en cada PR y en cada push a `dev`. No hay `build` en CI porque una app Expo no compila un binario sin EAS.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Estructura
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+src/
+  app/          # Rutas (Expo Router) — cada archivo es una pantalla
+  components/    # Componentes reutilizables, fuera de app/
+  hooks/         # Hooks compartidos
+  constants/     # Theme, constantes de la app
+  lib/            # Utilidades puras, testeadas con Jest
+```
 
-## Join the community
+`ios/` y `android/` no existen todavía — si aparecen, son generados (Continuous Native Generation) y no se editan a mano; el comportamiento nativo se configura en `app.json`.
 
-Join our community of developers creating universal apps.
+## Ramas y flujo de trabajo
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `dev` es la rama de integración y la rama por defecto — todo PR apunta aquí.
+- `main` es producción — se actualiza vía PR desde `dev` cuando está estable.
+- **PR de funcionalidad** (rama → `dev`): merge por **squash**, un commit por PR.
+- **PR de release** (`dev` → `main`): **merge commit**. Así `main` y `dev` comparten historia y el siguiente release no tiene conflictos; con squash, `main` quedaría con un commit que `dev` no tiene.
+- La rama de origen se borra automáticamente al mergear (`dev` nunca, porque es la rama por defecto).
+- Sin protección de rama activa (equipo de una persona por ahora).
+
+## Repos relacionados
+
+| Repo | Contenido |
+|---|---|
+| [fiaro-app/api](https://github.com/fiaro-app/api) | Backend (NestJS) |
+| [fiaro-app/web](https://github.com/fiaro-app/web) | Panel de Owner/Lender (Next.js) |
+| [fiaro-app/contracts](https://github.com/fiaro-app/contracts) | Schemas de Zod compartidos (`@fiaro-app/contracts`) |
