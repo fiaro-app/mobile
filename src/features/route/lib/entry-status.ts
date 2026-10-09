@@ -3,7 +3,7 @@ import type { RouteEntry } from '@/features/route/lib/route-entry';
 /**
  * Estado de un préstamo para el cobrador (los chips del diseño):
  * - `paid`: saldo cero.
- * - `on-time`: nada vencido.
+ * - `on-time`: sin días de vencido (una cuota que vence hoy todavía no está atrasada).
  * - `late` (ATRASO): vencido hasta `LATE_MAX_DAYS` días.
  * - `overdue` (MORA): vencido por más de `LATE_MAX_DAYS` días.
  */
@@ -18,9 +18,9 @@ export type EntryStatus = 'paid' | 'on-time' | 'late' | 'overdue';
 export const LATE_MAX_DAYS = 7;
 
 /** Clasifica una fila de la ruta. `paid` gana sobre lo demás: un saldo cero no puede estar en mora. */
-export function classifyEntry(entry: Pick<RouteEntry, 'balance' | 'overdueAmount' | 'overdueDays'>): EntryStatus {
+export function classifyEntry(entry: Pick<RouteEntry, 'balance' | 'overdueDays'>): EntryStatus {
   if (entry.balance <= 0) return 'paid';
-  if (entry.overdueAmount <= 0 && entry.overdueDays <= 0) return 'on-time';
+  if (entry.overdueDays <= 0) return 'on-time';
   return entry.overdueDays > LATE_MAX_DAYS ? 'overdue' : 'late';
 }
 

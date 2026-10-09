@@ -2,7 +2,7 @@ import { Text, type TextProps } from 'react-native';
 import { cn } from '@/lib/cn';
 
 /** Estilos tipográficos del diseño (Penpot › "1 · Fundamentos"). */
-export type TextVariant = 'brand' | 'title' | 'body' | 'small' | 'label' | 'caption' | 'pin';
+export type TextVariant = 'brand' | 'title' | 'body' | 'small' | 'label' | 'caption' | 'mono' | 'pin';
 /** Color del texto: tinta, marca, error o tinta atenuada. */
 export type TextTone = 'default' | 'primary' | 'destructive' | 'muted' | 'inverse';
 
@@ -13,6 +13,7 @@ const VARIANT_CLASSES: Record<TextVariant, string> = {
   small: 'font-sans text-label',
   label: 'font-sans-medium text-label',
   caption: 'font-sans-medium text-caption',
+  mono: 'font-mono text-caption',
   pin: 'font-sans-medium text-pin',
 };
 

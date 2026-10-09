@@ -44,6 +44,8 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
       </Stack.Protected>
       <Stack.Protected guard={access === 'signed-in'}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="clients" />
+        <Stack.Screen name="profile" />
       </Stack.Protected>
     </Stack>
   );

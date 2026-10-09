@@ -22,6 +22,7 @@ describe('classifyEntry', () => {
     [entry({ overdueAmount: 1, overdueDays: LATE_MAX_DAYS }), 'late'],
     [entry({ overdueAmount: 1, overdueDays: LATE_MAX_DAYS + 1 }), 'overdue'],
     [entry({ balance: 0, overdueAmount: 5000, overdueDays: 20 }), 'paid'],
+    [entry({ overdueAmount: 50000, overdueDays: 0 }), 'on-time'],
   ])('%j -> %s', (row, expected) => {
     expect(classifyEntry(row)).toBe(expected);
   });
