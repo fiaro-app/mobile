@@ -30,6 +30,13 @@ export default function ClientDetailScreen() {
         callLabel={DETAIL_COPY.call}
         onCall={screen.call}
         registerLabel={DETAIL_COPY.register}
+        onRegister={
+          model.canRegisterVisit
+            ? () => {
+                router.push({ pathname: '/visit/[loanId]', params: { loanId, clientId } });
+              }
+            : undefined
+        }
       />
     );
   } else if (screen.state !== 'loading') {

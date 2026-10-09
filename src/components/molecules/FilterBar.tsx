@@ -6,6 +6,8 @@ import { SelectButton } from '@/components/atoms/SelectButton';
 export interface FilterOption<T extends string> {
   readonly value: T;
   readonly label: string;
+  /** Línea de apoyo bajo el nombre de la opción (hojas con opciones explicadas). */
+  readonly description?: string;
 }
 
 export interface FilterBarProps<S extends string> {

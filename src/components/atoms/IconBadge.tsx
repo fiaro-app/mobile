@@ -2,18 +2,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
 import { cn } from '@/lib/cn';
 
-export type BadgeTone = 'primary' | 'destructive' | 'neutral';
+export type BadgeTone = 'primary' | 'destructive' | 'neutral' | 'success';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
   primary: 'bg-primary/10',
   destructive: 'bg-destructive/10',
   neutral: 'bg-surface shadow-lg shadow-foreground/10',
+  success: 'bg-success/10',
 };
 
 const ICON_COLORS: Record<BadgeTone, string> = {
   primary: '#3B3382',
   destructive: '#AE3730',
   neutral: '#8A879A',
+  success: '#106B32',
 };
 
 /**

@@ -191,6 +191,38 @@ y arma el modelo en `features/client-detail/lib/detail-view-model.ts` (función 
 - **"Registrar visita"** solo se ofrece con el préstamo `ACTIVE`.
 - El chip y la regla ATRASO/MORA salen de `lib/loan-status.ts`, compartidos con la ruta (M-13).
 
+## 5d. Registrar visita y cola sin conexión (M-16)
+
+Pantalla `visit/[loanId]?clientId=...` y confirmación `visit-done`. Es el corazón del cobro, así que el criterio es
+**una visita registrada nunca se pierde y nunca se duplica**:
+
+- **Idempotencia.** El API guarda una visita por su `id` (`POST /loans/:loanId/collection-visits`, D-29): reenviar la misma
+  devuelve la ya guardada. El `id` se genera UNA vez al abrir el formulario (`newVisitId`) y se conserva para reintentar; se
+  renueva solo si el API rechaza la visita (no quedó guardada).
+- **Hora real.** `occurredAt` es la hora de la visita según el teléfono, no la del envío: una visita hecha sin señal llega
+  horas después y el API valida la asignación del día en que ocurrió (D-89).
+- **Cola local** (`features/visit/queue`, `@react-native-async-storage/async-storage`). `submitVisit` intenta enviar; si
+  falla por algo **pasajero** (sin red, mantenimiento, 5xx, 408, 429) la guarda con `userId`, `loanId` y la petición; si el
+  API la rechaza de forma **definitiva** (4xx salvo 401/408/429) NO la guarda y avisa; con un 401 no guarda nada (la sesión
+  murió). `flushVisitQueue` envía en orden, se detiene en el primer fallo pasajero (seguir mandaría el resto fuera de
+  orden) y marca como `rejected` las que el API rechaza, para no reintentarlas para siempre.
+- **Por usuario.** Cada elemento lleva el `userId` de quien visitó y solo se envía con la sesión de esa persona: si otra
+  inicia sesión en el mismo teléfono, sus visitas no se mandan como si fueran de la otra.
+- **Cuándo se reintenta** (`useVisitQueueSync`, montado en `AppShell`): al abrir, cuando vuelve la conexión
+  (`expo-network`), cuando la app vuelve al primer plano y cada 30 s mientras haya pendientes (la red puede estar bien y el
+  servidor caído: ningún evento del sistema lo avisaría).
+- **Aviso.** La ruta muestra "N visitas pendientes de sincronizar" (y las rechazadas) desde `useSyncStore`.
+- **Deslizador de confirmación.** `ConfirmSlider` (Reanimated + Gesture Handler, en el hilo de UI) exige arrastrar más del
+  85 % para evitar un cobro por un toque accidental; a lectores de pantalla les expone la acción `activate`. Requiere
+  `GestureHandlerRootView` en la raíz.
+- **Pago completo o parcial.** El API solo conoce `PAID`, `NOT_FOUND`, `REFUSED` y `RESCHEDULED`; un pago parcial es un
+  `PAID` de menor monto. El texto de confirmación dice "completo" o "parcial" según el monto frente a la cuota, y el monto no
+  puede superar el saldo.
+- **Reprogramar** exige fecha (el API la pide con `RESCHEDULED`); se elige de los próximos 14 días en hora de Colombia.
+- Tras guardar se invalidan la ruta y el detalle para mostrar el nuevo saldo.
+- Verificado en el emulador de Android con el API real, incluido el modo sin conexión (API apagado → "¡Visita guardada!" y
+  aviso de pendiente).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -211,6 +243,8 @@ Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Esta
 | ☰ superpuesto al título de "Ruta de hoy" | El mapa de navegación pide ícono de buscar → Mis clientes y avatar → Perfil | Se usa lupa + avatar a la derecha (mock corregido). |
 | Detalle: "No encontrado" en verde | El resultado fallido de una visita no es un éxito | Rojo (destructive); "Pagado" verde y "Reprogramada" atenuado. |
 | Detalle: "Cuota diaria" fija | El préstamo puede ser semanal, quincenal o mensual | La etiqueta sale de `loan.frequency`. |
+| Reprogramar: "Fecha de compromiso (opcional)" | `RESCHEDULED` exige `promisedDate` | Fecha obligatoria (preseleccionada: mañana); texto de ayuda corregido. |
+| "Pago completo" siempre en la confirmación | Un pago parcial es un `PAID` de menor monto | El texto cambia a "parcial" cuando el monto es menor que la cuota. |
 
 ## 7. Pruebas, calidad y CI
 

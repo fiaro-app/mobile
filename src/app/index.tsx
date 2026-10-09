@@ -4,10 +4,13 @@ import { Avatar } from '@/components/atoms/Avatar';
 import { IconButton } from '@/components/atoms/IconButton';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
+import { SyncBanner } from '@/components/molecules/SyncBanner';
 import { ClientList } from '@/components/organisms/ClientList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ROUTE_COPY } from '@/features/route/content/messages';
 import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
+import { syncBannerMessage } from '@/features/visit/content/sync-message';
+import { useSyncStore } from '@/features/visit/queue/sync-store';
 
 /** Ruta `/`: "Ruta de hoy", la pantalla principal del cobrador. */
 export default function RouteScreen() {
@@ -16,6 +19,9 @@ export default function RouteScreen() {
     router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
   };
   const screen = useRouteScreen();
+  const pending = useSyncStore((state) => state.pending);
+  const rejected = useSyncStore((state) => state.rejected);
+  const banner = syncBannerMessage(pending, rejected);
   return (
     <ScreenTemplate
       topBar={
@@ -46,6 +52,7 @@ export default function RouteScreen() {
         />
       }
     >
+      {banner ? <SyncBanner message={banner} /> : null}
       <ClientList
         items={screen.rows.map((row) => ({ ...row, onPress: () => openClient(row) }))}
         loading={screen.loading}
