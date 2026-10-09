@@ -256,6 +256,25 @@ período, así que lo demás se arma en la app:
 - **Cartera vencida** es una foto de HOY, no del período; por eso va aparte y en rojo.
 - Cada rango tiene su clave de caché, así cambiar de período no mezcla datos y volver a uno ya visto es instantáneo.
 
+## 5g. Notificaciones y push (M-19)
+
+Bandeja `notifications` (campana con globo de sin leer en la Ruta) y registro del token push.
+
+- **Bandeja.** `QUERY /notifications` (50 más recientes), `GET /notifications/unread-count` (se refresca cada minuto),
+  `POST /notifications/:id/read` y `/read-all`. Tocar una la marca como leída. Solo las de `DAILY_SETTLEMENT` llevan a una
+  pantalla (el cuadre): un préstamo necesitaría también el `clientId` (la ruta de detalle lo exige) y el aviso solo trae el id
+  del préstamo; lo de membresías y suscripción es del prestamista.
+- **Respuestas 204.** `POST /push-tokens` no devuelve cuerpo; `authedRequest` no lee JSON cuando el estado es 204 (si no, lo
+  habría tomado como respuesta inválida).
+- **Token push** (`push/`). Se registra una vez por sesión iniciada (`usePushRegistration` en `AppShell`) y se recuerda para
+  desvincularlo al cerrar sesión (`completeSignOut` llama `releasePushToken` ANTES de cerrar en el servidor, porque necesita la
+  cookie): así quien use el teléfono después no recibe los avisos de otra persona.
+- **Cuándo NO hay token (y no es un error).** Web; **Expo Go en Android** (desde el SDK 53 no soporta push remoto: hace falta
+  una *development build*); proyecto sin `projectId` de EAS; o permiso negado. En esos casos la app funciona igual, solo sin
+  push. `expo-notifications` se carga con `require` dentro de la función para que Expo Go/web ni la carguen.
+- **Para que llegue push de verdad** (acción tuya, no de código): `eas init` (crea el `projectId` en `app.json`), credenciales
+  FCM de Firebase para Android y APNs para iOS (`eas credentials`), y una development build (`eas build --profile development`).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

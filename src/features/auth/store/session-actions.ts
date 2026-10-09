@@ -2,6 +2,7 @@ import { restoreSession, signOut as signOutRemote } from '@/features/auth/api/au
 import { clearPin, hasPin, isPinDeclined, resetPinDeclined } from '@/features/auth/api/pin-vault';
 import type { SessionUser } from '@/features/auth/lib/session-user';
 import { useSessionStore } from '@/features/auth/store/session-store';
+import { releasePushToken } from '@/features/notifications/push/push-registration';
 import type { ApiFailure } from '@/lib/http/failure';
 import { resetBrandColor } from '@/lib/theme/brand';
 
@@ -35,6 +36,7 @@ export async function completeSignIn(user: SessionUser): Promise<void> {
 
 /** Cierra la sesión (en el servidor si hay red, siempre en el dispositivo) y olvida el PIN. */
 export async function completeSignOut(): Promise<void> {
+  await releasePushToken();
   await signOutRemote();
   await Promise.all([clearPin(), resetPinDeclined()]);
   resetBrandColor();

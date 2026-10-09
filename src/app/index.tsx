@@ -2,11 +2,14 @@ import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { Avatar } from '@/components/atoms/Avatar';
 import { IconButton } from '@/components/atoms/IconButton';
+import { BellButton } from '@/components/molecules/BellButton';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { SyncBanner } from '@/components/molecules/SyncBanner';
 import { ClientList } from '@/components/organisms/ClientList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
+import { bellLabel } from '@/features/notifications/content/messages';
+import { useUnreadCount } from '@/features/notifications/hooks/use-notifications';
 import { ROUTE_COPY } from '@/features/route/content/messages';
 import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
 import { syncBannerMessage } from '@/features/visit/content/sync-message';
@@ -19,6 +22,7 @@ export default function RouteScreen() {
     router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
   };
   const screen = useRouteScreen();
+  const unread = useUnreadCount().data ?? 0;
   const pending = useSyncStore((state) => state.pending);
   const rejected = useSyncStore((state) => state.rejected);
   const banner = syncBannerMessage(pending, rejected);
@@ -34,6 +38,13 @@ export default function RouteScreen() {
                 label="Buscar clientes"
                 onPress={() => {
                   router.push('/clients');
+                }}
+              />
+              <BellButton
+                label={bellLabel(unread)}
+                unread={unread}
+                onPress={() => {
+                  router.push('/notifications');
                 }}
               />
               <Pressable

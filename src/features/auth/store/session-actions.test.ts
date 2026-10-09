@@ -1,5 +1,6 @@
 import * as authApi from '@/features/auth/api/auth-api';
 import * as pinVault from '@/features/auth/api/pin-vault';
+import * as push from '@/features/notifications/push/push-registration';
 import { bootSession, completePinExhausted, completeSignIn, completeSignOut, signOutIfSessionExpired } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
 
@@ -10,6 +11,7 @@ jest.mock('@/features/auth/api/pin-vault', () => ({
   clearPin: jest.fn(),
   resetPinDeclined: jest.fn(),
 }));
+jest.mock('@/features/notifications/push/push-registration', () => ({ releasePushToken: jest.fn() }));
 jest.mock('@/lib/theme/brand', () => ({ resetBrandColor: jest.fn() }));
 
 const api = jest.mocked(authApi);
@@ -66,9 +68,10 @@ describe('completeSignIn', () => {
 });
 
 describe('completeSignOut', () => {
-  it('cierra en el servidor, borra el PIN y la decisión de rechazarlo', async () => {
+  it('desvincula el token push, cierra en el servidor y borra el PIN y la decisión de rechazarlo', async () => {
     await completeSignIn(user);
     await completeSignOut();
+    expect(push.releasePushToken).toHaveBeenCalled();
     expect(api.signOut).toHaveBeenCalled();
     expect(vault.clearPin).toHaveBeenCalled();
     expect(vault.resetPinDeclined).toHaveBeenCalled();

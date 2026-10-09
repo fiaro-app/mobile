@@ -39,6 +39,7 @@ async function readErrorCode(response: Response): Promise<string | null> {
  * - **Método `QUERY`.** El API usa el método HTTP `QUERY` (búsqueda con cuerpo, sin efectos) en
  *   `/collectors/me/route`, `/lenders/me/stats`, etc. `fetch` de React Native lo acepta; si algún
  *   dispositivo lo rechazara, el fallo llegaría como `offline`: probar en dispositivo real.
+ * - **Sin contenido (204).** Rutas como `POST /push-tokens` no devuelven cuerpo: `parse` recibe `null` y no se lee JSON.
  * - **Versión del API.** Sin cabecera `API-Version` el API sirve la versión 1, la actual.
  *
  * @param path - Ruta con barra inicial (`/collectors/me/route`).
@@ -66,7 +67,7 @@ export async function authedRequest<T>(
       return fail(classifyHttpFailure(response.status, await readErrorCode(response), response.headers.get('retry-after')));
     }
     try {
-      return ok(parse(await response.json()));
+      return ok(parse(response.status === 204 ? null : await response.json()));
     } catch {
       return fail(classifyHttpFailure(200, 'INVALID_RESPONSE'));
     }
