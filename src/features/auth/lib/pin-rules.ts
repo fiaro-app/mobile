@@ -7,7 +7,7 @@ export const MAX_PIN_ATTEMPTS = 5;
 
 /** `true` si el texto son exactamente `PIN_LENGTH` dígitos. */
 export function isValidPin(pin: string): boolean {
-  return new RegExp(`^\\d{${String(PIN_LENGTH)}}$`).test(pin);
+  return pin.length === PIN_LENGTH && /^\d+$/.test(pin);
 }
 
 /**

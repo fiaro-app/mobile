@@ -8,7 +8,7 @@ export const AUTH_COPY = {
     phoneLabel: 'Teléfono',
     phonePlaceholder: '300 123 4567',
     passwordLabel: 'Contraseña',
-    passwordPlaceholder: '••••••••',
+    maskedPlaceholder: '••••••••',
     forgot: '¿Olvidaste tu contraseña?',
     submit: 'Iniciar sesión',
   },

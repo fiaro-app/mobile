@@ -15,7 +15,7 @@ export interface LoginFormTexts {
   readonly phoneLabel: string;
   readonly phonePlaceholder: string;
   readonly passwordLabel: string;
-  readonly passwordPlaceholder: string;
+  readonly maskedPlaceholder: string;
   readonly forgot: string;
   readonly submit: string;
 }
@@ -69,7 +69,7 @@ export function LoginForm({ texts, phone, password, submitting, formError, onSub
               onChangeText={password.onChangeText}
               onBlur={password.onBlur}
               invalid={Boolean(password.error) || password.invalid === true}
-              placeholder={texts.passwordPlaceholder}
+              placeholder={texts.maskedPlaceholder}
               secureTextEntry
               autoCapitalize="none"
               autoComplete="current-password"
