@@ -3,7 +3,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { BlockedView } from '@/components/organisms/BlockedView';
 import { useBootstrap } from '@/features/auth/hooks/use-bootstrap';
-import { useAccess } from '@/features/auth/store/session-store';
+import { useAccess, useSessionStore } from '@/features/auth/store/session-store';
+import { useVisitQueueSync } from '@/features/visit/hooks/use-visit-queue-sync';
 
 /**
  * Decide qué ve la persona según el estado de la app, y es el ÚNICO lugar donde eso se decide:
@@ -16,6 +17,8 @@ import { useAccess } from '@/features/auth/store/session-store';
 export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
   const boot = useBootstrap();
   const access = useAccess();
+  const userId = useSessionStore((state) => state.user?.id ?? null);
+  useVisitQueueSync(access === 'signed-in' ? userId : null);
   const settled = fontsLoaded && (boot.ready || boot.blocked !== null);
 
   useEffect(() => {
@@ -47,6 +50,8 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="clients" />
         <Stack.Screen name="profile" />
         <Stack.Screen name="client/[loanId]" />
+        <Stack.Screen name="visit/[loanId]" />
+        <Stack.Screen name="visit-done" />
       </Stack.Protected>
     </Stack>
   );

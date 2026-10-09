@@ -23,6 +23,7 @@ export interface ClientDetailModel {
   readonly phone: string;
   readonly phoneDial: string;
   readonly address: string;
+  readonly balance: number;
   readonly balanceLabel: string;
   readonly installmentName: string;
   readonly installmentLabel: string;
@@ -74,6 +75,7 @@ export function buildClientDetail(
     phone: formatPhone(client.phone),
     phoneDial: client.phone,
     address: client.address,
+    balance: balance.balance,
     balanceLabel: formatCop(balance.balance),
     installmentName: installmentLabel(loan.frequency),
     installmentLabel: formatCop(loan.installmentValue),

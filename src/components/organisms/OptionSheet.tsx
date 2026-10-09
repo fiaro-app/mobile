@@ -19,7 +19,7 @@ export interface OptionSheetProps<T extends string> {
  * superpuesta DENTRO de la pantalla y no el `Modal` de React Native: `Modal` falla con una
  * advertencia en la vista web de desarrollo y no aporta nada aquí. Para que "atrás" de Android la
  * cierre (en vez de salir de la pantalla) se engancha a `BackHandler` mientras está abierta. Cada
- * opción mide 52 px de alto para tocarse cómodo con el pulgar.
+ * opción mide al menos 52 px de alto para tocarse cómodo con el pulgar.
  */
 export function OptionSheet<T extends string>({ visible, title, options, selected, onSelect, onClose }: Readonly<OptionSheetProps<T>>) {
   const insets = useSafeAreaInsets();
@@ -52,11 +52,18 @@ export function OptionSheet<T extends string>({ visible, title, options, selecte
               onSelect(option.value);
               onClose();
             }}
-            className="h-[52px] flex-row items-center justify-between border-b border-surface-2 active:opacity-70"
+            className="min-h-[52px] flex-row items-center justify-between border-b border-surface-2 py-2 active:opacity-70"
           >
-            <AppText variant="body" tone={option.value === selected ? 'primary' : 'default'}>
-              {option.label}
-            </AppText>
+            <View className="flex-1">
+              <AppText variant="body" tone={option.value === selected ? 'primary' : 'default'}>
+                {option.label}
+              </AppText>
+              {option.description ? (
+                <AppText variant="caption" tone="muted" className="font-sans">
+                  {option.description}
+                </AppText>
+              ) : null}
+            </View>
             {option.value === selected ? <Ionicons name="checkmark" size={20} color="#3B3382" /> : null}
           </Pressable>
         ))}
