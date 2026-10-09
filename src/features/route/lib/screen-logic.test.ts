@@ -7,6 +7,7 @@ describe('toRowViewModel', () => {
   it('formatea nombre, saldo, estado y días', () => {
     expect(toRowViewModel(base)).toEqual({
       id: 'l1',
+      clientId: 'c1',
       name: 'Marta Gómez',
       initials: 'MG',
       balanceLabel: '$420.000',

@@ -11,6 +11,9 @@ import { useClientsScreen } from '@/features/route/hooks/use-clients-screen';
 /** Ruta `/clients`: "Mis clientes", búsqueda y filtros sobre los clientes de la ruta. */
 export default function ClientsScreen() {
   const router = useRouter();
+  const openClient = (row: { id: string; clientId: string }) => {
+    router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
+  };
   const screen = useClientsScreen();
   const { filters, setSearch, setStatus, setRange } = screen.search;
   return (
@@ -25,7 +28,7 @@ export default function ClientsScreen() {
       }
     >
       <ClientList
-        items={screen.rows}
+        items={screen.rows.map((row) => ({ ...row, onPress: () => openClient(row) }))}
         loading={screen.loading}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}

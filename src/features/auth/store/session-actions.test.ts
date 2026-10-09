@@ -1,6 +1,6 @@
 import * as authApi from '@/features/auth/api/auth-api';
 import * as pinVault from '@/features/auth/api/pin-vault';
-import { bootSession, completePinExhausted, completeSignIn, completeSignOut } from '@/features/auth/store/session-actions';
+import { bootSession, completePinExhausted, completeSignIn, completeSignOut, signOutIfSessionExpired } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
 
 jest.mock('@/features/auth/api/auth-api', () => ({ restoreSession: jest.fn(), signOut: jest.fn() }));
@@ -82,5 +82,17 @@ describe('completePinExhausted', () => {
     await completePinExhausted();
     expect(state().user).toBeNull();
     expect(vault.resetPinDeclined).toHaveBeenCalled();
+  });
+});
+
+describe('signOutIfSessionExpired', () => {
+  it('cierra la sesión local solo ante un 401', async () => {
+    await completeSignIn(user);
+    signOutIfSessionExpired({ kind: 'http', status: 500, code: null, retryAfterSeconds: null });
+    signOutIfSessionExpired({ kind: 'offline' });
+    expect(state().user).not.toBeNull();
+    signOutIfSessionExpired({ kind: 'http', status: 401, code: 'UNAUTHENTICATED', retryAfterSeconds: null });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(state().user).toBeNull();
   });
 });

@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchRoute } from '@/features/route/api/route-api';
 import { resolveRouteView, type RouteViewState } from '@/features/route/lib/route-view';
 import type { RouteEntry } from '@/features/route/lib/route-entry';
-import { completeSignOut } from '@/features/auth/store/session-actions';
-import type { ApiFailure } from '@/lib/http/failure';
+import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
+import { failureOf, unwrapOrThrow } from '@/lib/http/api-failure-error';
 
 /** Lo que la pantalla de la ruta necesita. */
 export interface RouteData {
@@ -14,17 +14,10 @@ export interface RouteData {
   readonly refresh: () => void;
 }
 
-class RouteLoadError extends Error {
-  constructor(readonly failure: ApiFailure) {
-    super('route-load-failed');
-  }
-}
-
 async function loadRoute(): Promise<RouteEntry[]> {
   const result = await fetchRoute();
-  if (result.ok) return result.value;
-  if (result.failure.kind === 'http' && result.failure.status === 401) void completeSignOut();
-  throw new RouteLoadError(result.failure);
+  if (!result.ok) signOutIfSessionExpired(result.failure);
+  return unwrapOrThrow(result);
 }
 
 /**
@@ -36,7 +29,7 @@ async function loadRoute(): Promise<RouteEntry[]> {
  */
 export function useRoute(): RouteData {
   const query = useQuery({ queryKey: ['collector', 'route'], queryFn: loadRoute, staleTime: 30_000 });
-  const failure = query.error instanceof RouteLoadError ? query.error.failure : null;
+  const failure = failureOf(query.error);
   return {
     state: resolveRouteView(query.data, failure),
     entries: query.data ?? [],

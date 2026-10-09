@@ -170,6 +170,27 @@ La ruta sale de `QUERY /collectors/me/route` (D-88): un préstamo por fila con `
   asignados a Ana (Marta, Carlos, Yolanda, Diego) por la API, igual que hace Postman. Un préstamo pagado sale de la ruta
   (solo entran los `ACTIVE`), por eso Diego ya no aparece.
 
+## 5c. Detalle de cliente (M-15)
+
+Pantalla `client/[loanId]?clientId=...`, a la que se llega tocando una fila de la ruta o de Mis clientes. Junta cuatro
+consultas del API en paralelo (`GET /clients/:id`, `/loans/:id`, `/loans/:id/balance` y `/loans/:id/collection-visits`)
+y arma el modelo en `features/client-detail/lib/detail-view-model.ts` (función pura con tests). Lo no obvio:
+
+- **Cuatro consultas independientes, no una.** Cada una conserva su último dato bueno si un refresco falla (mismo patrón
+  que la ruta: `unwrapOrThrow` lanza un `ApiFailureError`). El saldo y el historial cambian con cada visita, por eso su
+  `staleTime` es de 15 s.
+- **"Próxima visita".** El API devuelve la cuota impaga más antigua cuando hay mora (`nextDueDate`, p. ej. 22 sep); el
+  diseño dice "Hoy" porque esa cobranza está pendiente ahora. Regla: fecha esperada ≤ hoy (en hora de Colombia) →
+  `Hoy`; si no, la fecha corta.
+- **Etiqueta de la cuota.** El diseño dice "Cuota diaria", pero la frecuencia del préstamo puede ser semanal, quincenal o
+  mensual: la etiqueta sale de `loan.frequency`.
+- **Pago anulado.** Si el administrador revirtió un pago (`payment.reversal`), la fila muestra `Anulado` por `$0`: ya no cuenta.
+- **Fechas.** `businessDateOf` convierte a hora de Colombia (`America/Bogota`); un cobro de las 8 p. m. ya es "mañana" en
+  UTC. Los meses se escriben a mano (`12 sep 2026`) para que se vean igual en Android, iOS y web.
+- **Llamar** abre el marcador del teléfono con `tel:` (no llama sola) y no falla si el dispositivo no puede llamar.
+- **"Registrar visita"** solo se ofrece con el préstamo `ACTIVE`.
+- El chip y la regla ATRASO/MORA salen de `lib/loan-status.ts`, compartidos con la ruta (M-13).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -188,6 +209,8 @@ Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Esta
 | Fila "PAGADO" en la ruta | Un préstamo pagado sale de la ruta (solo entran los `ACTIVE`) | El chip existe pero la ruta no lo muestra hoy; se conserva por si "Mis clientes" gana otra fuente. |
 | Franja "N visitas pendientes de sincronizar" | Depende de la cola de visitas sin conexión (idempotente por `id`, D-29) | Componente listo (`SyncBanner`), sin uso hasta "Registrar visita". |
 | ☰ superpuesto al título de "Ruta de hoy" | El mapa de navegación pide ícono de buscar → Mis clientes y avatar → Perfil | Se usa lupa + avatar a la derecha (mock corregido). |
+| Detalle: "No encontrado" en verde | El resultado fallido de una visita no es un éxito | Rojo (destructive); "Pagado" verde y "Reprogramada" atenuado. |
+| Detalle: "Cuota diaria" fija | El préstamo puede ser semanal, quincenal o mensual | La etiqueta sale de `loan.frequency`. |
 
 ## 7. Pruebas, calidad y CI
 

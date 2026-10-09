@@ -1,5 +1,5 @@
 import { filterEntries, hasActiveFilters, NO_FILTERS, normalizeText } from '@/features/route/lib/client-filter';
-import { classifyEntry, LATE_MAX_DAYS, overdueDaysLabel } from '@/features/route/lib/entry-status';
+import { classifyEntry, LATE_MAX_DAYS, overdueDaysLabel } from '@/lib/loan-status';
 import { RouteSchema, type RouteEntry } from '@/features/route/lib/route-entry';
 import { resolveRouteView } from '@/features/route/lib/route-view';
 
