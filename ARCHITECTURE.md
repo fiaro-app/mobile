@@ -223,6 +223,25 @@ Pantalla `visit/[loanId]?clientId=...` y confirmación `visit-done`. Es el coraz
 - Verificado en el emulador de Android con el API real, incluido el modo sin conexión (API apagado → "¡Visita guardada!" y
   aviso de pendiente).
 
+## 5e. Cuadre del día (M-17)
+
+Pantalla `settlement` (se abre desde el Perfil). El cobrador declara lo cobrado y lo envía a su prestamista:
+
+- **Datos.** `QUERY /collectors/me/daily-summary` da lo esperado (calculado por el motor de calendario) y lo ya cobrado por
+  medio de pago; el formulario nace precargado con eso, así que normalmente solo se confirma. `expectedAmount` se envía tal
+  cual lo calculó el API (el cobrador no lo edita).
+- **Nota obligatoria si no cuadra.** Si lo cobrado difiere de lo esperado, el API exige `collectorNote`; la app lo valida antes
+  de enviar (`buildSubmission`) para no gastar una petición.
+- **Sin cola sin conexión.** A diferencia de las visitas, el cuadre cierra el día y debe quedar recibido: enviar necesita
+  internet y, si falla, el formulario conserva lo escrito y avisa.
+- **Estado del cuadre ya enviado.** El API no ofrece "mi cuadre de hoy" a un cobrador (`QUERY /daily-settlements` es del
+  prestamista y, sin filtro, listaría los de todos), así que el `id` que devuelve el envío se guarda por persona y día
+  (`settlement-memory`) y se consulta con `GET /daily-settlements/:id`. Limitación: si se borra la app o se cambia de teléfono,
+  el cuadre de ese día se verá como "sin enviar" (reenviarlo es seguro: vuelve a `PENDING`). Lo ideal es que el API sume el
+  cuadre del día a `daily-summary`.
+- **Estados.** `PENDING` (enviado) y `APPROVED` dejan la pantalla de solo lectura; `REJECTED` muestra el comentario del
+  prestamista y permite corregir y reenviar.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -290,7 +309,7 @@ pnpm start        # Expo; `i` abre el simulador de iPhone, `a` el emulador de An
 
 ## 9. Pendiente conocido
 
-- Pantallas del resto del diseño: Detalle de cliente, Registrar visita (con cola sin conexión), Confirmación, Cierre de
-  ruta / Cuadre y Estadísticas. El Perfil actual es mínimo (nombre, celular, cerrar sesión).
+- Pantallas del resto del diseño: Estadísticas y el Perfil completo (cerrar ruta). El Cuadre (§5e) está hecho con lógica y
+  vista, pendiente de revisar contra el mock en Penpot.
 - M-11 contratos instalados; M-12 recuperar contraseña; bloqueo automático por inactividad al volver de segundo
   plano (hoy solo bloquea al abrir en frío); iconos/splash propios (siguen los de la plantilla de Expo).

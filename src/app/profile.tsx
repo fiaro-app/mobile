@@ -33,7 +33,14 @@ export default function ProfileScreen() {
         <AppText variant="mono" tone="muted">
           {profile.phone}
         </AppText>
-        <Button label="Cerrar sesión" variant="outline" className="mt-8 w-full" onPress={profile.signOut} />
+        <Button
+          label="Cuadre del día"
+          className="mt-8 w-full"
+          onPress={() => {
+            router.push('/settlement');
+          }}
+        />
+        <Button label="Cerrar sesión" variant="outline" className="mt-3 w-full" onPress={profile.signOut} />
       </View>
     </ScreenTemplate>
   );
