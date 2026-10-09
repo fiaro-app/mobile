@@ -33,12 +33,13 @@ Sin Google Play ni App Store por ahora:
 
 ```bash
 pnpm install
-pnpm start        # `w` abre la vista web (solo desarrollo), o escanea el QR con Expo Go
+pnpm start        # `i` simulador de iPhone, `a` emulador de Android, `w` vista web (solo desarrollo)
 ```
 
 La app necesita el API: en el repo `api`, `pnpm docker:dev` lo deja en `http://localhost:3040` y `pnpm docker:seed`
 crea los usuarios de prueba. En un teléfono físico copia `.env.example` a `.env.local` y pon la IP de tu máquina.
-Para la vista web, el API debe tener `http://localhost:8081` en `CORS_ORIGINS`.
+Para la vista web, el API debe tener `http://localhost:8081` en `CORS_ORIGINS`. En el emulador de Android hay que
+hacer `adb reverse tcp:3040 tcp:3040` y `adb reverse tcp:8081 tcp:8081` (ver [ARCHITECTURE.md §8](./ARCHITECTURE.md)).
 
 | Comando | Qué hace |
 |---|---|
