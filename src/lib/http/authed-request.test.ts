@@ -33,6 +33,11 @@ describe('authedRequest', () => {
     expect(init.headers['content-type']).toBe('application/json');
   });
 
+  it('una respuesta 204 no se lee como JSON', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    expect(await authedRequest('/push-tokens', (body) => body, { method: 'POST', body: {} })).toEqual({ ok: true, value: null });
+  });
+
   it('sin cookie no manda la cabecera', async () => {
     mockGetCookie.mockResolvedValue('');
     respond(200, { v: 1 });
