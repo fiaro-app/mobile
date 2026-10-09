@@ -14,7 +14,7 @@ export interface LoginFormTexts {
   readonly subtitle: string;
   readonly phoneLabel: string;
   readonly phonePlaceholder: string;
-  readonly passwordLabel: string;
+  readonly secretLabel: string;
   readonly maskedPlaceholder: string;
   readonly forgot: string;
   readonly submit: string;
@@ -60,7 +60,7 @@ export function LoginForm({ texts, phone, password, submitting, formError, onSub
             />
           )}
         </FormField>
-        <FormField label={texts.passwordLabel} error={password.error}>
+        <FormField label={texts.secretLabel} error={password.error}>
           {(a11y) => (
             <TextField
               {...a11y}
