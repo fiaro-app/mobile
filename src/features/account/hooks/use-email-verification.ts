@@ -29,7 +29,7 @@ export function useEmailVerification(): EmailVerification {
   const user = useSessionStore((state) => state.user);
   const userUpdated = useSessionStore((state) => state.userUpdated);
   const [codeSent, setCodeSent] = useState(false);
-  const [code, setCodeState] = useState('');
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export function useEmailVerification(): EmailVerification {
     notice,
     setCode: (text) => {
       setError(null);
-      setCodeState(text.replaceAll(/\D/g, ''));
+      setCode(text.replaceAll(/\D/g, ''));
     },
     sendCode: () => {
       void run(requestEmailVerification, () => {
