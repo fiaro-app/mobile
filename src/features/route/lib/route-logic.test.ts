@@ -15,14 +15,14 @@ const ALL = [MORA, AL_DIA, ATRASO, PAGADO];
 
 describe('classifyEntry', () => {
   it.each([
-    [MORA, 'overdue'],
-    [AL_DIA, 'on-time'],
+    [MORA, 'delinquent'],
+    [AL_DIA, 'current'],
     [ATRASO, 'late'],
     [PAGADO, 'paid'],
     [entry({ overdueAmount: 1, overdueDays: LATE_MAX_DAYS }), 'late'],
-    [entry({ overdueAmount: 1, overdueDays: LATE_MAX_DAYS + 1 }), 'overdue'],
+    [entry({ overdueAmount: 1, overdueDays: LATE_MAX_DAYS + 1 }), 'delinquent'],
     [entry({ balance: 0, overdueAmount: 5000, overdueDays: 20 }), 'paid'],
-    [entry({ overdueAmount: 50000, overdueDays: 0 }), 'on-time'],
+    [entry({ overdueAmount: 50000, overdueDays: 0 }), 'current'],
   ])('%j -> %s', (row, expected) => {
     expect(classifyEntry(row)).toBe(expected);
   });
@@ -45,9 +45,9 @@ describe('filterEntries', () => {
   });
 
   it('filtra por estado', () => {
-    expect(names(filterEntries(ALL, { ...NO_FILTERS, status: 'overdue' }))).toEqual(['Marta Gómez']);
+    expect(names(filterEntries(ALL, { ...NO_FILTERS, status: 'delinquent' }))).toEqual(['Marta Gómez']);
     expect(names(filterEntries(ALL, { ...NO_FILTERS, status: 'late' }))).toEqual(['Yolanda Pérez']);
-    expect(names(filterEntries(ALL, { ...NO_FILTERS, status: 'on-time' }))).toEqual(['Carlos Restrepo']);
+    expect(names(filterEntries(ALL, { ...NO_FILTERS, status: 'current' }))).toEqual(['Carlos Restrepo']);
   });
 
   it.each([

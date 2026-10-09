@@ -3,19 +3,19 @@ import { AppText } from '@/components/atoms/AppText';
 import { cn } from '@/lib/cn';
 
 /** Estado que muestra el chip. Es independiente de la lógica: quien lo usa traduce su estado a este. */
-export type ChipKind = 'overdue' | 'late' | 'on-time' | 'paid';
+export type ChipKind = 'delinquent' | 'late' | 'current' | 'paid';
 
 const KIND_CLASSES: Record<ChipKind, string> = {
-  overdue: 'bg-destructive',
+  delinquent: 'bg-destructive',
   late: 'bg-warning',
-  'on-time': 'bg-success',
+  'current': 'bg-success',
   paid: 'bg-success',
 };
 
 const KIND_LABELS: Record<ChipKind, string> = {
-  overdue: 'MORA',
+  delinquent: 'MORA',
   late: 'ATRASO',
-  'on-time': 'AL DÍA',
+  'current': 'AL DÍA',
   paid: 'PAGADO',
 };
 

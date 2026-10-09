@@ -10,14 +10,14 @@ describe('toRowViewModel', () => {
       name: 'Marta Gómez',
       initials: 'MG',
       balanceLabel: '$420.000',
-      status: 'overdue',
+      status: 'delinquent',
       daysLabel: '12 días',
       daysAlert: true,
     });
   });
 
   it('un préstamo al día no marca los días en rojo', () => {
-    expect(toRowViewModel({ ...base, overdueAmount: 0, overdueDays: 0 })).toMatchObject({ status: 'on-time', daysLabel: '0 días', daysAlert: false });
+    expect(toRowViewModel({ ...base, overdueAmount: 0, overdueDays: 0 })).toMatchObject({ status: 'current', daysLabel: '0 días', daysAlert: false });
   });
 
   it('un préstamo pagado no está en alerta', () => {

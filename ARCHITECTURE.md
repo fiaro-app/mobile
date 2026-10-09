@@ -143,14 +143,20 @@ La ruta sale de `QUERY /collectors/me/route` (D-88): un préstamo por fila con `
 
 - **Método `QUERY`.** El API usa este método HTTP (búsqueda con cuerpo, sin efectos secundarios) en varias
   rutas. `authedRequest` (`lib/http/authed-request.ts`) lo soporta y manda la cookie a mano
-  (`authClient.getCookie()`) más `expo-origin`; en web lo hace el navegador. Está probado con el API real y en
-  Jest, **no en dispositivo**: si algún Android rechazara el método, el fallo llegaría como "sin conexión".
+  (`authClient.getCookie()`) más `expo-origin`; en web lo hace el navegador. **No hace falta axios**: se leyó el código nativo
+  de React Native 0.86 y ningún camino bloquea el método. iOS (`RCTNetworking.mm`) asigna `request.HTTPMethod` tal cual
+  (en mayúsculas); Android (`NetworkingModule.kt`) solo descarta el cuerpo para `GET` y `HEAD` y pasa el resto a
+  `OkHttp Request.Builder.method(...)`, que acepta `QUERY` con cuerpo; el `fetch` de RN (whatwg-fetch) no toca un método
+  que no conoce; y axios usa el mismo `XMLHttpRequest` nativo, así que no cambia nada. Además está probado con el API real
+  y en Jest. **No se ha corrido en un dispositivo físico**: si algo fallara allí, llegaría como "sin conexión".
 - **Estado conservado.** `useRoute` lanza un error cuando el servicio falla, a propósito: así TanStack Query
   conserva la última ruta buena en `data` y un refresco sin red NO borra la lista. Un 401 cierra la sesión local.
-- **M-13: ATRASO vs MORA.** El API solo da días (`overdueDays`). Se decidió: `0` días = AL DÍA (aunque haya una cuota
-  que vence hoy), `1-7` = ATRASO, `>7` = MORA, saldo `0` = PAGADO. La frontera de 7 días sigue el primer rango del
-  dashboard del Lender (0-7, 8-15, 16-30, 30+, D-100). **Suposición de producto por confirmar:** vive en
-  `LATE_MAX_DAYS` (`features/route/lib/entry-status.ts`).
+- **M-13: ATRASO vs MORA (regla compartida con la web).** El API solo da días (`overdueDays`). Regla confirmada por
+  producto el 2026-10-09 y **idéntica en web y móvil**: saldo `0` = PAGADO (`paid`); `0` días = AL DÍA (`current`, aunque
+  haya una cuota que vence hoy); `1-7` días = ATRASO (`late`); `>7` = MORA (`delinquent`). Los nombres de estado son los
+  del `StatusChip` de la web. La fuente única es `overdueStatus` / `LATE_MAX_DAYS` en `@fiaro-app/contracts` (PR
+  en ese repo); mientras el paquete no esté instalado aquí hay una copia en `features/route/lib/entry-status.ts`,
+  marcada con TSDoc. La frontera de 7 días coincide con el primer rango del dashboard (0-7, 8-15, 16-30, 30+, D-100).
 - **M-14: "Mis clientes" es un filtro local.** El API no tiene un listado de clientes del cobrador (solo su
   ruta); la búsqueda, las pastillas y el rango se aplican en el teléfono sobre la misma lista
   (`lib/client-filter.ts`). Los filtros son estado de pantalla (`useState`), no Zustand.

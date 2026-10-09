@@ -23,7 +23,7 @@ describe('useClientSearch', () => {
     expect(result.current.filtered).toBe(true);
     await act(async () => {
       result.current.setSearch('');
-      result.current.setStatus('overdue');
+      result.current.setStatus('delinquent');
     });
     expect(result.current.results.map((r) => r.clientFullName)).toEqual(['Marta Gómez']);
     await act(async () => {

@@ -6,9 +6,9 @@ export const ROUTE_COPY = {
   rangeTitle: 'Rango de mora',
   statusOptions: [
     { value: 'all', label: 'Todos' },
-    { value: 'on-time', label: 'Al día' },
+    { value: 'current', label: 'Al día' },
     { value: 'late', label: 'Atraso' },
-    { value: 'overdue', label: 'Mora' },
+    { value: 'delinquent', label: 'Mora' },
   ],
   rangeOptions: [
     { value: 'any', label: 'Cualquier rango' },
