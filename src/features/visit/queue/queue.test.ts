@@ -90,7 +90,7 @@ describe('flushVisitQueue', () => {
     await enqueueVisit(item(ID1));
     await enqueueVisit(item(ID2));
     post.mockResolvedValue({ ok: true, value: {} });
-    await flushVisitQueue('u1');
+    expect(await flushVisitQueue('u1')).toBe(2);
     expect(post.mock.calls.map((c) => c[1].id)).toEqual([ID1, ID2]);
     expect(await readQueueFor('u1')).toEqual([]);
     expect(useSyncStore.getState()).toMatchObject({ pending: 0, rejected: 0 });
@@ -110,7 +110,7 @@ describe('flushVisitQueue', () => {
     await enqueueVisit(item(ID1));
     await enqueueVisit(item(ID2));
     post.mockResolvedValueOnce(http(403, 'FORBIDDEN')).mockResolvedValueOnce({ ok: true, value: {} });
-    await flushVisitQueue('u1');
+    expect(await flushVisitQueue('u1')).toBe(1);
     const left = await readQueueFor('u1');
     expect(left.map((i) => [i.request.id, i.status, i.rejectedCode])).toEqual([[ID1, 'rejected', 'FORBIDDEN']]);
     expect(useSyncStore.getState()).toMatchObject({ pending: 0, rejected: 1 });

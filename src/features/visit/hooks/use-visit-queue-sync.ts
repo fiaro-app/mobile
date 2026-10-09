@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import * as Network from 'expo-network';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
@@ -17,11 +18,14 @@ export const RETRY_INTERVAL_MS = 30_000;
  */
 export function useVisitQueueSync(userId: string | null): void {
   const pending = useSyncStore((state) => state.pending);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!userId) return undefined;
     const sync = () => {
-      void flushVisitQueue(userId);
+      void flushVisitQueue(userId).then((sent) => {
+        if (sent > 0) void queryClient.invalidateQueries();
+      });
     };
     void refreshSyncCounts(userId).then(sync);
     const network = Network.addNetworkStateListener((state) => {
@@ -34,15 +38,17 @@ export function useVisitQueueSync(userId: string | null): void {
       network.remove();
       appState.remove();
     };
-  }, [userId]);
+  }, [userId, queryClient]);
 
   useEffect(() => {
     if (!userId || pending === 0) return undefined;
     const timer = setInterval(() => {
-      void flushVisitQueue(userId);
+      void flushVisitQueue(userId).then((sent) => {
+        if (sent > 0) void queryClient.invalidateQueries();
+      });
     }, RETRY_INTERVAL_MS);
     return () => {
       clearInterval(timer);
     };
-  }, [userId, pending]);
+  }, [userId, pending, queryClient]);
 }

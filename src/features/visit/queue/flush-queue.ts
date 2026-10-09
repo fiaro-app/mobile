@@ -21,14 +21,16 @@ export async function refreshSyncCounts(userId: string): Promise<void> {
   useSyncStore.getState().setCounts(pending, items.length - pending);
 }
 
-let flushing: Promise<void> | null = null;
+let flushing: Promise<number> | null = null;
 
-async function runFlush(userId: string): Promise<void> {
+async function runFlush(userId: string): Promise<number> {
+  let sent = 0;
   const pending = (await readQueueFor(userId)).filter((item) => item.status === 'pending');
   for (const item of pending) {
     const result = await postVisit(item.loanId, item.request);
     if (result.ok) {
       await removeVisit(item.request.id);
+      sent += 1;
     } else if (isPermanentRejection(result.failure)) {
       await markRejected(item.request.id, result.failure.kind === 'http' ? result.failure.code : null);
     } else {
@@ -36,6 +38,7 @@ async function runFlush(userId: string): Promise<void> {
     }
   }
   await refreshSyncCounts(userId);
+  return sent;
 }
 
 /**
