@@ -11,7 +11,7 @@ const fetchVersion = jest.mocked(api.fetchMobileVersion);
 const remote = { minimumSupportedVersion: '1.0.0', latestVersion: '1.1.0', downloadUrl: 'https://fiaro.co/app.apk' };
 
 function wrapper({ children }: Readonly<{ children: ReactNode }>) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
