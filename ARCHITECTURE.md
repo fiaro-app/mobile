@@ -242,6 +242,20 @@ Pantalla `settlement` (se abre desde el Perfil). El cobrador declara lo cobrado 
 - **Estados.** `PENDING` (enviado) y `APPROVED` dejan la pantalla de solo lectura; `REJECTED` muestra el comentario del
   prestamista y permite corregir y reenviar.
 
+## 5f. Estadísticas (M-18)
+
+Pantalla `stats` (desde el Perfil): `QUERY /collectors/me/stats` con un `dateRange`. El API solo entrega totales de UN
+período, así que lo demás se arma en la app:
+
+- **Períodos.** Semana (desde el lunes, como en Colombia), mes (desde el día 1) y año (desde el 1 de enero), siempre
+  **hasta hoy** y con la fecha de negocio de Bogotá (`businessDateOf`), no la de UTC (`period-range.ts`).
+- **Comparativo parejo.** Se pide también el período anterior con la MISMA duración transcurrida (a mitad de mes se compara
+  contra la primera mitad del mes pasado; contra el mes completo siempre perdería). El día se recorta si el mes anterior es
+  más corto (31 de marzo → 28 de febrero). Si solo falla ese segundo pedido, las cifras se muestran sin comparativo.
+- **Efectividad** = cobrado / esperado, ya calculada por el API (`null` si no había nada esperado: se muestra `—`).
+- **Cartera vencida** es una foto de HOY, no del período; por eso va aparte y en rojo.
+- Cada rango tiene su clave de caché, así cambiar de período no mezcla datos y volver a uno ya visto es instantáneo.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -309,7 +323,7 @@ pnpm start        # Expo; `i` abre el simulador de iPhone, `a` el emulador de An
 
 ## 9. Pendiente conocido
 
-- Pantallas del resto del diseño: Estadísticas y el Perfil completo (cerrar ruta). El Cuadre (§5e) está hecho con lógica y
+- Pantallas del resto del diseño: el Perfil completo (cerrar ruta). Estadísticas (§5f) hecha, pendiente de revisar en Penpot. El Cuadre (§5e) está hecho con lógica y
   vista, pendiente de revisar contra el mock en Penpot.
 - M-11 contratos instalados; M-12 recuperar contraseña; bloqueo automático por inactividad al volver de segundo
   plano (hoy solo bloquea al abrir en frío); iconos/splash propios (siguen los de la plantilla de Expo).
