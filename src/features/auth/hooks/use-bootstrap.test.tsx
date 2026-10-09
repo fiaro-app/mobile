@@ -19,7 +19,7 @@ const gateState = (status: gate.AppGate['status']): gate.AppGate => ({
 });
 
 function wrapper({ children }: Readonly<{ children: ReactNode }>) {
-  const client = new QueryClient();
+  const client = new QueryClient({ defaultOptions: { queries: { gcTime: 0 } } });
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 

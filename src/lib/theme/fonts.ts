@@ -1,7 +1,5 @@
 import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
-import {
-  IBMPlexMono_500Medium,
-} from '@expo-google-fonts/ibm-plex-mono';
+import { IBMPlexMono_400Regular } from '@expo-google-fonts/ibm-plex-mono';
 import {
   IBMPlexSans_400Regular,
   IBMPlexSans_500Medium,
@@ -19,5 +17,5 @@ export const FONT_SOURCES = {
   IBMPlexSans_400Regular,
   IBMPlexSans_500Medium,
   IBMPlexSans_600SemiBold,
-  IBMPlexMono_500Medium,
+  IBMPlexMono_400Regular,
 } as const;

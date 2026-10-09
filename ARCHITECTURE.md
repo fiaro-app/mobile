@@ -136,6 +136,37 @@ y `compareVersions` (`features/system/lib/version.ts`) y los códigos de error q
 
 La app reacciona al **`code`** estable del error, nunca al texto del mensaje (el API lo traduce y puede cambiarlo).
 
+## 5b. Ruta del día y Mis clientes (M-13, M-14)
+
+La ruta sale de `QUERY /collectors/me/route` (D-88): un préstamo por fila con `balance`, `overdueAmount`,
+`overdueDays` y `nextDueDate`. Cosas que no son obvias:
+
+- **Método `QUERY`.** El API usa este método HTTP (búsqueda con cuerpo, sin efectos secundarios) en varias
+  rutas. `authedRequest` (`lib/http/authed-request.ts`) lo soporta y manda la cookie a mano
+  (`authClient.getCookie()`) más `expo-origin`; en web lo hace el navegador. **No hace falta axios**: se leyó el código nativo
+  de React Native 0.86 y ningún camino bloquea el método. iOS (`RCTNetworking.mm`) asigna `request.HTTPMethod` tal cual
+  (en mayúsculas); Android (`NetworkingModule.kt`) solo descarta el cuerpo para `GET` y `HEAD` y pasa el resto a
+  `OkHttp Request.Builder.method(...)`, que acepta `QUERY` con cuerpo; el `fetch` de RN (whatwg-fetch) no toca un método
+  que no conoce; y axios usa el mismo `XMLHttpRequest` nativo, así que no cambia nada. Además está probado con el API real
+  y en Jest. **No se ha corrido en un dispositivo físico**: si algo fallara allí, llegaría como "sin conexión".
+- **Estado conservado.** `useRoute` lanza un error cuando el servicio falla, a propósito: así TanStack Query
+  conserva la última ruta buena en `data` y un refresco sin red NO borra la lista. Un 401 cierra la sesión local.
+- **M-13: ATRASO vs MORA (regla compartida con la web).** El API solo da días (`overdueDays`). Regla confirmada por
+  producto el 2026-10-09 y **idéntica en web y móvil**: saldo `0` = PAGADO (`paid`); `0` días = AL DÍA (`current`, aunque
+  haya una cuota que vence hoy); `1-7` días = ATRASO (`late`); `>7` = MORA (`delinquent`). Los nombres de estado son los
+  del `StatusChip` de la web. La fuente única es `overdueStatus` / `LATE_MAX_DAYS` en `@fiaro-app/contracts` (PR
+  en ese repo); mientras el paquete no esté instalado aquí hay una copia en `features/route/lib/entry-status.ts`,
+  marcada con TSDoc. La frontera de 7 días coincide con el primer rango del dashboard (0-7, 8-15, 16-30, 30+, D-100).
+- **M-14: "Mis clientes" es un filtro local.** El API no tiene un listado de clientes del cobrador (solo su
+  ruta); la búsqueda, las pastillas y el rango se aplican en el teléfono sobre la misma lista
+  (`lib/client-filter.ts`). Los filtros son estado de pantalla (`useState`), no Zustand.
+- La lista usa `FlatList` (dibuja solo lo visible) con jalar-para-actualizar y esqueleto de carga. El selector de
+  rango es una hoja superpuesta (`OptionSheet`), no el `Modal` de React Native, que lanza una advertencia en la vista
+  web de desarrollo.
+- **Pruebas con datos.** Para ver la ruta con filas se crearon en la base de desarrollo cuatro clientes de prueba
+  asignados a Ana (Marta, Carlos, Yolanda, Diego) por la API, igual que hace Postman. Un préstamo pagado sale de la ruta
+  (solo entran los `ACTIVE`), por eso Diego ya no aparece.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -150,6 +181,10 @@ Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Esta
 | Sin actualización obligatoria | `GET /mobile/version` | Tarjeta "Actualiza la app". |
 | Sin crear PIN | El Login PIN lo presupone | Pantalla "Crea tu PIN" + "Confirma tu PIN". |
 | "¿Olvidaste tu contraseña?" pendiente | `request-password-reset` envía un código **por correo** y un cobrador puede no tener correo | Por ahora pantalla informativa ("habla con tu administrador"). Pendiente de decisión de producto (M-12). |
+| "Mis clientes" con select "Cobrador" | Es el filtro del Lender (web); el cobrador solo ve lo suyo | Se quita el select. |
+| Fila "PAGADO" en la ruta | Un préstamo pagado sale de la ruta (solo entran los `ACTIVE`) | El chip existe pero la ruta no lo muestra hoy; se conserva por si "Mis clientes" gana otra fuente. |
+| Franja "N visitas pendientes de sincronizar" | Depende de la cola de visitas sin conexión (idempotente por `id`, D-29) | Componente listo (`SyncBanner`), sin uso hasta "Registrar visita". |
+| ☰ superpuesto al título de "Ruta de hoy" | El mapa de navegación pide ícono de buscar → Mis clientes y avatar → Perfil | Se usa lupa + avatar a la derecha (mock corregido). |
 
 ## 7. Pruebas, calidad y CI
 
@@ -180,7 +215,7 @@ pnpm start        # Expo; escanea el QR con Expo Go, o pulsa `w` para web
 
 ## 9. Pendiente conocido
 
-- Pantallas del resto del diseño (Ruta del día, Mis clientes, Detalle, Registrar visita, Cuadre, Perfil...). La
-  "Ruta del día" actual es un marcador para probar el ciclo de acceso.
+- Pantallas del resto del diseño: Detalle de cliente, Registrar visita (con cola sin conexión), Confirmación, Cierre de
+  ruta / Cuadre y Estadísticas. El Perfil actual es mínimo (nombre, celular, cerrar sesión).
 - M-11 contratos instalados; M-12 recuperar contraseña; bloqueo automático por inactividad al volver de segundo
   plano (hoy solo bloquea al abrir en frío); iconos/splash propios (siguen los de la plantilla de Expo).

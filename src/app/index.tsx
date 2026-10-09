@@ -1,33 +1,55 @@
-import { View } from 'react-native';
-import { AppText } from '@/components/atoms/AppText';
-import { Button } from '@/components/atoms/Button';
-import { CenteredTemplate } from '@/components/templates/CenteredTemplate';
-import { firstName } from '@/features/auth/lib/names';
-import { completeSignOut } from '@/features/auth/store/session-actions';
-import { useSessionStore } from '@/features/auth/store/session-store';
+import { useRouter } from 'expo-router';
+import { Pressable, View } from 'react-native';
+import { Avatar } from '@/components/atoms/Avatar';
+import { IconButton } from '@/components/atoms/IconButton';
+import { EmptyState } from '@/components/molecules/EmptyState';
+import { TopBar } from '@/components/molecules/TopBar';
+import { ClientList } from '@/components/organisms/ClientList';
+import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
+import { ROUTE_COPY } from '@/features/route/content/messages';
+import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
 
-/**
- * Ruta `/`: la "Ruta del día". Es un marcador: la pantalla real (lista de clientes de la ruta) es
- * el siguiente paso del diseño "3 · Mobile · Cobrador". Existe para poder probar el ciclo completo
- * de acceso (entrar, bloquear, salir).
- */
-export default function HomeScreen() {
-  const user = useSessionStore((state) => state.user);
+/** Ruta `/`: "Ruta de hoy", la pantalla principal del cobrador. */
+export default function RouteScreen() {
+  const router = useRouter();
+  const screen = useRouteScreen();
   return (
-    <CenteredTemplate>
-      <View className="w-full gap-6">
-        <AppText variant="title" className="text-center" accessibilityRole="header">
-          {`Hola, ${firstName(user?.fullName ?? '')}`}
-        </AppText>
-        <AppText className="text-center">Tu ruta del día aparecerá aquí.</AppText>
-        <Button
-          label="Cerrar sesión"
-          variant="outline"
-          onPress={() => {
-            void completeSignOut();
-          }}
+    <ScreenTemplate
+      topBar={
+        <TopBar
+          title={ROUTE_COPY.routeTitle}
+          right={
+            <View className="flex-row items-center gap-1">
+              <IconButton
+                icon="search"
+                label="Buscar clientes"
+                onPress={() => {
+                  router.push('/clients');
+                }}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Mi perfil"
+                hitSlop={8}
+                className="p-1 active:opacity-70"
+                onPress={() => {
+                  router.push('/profile');
+                }}
+              >
+                <Avatar initials={screen.userInitials} size="sm" />
+              </Pressable>
+            </View>
+          }
         />
-      </View>
-    </CenteredTemplate>
+      }
+    >
+      <ClientList
+        items={screen.rows}
+        loading={screen.loading}
+        refreshing={screen.refreshing}
+        onRefresh={screen.refresh}
+        empty={<EmptyState {...screen.empty} onAction={screen.refresh} />}
+      />
+    </ScreenTemplate>
   );
 }
