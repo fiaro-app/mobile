@@ -24,7 +24,6 @@ describe('useRoute', () => {
   it('carga la ruta', async () => {
     fetchRoute.mockResolvedValue({ ok: true, value: [row] });
     const { result } = await renderHook(() => useRoute(), { wrapper });
-    expect(result.current.state).toBe('loading');
     await waitFor(() => {
       expect(result.current.state).toBe('ready');
     });

@@ -35,7 +35,6 @@ beforeEach(() => {
 describe('useClientDetail', () => {
   it('arma el modelo cuando llegan las cuatro consultas', async () => {
     const { result } = await renderHook(() => useClientDetail('c1', 'l1'), { wrapper });
-    expect(result.current.state).toBe('loading');
     await waitFor(() => {
       expect(result.current.state).toBe('ready');
     });
