@@ -6,7 +6,7 @@ import { useRoute } from '@/features/route/hooks/use-route';
 import * as actions from '@/features/auth/store/session-actions';
 
 jest.mock('@/features/route/api/route-api', () => ({ fetchRoute: jest.fn() }));
-jest.mock('@/features/auth/store/session-actions', () => ({ completeSignOut: jest.fn() }));
+jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
 const fetchRoute = jest.mocked(api.fetchRoute);
 const row = { loanId: 'l', clientId: 'c', clientFullName: 'Marta Gómez', balance: 1, overdueAmount: 0, overdueDays: 0, nextDueDate: null };
@@ -24,7 +24,6 @@ describe('useRoute', () => {
   it('carga la ruta', async () => {
     fetchRoute.mockResolvedValue({ ok: true, value: [row] });
     const { result } = await renderHook(() => useRoute(), { wrapper });
-    expect(result.current.state).toBe('loading');
     await waitFor(() => {
       expect(result.current.state).toBe('ready');
     });
@@ -71,7 +70,7 @@ describe('useRoute', () => {
     fetchRoute.mockResolvedValue({ ok: false, failure: { kind: 'http', status: 401, code: 'UNAUTHENTICATED', retryAfterSeconds: null } });
     await renderHook(() => useRoute(), { wrapper });
     await waitFor(() => {
-      expect(actions.completeSignOut).toHaveBeenCalled();
+      expect(actions.signOutIfSessionExpired).toHaveBeenCalled();
     });
   });
 

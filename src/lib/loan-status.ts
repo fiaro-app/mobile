@@ -1,5 +1,3 @@
-import type { RouteEntry } from '@/features/route/lib/route-entry';
-
 /**
  * Estado de un préstamo para el cobrador (los chips del diseño):
  * - `paid`: saldo cero.
@@ -21,7 +19,7 @@ export type EntryStatus = 'paid' | 'current' | 'late' | 'delinquent';
 export const LATE_MAX_DAYS = 7;
 
 /** Clasifica una fila de la ruta. `paid` gana sobre lo demás: un saldo cero no puede estar en mora. */
-export function classifyEntry(entry: Pick<RouteEntry, 'balance' | 'overdueDays'>): EntryStatus {
+export function classifyEntry(entry: { readonly balance: number; readonly overdueDays: number }): EntryStatus {
   if (entry.balance <= 0) return 'paid';
   if (entry.overdueDays <= 0) return 'current';
   return entry.overdueDays > LATE_MAX_DAYS ? 'delinquent' : 'late';

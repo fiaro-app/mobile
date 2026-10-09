@@ -50,3 +50,12 @@ export async function completePinExhausted(): Promise<void> {
   await resetPinDeclined();
   useSessionStore.getState().signedOut();
 }
+
+/**
+ * Cierra la sesión local si el API dijo que ya no hay sesión (401): la cookie murió en el servidor y
+ * seguir mostrando pantallas protegidas solo daría errores. Las pantallas con datos del API lo llaman
+ * ante cualquier fallo, y no hace nada con los demás.
+ */
+export function signOutIfSessionExpired(failure: ApiFailure): void {
+  if (failure.kind === 'http' && failure.status === 401) void completeSignOut();
+}

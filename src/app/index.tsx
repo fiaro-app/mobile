@@ -12,6 +12,9 @@ import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
 /** Ruta `/`: "Ruta de hoy", la pantalla principal del cobrador. */
 export default function RouteScreen() {
   const router = useRouter();
+  const openClient = (row: { id: string; clientId: string }) => {
+    router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
+  };
   const screen = useRouteScreen();
   return (
     <ScreenTemplate
@@ -44,7 +47,7 @@ export default function RouteScreen() {
       }
     >
       <ClientList
-        items={screen.rows}
+        items={screen.rows.map((row) => ({ ...row, onPress: () => openClient(row) }))}
         loading={screen.loading}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}

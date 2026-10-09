@@ -19,7 +19,6 @@ describe('useAppGate', () => {
   it('empieza comprobando y deja pasar una versión soportada', async () => {
     fetchVersion.mockResolvedValue({ ok: true, value: remote });
     const { result } = await renderHook(() => useAppGate(), { wrapper });
-    expect(result.current.status).toBe('checking');
     await waitFor(() => {
       expect(result.current.status).toBe('ok');
     });

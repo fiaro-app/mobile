@@ -1,4 +1,4 @@
-import { classifyEntry, type EntryStatus } from '@/features/route/lib/entry-status';
+import { classifyEntry, type EntryStatus } from '@/lib/loan-status';
 import type { RouteEntry } from '@/features/route/lib/route-entry';
 
 /** Opciones de las pastillas de "Mis clientes". `all` no filtra; `paid` no tiene pastilla en el diseño. */
