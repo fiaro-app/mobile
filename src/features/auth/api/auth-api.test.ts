@@ -19,7 +19,7 @@ const mockClient = jest.mocked(authClient, { shallow: false });
 const mockStorage = jest.mocked(secureStorage);
 
 const authUser = { id: 'u1', name: 'Ana Pérez', phoneNumber: '+573001234567', mustChangePassword: false };
-const asUser = { id: 'u1', fullName: 'Ana Pérez', phone: '+573001234567', mustChangePassword: false };
+const asUser = { id: 'u1', fullName: 'Ana Pérez', phone: '+573001234567', mustChangePassword: false, contactEmail: null, contactEmailVerified: false };
 
 beforeEach(() => {
   jest.clearAllMocks();

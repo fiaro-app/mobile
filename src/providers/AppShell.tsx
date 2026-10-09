@@ -51,6 +51,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="index" />
         <Stack.Screen name="clients" />
         <Stack.Screen name="profile" />
+        <Stack.Screen name="profile-edit" />
         <Stack.Screen name="settlement" />
         <Stack.Screen name="stats" />
         <Stack.Screen name="notifications" />

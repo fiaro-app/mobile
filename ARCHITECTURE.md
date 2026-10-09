@@ -275,6 +275,18 @@ Bandeja `notifications` (campana con globo de sin leer en la Ruta) y registro de
 - **Para que llegue push de verdad** (acción tuya, no de código): `eas init` (crea el `projectId` en `app.json`), credenciales
   FCM de Firebase para Android y APNs para iOS (`eas credentials`), y una development build (`eas build --profile development`).
 
+## 5h. Perfil y cuenta (M-20)
+
+`profile` es ahora un menú (editar perfil, cuadre, estadísticas, notificaciones, cerrar sesión) y `profile-edit` edita la cuenta:
+
+- **`PATCH /account/profile`** cambia nombre y/o correo de contacto. Se envía SOLO lo que cambió (`toProfileChanges`); sin cambios no se
+  llama al API (el PATCH exige al menos un campo). Cambiar el correo reinicia su verificación, y la respuesta trae el nuevo estado,
+  con el que se actualiza la sesión local.
+- **El correo vive en la sesión de better-auth.** El API no tiene `GET /account/profile`: `contactEmail` y `contactEmailVerified`
+  vienen en el `user` que devuelve better-auth y por eso `SessionUser` los lleva (opcionales, normalizados a `null`/`false`).
+- **Verificar el correo:** `POST /account/contact-email/request-verification` manda un código de 6 dígitos y
+  `/verify` lo confirma. La sección solo aparece con correo sin verificar. Los fallos se traducen por el `code` estable del API.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
