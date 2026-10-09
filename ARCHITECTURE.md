@@ -1,0 +1,186 @@
+# Arquitectura de la app móvil
+
+Documento técnico de `fiaro-app/mobile`. Explica **por qué** está hecha así y las cosas de móvil que no son
+obvias. Las decisiones llevan un código `M-xx` para poder referirse a ellas desde el código y los PR (igual que
+las `D-xx` del API). El dominio y el producto están en [`api/PRODUCT.md`](https://github.com/fiaro-app/api/blob/dev/PRODUCT.md).
+
+## 1. Stack y por qué
+
+| Pieza | Elección | Por qué (y qué se descartó) |
+|---|---|---|
+| Framework | Expo SDK 57 (React Native 0.86, React 19, React Compiler) | Distribución por APK + OTA sin tiendas (ver README). El compilador de React evita escribir `useMemo`/`useCallback` a mano. |
+| Rutas | Expo Router (`src/app/`) | Cada archivo es una pantalla; `Stack.Protected` esconde pantallas según el estado de acceso (M-05). |
+| Estilos | **Uniwind** + Tailwind 4 | Misma sintaxis de clases y mismos nombres de token que la web. Se descartó NativeWind: su v5 (la que usa Tailwind 4) sigue en release candidate; Uniwind es estable y más rápido (M-01). |
+| Estado de cliente | Zustand | Qué pantalla toca, si está desbloqueada. Ligero y testeable sin React. Igual que la web. |
+| Estado de servidor | TanStack Query | Lo que viene del API y se puede volver a pedir (versión mínima, restaurar sesión): carga, error y reintento sin escribirlos a mano. |
+| Formularios | react-hook-form + zod | Validación declarativa y "mientras se escribe" sin re-renderizar todo el formulario. |
+| Autenticación | `better-auth` + `@better-auth/expo` | Es el mismo motor del API: el cliente ya sabe guardar la cookie de sesión y mandar `expo-origin` (M-06). |
+| Secretos | `expo-secure-store` | Keychain (iOS) / Keystore (Android). Nunca `AsyncStorage` para cookies o PIN. |
+| Huella / rostro | `expo-local-authentication` | API nativa del sistema; no se guarda ningún dato biométrico. |
+| Fuentes | `@expo-google-fonts/*` | Fraunces (marca), IBM Plex Sans (cuerpo) e IBM Plex Mono, las del diseño. |
+
+Versiones: se usa la última **estable**, no la más nueva (criterio del proyecto). `uniwind` está fijada en 1.12.1.
+
+## 2. Estructura y reglas de dependencia (M-02, M-03)
+
+```
+src/
+  app/          Rutas. Cada archivo es DELGADO: llama a un hook de lógica y pinta un organismo.
+  components/   Diseño puro (Atomic Design): atoms → molecules → organisms → templates.
+  features/     Lógica por dominio: auth/ y system/ (api, hooks, store, lib, schemas, content).
+  providers/    AppShell (decide qué se ve) y el cliente de TanStack Query.
+  lib/          Utilidades sin dominio: http, storage, tema, resultado, formularios.
+  global.css    Tokens de diseño (colores, radios, tipografía).
+```
+
+La regla que más importa: **la lógica y el diseño no se mezclan**.
+
+- `components/` solo recibe datos y callbacks por props. ESLint prohíbe que importe de `features/`, `providers/`
+  o `app/`. Por eso un componente se puede cambiar de aspecto (o rehacer cuando cambie el diseño de Penpot) sin
+  tocar nada de lógica, y se puede reutilizar en otra pantalla.
+- `features/*/hooks` contiene toda la lógica de una pantalla y devuelve un objeto con exactamente lo que el
+  diseño necesita (`FieldProps`, `PinEntry`...). No importan componentes.
+- `src/app/*.tsx` es el único sitio donde se unen: `const form = useLoginForm(); return <LoginForm {...form} />`.
+- Imports siempre con el alias `@/` (nunca `./` ni `../`) y archivos de máximo 200 líneas: ambos los
+  hace cumplir ESLint (`eslint.config.js`).
+- Los servicios devuelven `Result<T, Fallo>` (`lib/result.ts`) en vez de lanzar excepciones: el compilador
+  obliga a decidir qué hacer con cada fallo y las pantallas no necesitan `try/catch`.
+
+## 3. Cómo está hecho el diseño (lo que no es obvio si vienes de web)
+
+- **No existe el hover.** Un dedo no "pasa por encima". El estado equivalente es *presionado* (`active:`), que aquí
+  baja la opacidad. El foco de teclado casi no se usa; sí el foco del campo de texto (borde de marca).
+- **Zonas seguras (`safe area`).** Los teléfonos tienen muescas y barras de gestos. Las plantillas
+  (`AuthTemplate`, `CenteredTemplate`, `PinTemplate`) suman `useSafeAreaInsets()` al relleno. Si dibujas una
+  pantalla nueva sin plantilla, el contenido quedará debajo de la muesca.
+- **El teclado tapa la pantalla.** `AuthTemplate` usa `KeyboardAvoidingView` + `ScrollView` con
+  `keyboardShouldPersistTaps="handled"`: sin ese último ajuste, el primer toque sobre un botón con el teclado
+  abierto solo cierra el teclado y el cobrador tendría que tocar dos veces.
+- **Tamaño táctil.** Mínimo ~44 px (iOS) / 48 dp (Android). Los botones miden 48 px; los enlaces de texto
+  amplían su zona con `hitSlop` sin cambiar cómo se ven; las teclas del PIN miden 72 px porque se usan con una mano
+  y de pie en la calle.
+- **Fuentes: una por peso.** En React Native `font-bold` no sirve con fuentes propias: cada peso es una fuente
+  distinta registrada con su nombre (`Fraunces_700Bold`...). Por eso hay clases `font-display`,
+  `font-sans-medium`, etc. (`global.css`) y el único componente de texto es `AppText` con `variant`. Los nombres
+  de `global.css` deben coincidir con `lib/theme/fonts.ts`.
+- **Tokens.** Los colores, radios y tamaños de `global.css` salen de Penpot › "1 · Fundamentos" y tienen los
+  mismos nombres que la web (`bg-primary`, `text-destructive`, `rounded-md`...). No se escriben colores sueltos
+  en clases. Excepción: los íconos de `@expo/vector-icons` no aceptan clases y llevan el hex (documentado en
+  `IconBadge`).
+- **Color de marca por Lender.** `applyBrandColor(hex)` cambia `--color-primary` en ejecución con
+  `Uniwind.updateCSSVariables` (por eso las variables viven en `@theme` y no en `@variant`). Todavía no hay campo
+  en el API que lo alimente (D-102 del backend); el mecanismo ya existe y está probado.
+- **Solo tema claro**, igual que el diseño (`userInterfaceStyle: "light"`).
+- **Accesibilidad.** Cada control lleva `accessibilityRole`/`Label`; los errores `accessibilityRole="alert"` con
+  `liveRegion` para que TalkBack/VoiceOver los lean al aparecer; los campos se unen a su etiqueta con
+  `accessibilityLabelledBy` (`FormField`).
+
+## 4. Acceso, sesión y PIN (M-05 a M-08)
+
+### Estados de acceso
+
+`features/auth/lib/access.ts` es una función pura que, a partir de `{ready, user, pinEnabled, unlocked,
+pinOfferPending}`, devuelve **un** estado, y `AppShell` muestra solo las pantallas de ese estado:
+
+```
+booting ──► signed-out ──login──► (cambio de contraseña) ──► (oferta de PIN) ──► signed-in
+   │              ▲                       must-change-password      offer-pin
+   └─► locked ────┘  (PIN agotado / "usar contraseña")
+```
+
+Ninguna pantalla navega "a mano" tras entrar o salir: cambia el estado y `Stack.Protected` redirige. Así
+es imposible llegar a una pantalla protegida con la URL (en web) o con un enlace profundo.
+Orden de prioridad: con PIN y sin desbloquear **siempre** gana `locked`; la oferta de PIN va después del cambio de
+contraseña temporal para no pedir dos cosas a la vez.
+
+### Cookie de sesión (M-06)
+
+El API usa cookies de better-auth (no tokens en el cuerpo). React Native no tiene "jar" de cookies, así que
+`expoClient` guarda la cookie en SecureStore y la reenvía en cada petición. Dos detalles que rompen si se
+cambian:
+
+- `cookiePrefix: 'fiaro'` debe ser igual a `SESSION_COOKIE_PREFIX` del API; con otro, el cliente no reconoce la
+  cookie y nunca la guarda.
+- El API valida el origen: la app manda `expo-origin: mobile://` (el `scheme` de `app.json`) y debe estar en
+  `MOBILE_APP_SCHEMES` del API (por defecto `mobile`). Cambiar el `scheme` exige cambiar esa variable.
+- La sesión dura 30 días y el API la renueva sola con el uso; al cerrar sesión se borra la cookie local **aunque
+  no haya red** (`signOut` en `auth-api.ts`).
+
+### PIN y huella (M-07)
+
+El API **no tiene** concepto de PIN: es un bloqueo local de la app que protege la sesión ya guardada.
+
+- Se guarda el hash (SHA-256 con sal aleatoria) en SecureStore, nunca el PIN. Aun así, 4 dígitos son 10.000
+  combinaciones: la defensa real es el **contador de intentos** (5; al agotarlo se borra el PIN y se pide
+  celular y contraseña) y que el hash viva en el Keychain/Keystore.
+- La huella desbloquea sin PIN pero **no** reemplaza la sesión: si la sesión venció en el servidor, al arrancar se
+  borra el PIN y se vuelve al login (`bootSession`).
+- "Ahora no" al crear el PIN se recuerda para no insistir; cerrar sesión borra PIN y esa decisión (otra persona
+  puede usar el teléfono).
+
+### Puerta de versión y estados de bloqueo (M-08)
+
+Al abrir la app, antes de cualquier pantalla: `GET /mobile/version` → si la versión instalada es menor que
+`minimumSupportedVersion` se muestra "Actualiza la app" (el README ya lo exigía). Sin red o con el API en
+mantenimiento (503 `MAINTENANCE`) se muestra su tarjeta con "Reintentar". La puerta va primero a propósito: con
+una versión sin soporte ni se intenta leer la sesión.
+
+## 5. Contrato con el API y qué se copió
+
+`@fiaro-app/contracts` es privado (GitHub Packages) y **todavía no está instalado aquí**. Mientras tanto hay
+copias mínimas, cada una con TSDoc que lo dice: `toMobileE164` (`features/auth/lib/phone.ts`), `MobileVersionSchema`
+y `compareVersions` (`features/system/lib/version.ts`) y los códigos de error que la app reconoce
+(`auth-failure.ts`). **Pendiente (M-11):** instalar el paquete (`NODE_AUTH_TOKEN=$(gh auth token) pnpm add
+@fiaro-app/contracts`) y reemplazar las copias por imports; el CI ya necesita el mismo paso que la web
+(`registry-url` + `packages: read`).
+
+La app reacciona al **`code`** estable del error, nunca al texto del mensaje (el API lo traduce y puede cambiarlo).
+
+## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
+
+Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
+
+| Mock original | Realidad del API | Decisión |
+|---|---|---|
+| Login valida contraseña "mínimo 8 caracteres" | El API solo exige no vacía al iniciar sesión (no revela la política) | Login: "Ingresa tu contraseña." El mínimo 8 solo se valida al **crear** una contraseña. |
+| "Crea tu contraseña" pide nueva + confirmar | `change-password` exige la contraseña actual (la temporal) | Se agregó el campo "Contraseña temporal" y el error `PASSWORD_TOO_WEAK`. |
+| "En mantenimiento" muestra "Tiempo estimado: 15 minutos" | El API no entrega ese dato | Se quita esa línea. |
+| Sin pantalla de bloqueo por intentos | `SIGN_IN_LOCKED` (429 + `Retry-After`, 15 min tras 5 fallos) | Mensaje con la espera en minutos. |
+| Sin cuenta desactivada | `ACCOUNT_DEACTIVATED` (403) | Mensaje sobre el formulario. |
+| Sin actualización obligatoria | `GET /mobile/version` | Tarjeta "Actualiza la app". |
+| Sin crear PIN | El Login PIN lo presupone | Pantalla "Crea tu PIN" + "Confirma tu PIN". |
+| "¿Olvidaste tu contraseña?" pendiente | `request-password-reset` envía un código **por correo** y un cobrador puede no tener correo | Por ahora pantalla informativa ("habla con tu administrador"). Pendiente de decisión de producto (M-12). |
+
+## 7. Pruebas, calidad y CI
+
+- **Qué se prueba:** toda la lógica (`src/lib`, `src/features`): reglas puras, servicios con el cliente simulado,
+  hooks con `@testing-library/react-native` y el store. Cobertura ≥ 90 %.
+- **Qué no se mide:** `components/`, `app/` y `providers/` (presentación) se excluyen de la cobertura de Sonar
+  (`sonar.coverage.exclusions`) porque no tienen lógica; esa es justo la razón de separarla. Se verifican a mano en
+  el navegador/dispositivo y en revisión de diseño.
+- **CI** (`.github/workflows/ci.yml`): lint → typecheck → tests con cobertura → *bundle check*
+  (`expo export` de Android, atrapa errores de Metro/Uniwind que los tests no ven) → typedoc → Sonar.
+- Mocks de Jest: las variables que usa una fábrica de `jest.mock` deben llamarse `mock*` o crearse dentro de la
+  fábrica (babel-jest las eleva sobre los imports; si no, falla con "out-of-scope variables").
+
+## 8. Cómo ejecutar y verificar
+
+```bash
+pnpm install
+pnpm start        # Expo; escanea el QR con Expo Go, o pulsa `w` para web
+```
+
+- API local: `pnpm docker:dev` en el repo `api` (puerto 3040). Los usuarios de prueba salen de `pnpm docker:seed`.
+- En un teléfono físico `localhost` es el teléfono: copia `.env.example` a `.env.local` y pon la IP de tu máquina.
+- **Vista web (solo para desarrollo).** Sirve para ver y probar la interfaz sin emulador, pero no es la app real:
+  allí `expo-secure-store` se reemplaza por `localStorage` (inseguro, ver `secure-storage.ts`), la cookie la maneja
+  el navegador y no hay huella. Para probarla, el API necesita `http://localhost:8081` en su `CORS_ORIGINS`.
+- **Expo Go vs build de desarrollo:** `expo-local-authentication` y `expo-secure-store` funcionan en Expo Go;
+  si se agrega una librería con código nativo propio hará falta `expo run:android` o un build de EAS.
+
+## 9. Pendiente conocido
+
+- Pantallas del resto del diseño (Ruta del día, Mis clientes, Detalle, Registrar visita, Cuadre, Perfil...). La
+  "Ruta del día" actual es un marcador para probar el ciclo de acceso.
+- M-11 contratos instalados; M-12 recuperar contraseña; bloqueo automático por inactividad al volver de segundo
+  plano (hoy solo bloquea al abrir en frío); iconos/splash propios (siguen los de la plantilla de Expo).

@@ -29,8 +29,11 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Test
-        run: pnpm run test
+      - name: Tests with coverage
+        run: pnpm run test:cov
+
+      - name: Bundle check
+        run: pnpm run build
 
       - name: Generate docs
         run: pnpm run docs
