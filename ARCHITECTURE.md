@@ -148,7 +148,10 @@ La ruta sale de `QUERY /collectors/me/route` (D-88): un préstamo por fila con `
   (en mayúsculas); Android (`NetworkingModule.kt`) solo descarta el cuerpo para `GET` y `HEAD` y pasa el resto a
   `OkHttp Request.Builder.method(...)`, que acepta `QUERY` con cuerpo; el `fetch` de RN (whatwg-fetch) no toca un método
   que no conoce; y axios usa el mismo `XMLHttpRequest` nativo, así que no cambia nada. Además está probado con el API real
-  y en Jest. **No se ha corrido en un dispositivo físico**: si algo fallara allí, llegaría como "sin conexión".
+  y en Jest, y **verificado de punta a punta en los dos sistemas** (2026-10-09): en el simulador de iOS el `fetch` nativo
+  (CFNetwork) llegó al API como `QUERY` con cuerpo JSON, y en el emulador de Android (OkHttp 4.12) la ruta del día cargó
+  con 200 tras iniciar sesión (los logs del API muestran el método y el agente de cada plataforma). No se ha corrido en
+  un teléfono físico: si algo fallara allí, llegaría como "sin conexión".
 - **Estado conservado.** `useRoute` lanza un error cuando el servicio falla, a propósito: así TanStack Query
   conserva la última ruta buena en `data` y un refresco sin red NO borra la lista. Un 401 cierra la sesión local.
 - **M-13: ATRASO vs MORA (regla compartida con la web).** El API solo da días (`overdueDays`). Regla confirmada por
@@ -202,16 +205,31 @@ Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Esta
 
 ```bash
 pnpm install
-pnpm start        # Expo; escanea el QR con Expo Go, o pulsa `w` para web
+pnpm start        # Expo; `i` abre el simulador de iPhone, `a` el emulador de Android, `w` la vista web
 ```
 
 - API local: `pnpm docker:dev` en el repo `api` (puerto 3040). Los usuarios de prueba salen de `pnpm docker:seed`.
-- En un teléfono físico `localhost` es el teléfono: copia `.env.example` a `.env.local` y pon la IP de tu máquina.
-- **Vista web (solo para desarrollo).** Sirve para ver y probar la interfaz sin emulador, pero no es la app real:
-  allí `expo-secure-store` se reemplaza por `localStorage` (inseguro, ver `secure-storage.ts`), la cookie la maneja
-  el navegador y no hay huella. Para probarla, el API necesita `http://localhost:8081` en su `CORS_ORIGINS`.
-- **Expo Go vs build de desarrollo:** `expo-local-authentication` y `expo-secure-store` funcionan en Expo Go;
-  si se agrega una librería con código nativo propio hará falta `expo run:android` o un build de EAS.
+- **¿iPhone o Android?** Los cobradores usarán el APK de Android (README), así que Android es el que importa para
+  producción; el simulador de iPhone es el más rápido de abrir y sirve para casi todo el diseño. Ambos funcionan.
+- **Simulador de iPhone (Xcode).** Basta con tener Xcode instalado; `pnpm ios` instala Expo Go solo. `localhost` del
+  simulador es tu Mac, así que el API se ve sin configurar nada.
+- **Emulador de Android (Android Studio).** Hace falta un dispositivo virtual (Device Manager) y que `adb`
+  esté en el PATH: `export ANDROID_HOME=$HOME/Library/Android/sdk` y
+  `export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools`. Arráncalo con
+  `emulator -avd <nombre>`. **`localhost` dentro del emulador es el propio emulador**, no tu Mac: por eso se ejecuta
+  `adb reverse tcp:3040 tcp:3040` y `adb reverse tcp:8081 tcp:8081` (el API y Metro) y luego `pnpm android`.
+- En un teléfono físico copia `.env.example` a `.env.local` y pon la IP de tu máquina.
+- **Expo Go vs build de desarrollo.** Expo Go (lo que usan `pnpm ios/android`) ya trae `expo-secure-store` y
+  `expo-local-authentication`. Si se agrega una librería con código nativo propio hará falta `expo run:android|ios` o
+  un build de EAS. El botón azul con engranaje que se ve sobre la app en Expo Go es su menú de desarrollo, no es de Fiaro.
+- **Vista web (solo desarrollo).** Sirve para ver y probar la interfaz sin emulador, pero no es la app real: allí
+  `expo-secure-store` se reemplaza por `localStorage` (inseguro, ver `secure-storage.ts`), la cookie la maneja el
+  navegador y no hay huella. El API necesita `http://localhost:8081` en su `CORS_ORIGINS`.
+- **Pruebas automatizadas con una herramienta (no a mano).** La herramienta que escribe en el simulador de iPhone
+  convierte el guion `-` en `'`, así que una contraseña con guiones no se puede teclear con ella; se escribe a mano en
+  el panel. No es un fallo de la app.
+- Un cambio en `src/global.css` o en las rutas puede necesitar `r` (recargar) en la terminal de Expo; los tipos de
+  rutas (`.expo/types`) se regeneran al reiniciar el servidor.
 
 ## 9. Pendiente conocido
 
