@@ -31,7 +31,7 @@ function Divider() {
 /**
  * Detalle de un cliente (diseño "Detalle de cliente"): cabecera con avatar, nombre y estado; tarjeta de
  * datos; historial de visitas y, fija abajo, la barra con "Llamar" y "Registrar visita". Solo dibuja:
- * todo llega formateado desde `useClientDetail`. La barra de acciones respeta la zona segura inferior.
+ * la información llega ya formateada desde `useClientDetail`. La barra de acciones respeta la zona segura inferior.
  */
 export function ClientDetailView(props: Readonly<ClientDetailViewProps>) {
   const insets = useSafeAreaInsets();
