@@ -28,7 +28,7 @@ describe('cola de visitas', () => {
     await enqueueVisit(item(ID1));
     await enqueueVisit(item(ID1));
     await enqueueVisit(item(ID2, 'u2'));
-    expect((await readQueue()).length).toBe(2);
+    expect(await readQueue()).toHaveLength(2);
     expect((await readQueueFor('u1')).map((i) => i.request.id)).toEqual([ID1]);
   });
 
@@ -63,7 +63,7 @@ describe('submitVisit', () => {
   it('sin conexión la guarda y actualiza el contador', async () => {
     post.mockResolvedValue(offline);
     expect(await submitVisit(input)).toEqual({ kind: 'queued' });
-    expect((await readQueue()).length).toBe(1);
+    expect(await readQueue()).toHaveLength(1);
     expect(useSyncStore.getState().pending).toBe(1);
   });
 
@@ -102,7 +102,7 @@ describe('flushVisitQueue', () => {
     post.mockResolvedValueOnce(offline);
     await flushVisitQueue('u1');
     expect(post).toHaveBeenCalledTimes(1);
-    expect((await readQueueFor('u1')).length).toBe(2);
+    expect(await readQueueFor('u1')).toHaveLength(2);
     expect(useSyncStore.getState().pending).toBe(2);
   });
 

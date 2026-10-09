@@ -70,6 +70,6 @@ describe('rescheduleOptions', () => {
 
   it('cruza el fin de mes y de año', () => {
     expect(rescheduleOptions('2026-12-31', 2).map((o) => o.value)).toEqual(['2027-01-01', '2027-01-02']);
-    expect(rescheduleOptions('2026-10-09').length).toBe(14);
+    expect(rescheduleOptions('2026-10-09')).toHaveLength(14);
   });
 });

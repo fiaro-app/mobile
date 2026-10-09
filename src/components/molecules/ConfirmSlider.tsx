@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { AppText } from '@/components/atoms/AppText';
 import { successHaptic } from '@/lib/haptics';
 
@@ -38,7 +39,7 @@ export function ConfirmSlider({ label, onConfirm, disabled = false }: Readonly<C
     })
     .onEnd(() => {
       if (offset.value >= travel * THRESHOLD) {
-        runOnJS(confirm)();
+        scheduleOnRN(confirm);
         offset.value = withSpring(0);
       } else {
         offset.value = withSpring(0);
