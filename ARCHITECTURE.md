@@ -148,9 +148,10 @@ La ruta sale de `QUERY /collectors/me/route` (D-88): un préstamo por fila con `
   (en mayúsculas); Android (`NetworkingModule.kt`) solo descarta el cuerpo para `GET` y `HEAD` y pasa el resto a
   `OkHttp Request.Builder.method(...)`, que acepta `QUERY` con cuerpo; el `fetch` de RN (whatwg-fetch) no toca un método
   que no conoce; y axios usa el mismo `XMLHttpRequest` nativo, así que no cambia nada. Además está probado con el API real
-  y en Jest, y **verificado en el simulador de iOS**: el `fetch` nativo (CFNetwork) llegó al API como `QUERY` con cuerpo
-  JSON (respondió 401 por no tener sesión; quedó en los logs del API). Android se verificó solo leyendo el código y,
-  luego, en el emulador (ver §8). No se ha corrido en un teléfono físico: si algo fallara allí, llegaría como "sin conexión".
+  y en Jest, y **verificado de punta a punta en los dos sistemas** (2026-10-09): en el simulador de iOS el `fetch` nativo
+  (CFNetwork) llegó al API como `QUERY` con cuerpo JSON, y en el emulador de Android (OkHttp 4.12) la ruta del día cargó
+  con 200 tras iniciar sesión (los logs del API muestran el método y el agente de cada plataforma). No se ha corrido en
+  un teléfono físico: si algo fallara allí, llegaría como "sin conexión".
 - **Estado conservado.** `useRoute` lanza un error cuando el servicio falla, a propósito: así TanStack Query
   conserva la última ruta buena en `data` y un refresco sin red NO borra la lista. Un 401 cierra la sesión local.
 - **M-13: ATRASO vs MORA (regla compartida con la web).** El API solo da días (`overdueDays`). Regla confirmada por
