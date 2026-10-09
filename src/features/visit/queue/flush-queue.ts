@@ -46,7 +46,7 @@ async function runFlush(userId: string): Promise<number> {
  * mantenimiento, 5xx, sesión vencida): seguir mandando las demás solo gastaría batería y las dejaría
  * fuera de orden. Dos llamadas a la vez comparten el mismo envío (nunca corre doble).
  */
-export function flushVisitQueue(userId: string): Promise<void> {
+export function flushVisitQueue(userId: string): Promise<number> {
   flushing ??= runFlush(userId).finally(() => {
     flushing = null;
   });
