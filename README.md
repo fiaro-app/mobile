@@ -8,7 +8,9 @@ Documento de dominio y producto (entidades, multi-tenancy, suscripciones, roadma
 
 ## Stack
 
-Expo (React Native, managed workflow) · TypeScript · Expo Router · pnpm
+Expo (React Native, managed workflow) · TypeScript · Expo Router · Uniwind (Tailwind 4) · Zustand · TanStack Query · better-auth · pnpm
+
+Arquitectura, decisiones y notas de diseño móvil: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 > Expo cambia cada release. Antes de tocar cualquier API de Expo/EAS/React Native, revisar la versión del SDK en `package.json` y la documentación versionada correspondiente — ver `AGENTS.md`.
 
@@ -31,33 +33,34 @@ Sin Google Play ni App Store por ahora:
 
 ```bash
 pnpm install
-pnpm start
+pnpm start        # `w` abre la vista web (solo desarrollo), o escanea el QR con Expo Go
 ```
 
-Desde ahí, abre la app en un [build de desarrollo](https://docs.expo.dev/develop/development-builds/introduction/), [emulador Android](https://docs.expo.dev/workflow/android-studio-emulator/), [simulador iOS](https://docs.expo.dev/workflow/ios-simulator/) o [Expo Go](https://expo.dev/go).
-
-## Scripts
+La app necesita el API: en el repo `api`, `pnpm docker:dev` lo deja en `http://localhost:3040` y `pnpm docker:seed`
+crea los usuarios de prueba. En un teléfono físico copia `.env.example` a `.env.local` y pon la IP de tu máquina.
+Para la vista web, el API debe tener `http://localhost:8081` en `CORS_ORIGINS`.
 
 | Comando | Qué hace |
 |---|---|
 | `pnpm start` | Servidor de desarrollo de Expo |
 | `pnpm android` / `pnpm ios` / `pnpm web` | Arranca en esa plataforma |
-| `pnpm lint` | `expo lint` |
+| `pnpm lint` | `expo lint` (incluye alias `@/`, máx. 200 líneas y la frontera diseño/lógica) |
 | `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm test` | Tests (Jest + `jest-expo`) |
-| `pnpm docs` | Genera documentación (TypeDoc) de `src/lib` en `docs/` |
+| `pnpm test` / `pnpm test:cov` | Tests (Jest + `jest-expo`); el segundo con cobertura |
+| `pnpm build` | Comprueba que la app compila (`expo export` de Android) |
+| `pnpm docs` | Genera documentación (TypeDoc) de `src/lib` y `src/features` en `docs/` |
 
-El pipeline de CI (`.github/workflows/ci.yml`) corre lint → typecheck → test → docs → análisis de Sonar en cada PR y en cada push a `dev`. No hay `build` en CI porque una app Expo no compila un binario sin EAS.
+El pipeline de CI (`.github/workflows/ci.yml`) corre lint → typecheck → tests con cobertura → bundle check → docs → análisis de Sonar en cada PR y en cada push a `dev`.
 
 ## Estructura
 
 ```
 src/
-  app/          # Rutas (Expo Router) — cada archivo es una pantalla
-  components/    # Componentes reutilizables, fuera de app/
-  hooks/         # Hooks compartidos
-  constants/     # Theme, constantes de la app
-  lib/            # Utilidades puras, testeadas con Jest
+  app/          # Rutas (Expo Router): delgadas, solo unen un hook con un componente
+  components/   # Diseño puro (atoms / molecules / organisms / templates), sin lógica
+  features/     # Lógica por dominio (auth, system): api, hooks, store, lib, schemas
+  providers/    # AppShell (qué se ve según el estado) y TanStack Query
+  lib/          # Utilidades sin dominio, testeadas con Jest
 ```
 
 `ios/` y `android/` no existen todavía — si aparecen, son generados (Continuous Native Generation) y no se editan a mano; el comportamiento nativo se configura en `app.json`.

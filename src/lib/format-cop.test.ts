@@ -1,4 +1,4 @@
-import { formatCop } from './format-cop';
+import { formatCop } from '@/lib/format-cop';
 
 describe('formatCop', () => {
   it('formats an integer COP amount with thousands separators', () => {
