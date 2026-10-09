@@ -40,6 +40,14 @@ export default function ProfileScreen() {
             router.push('/settlement');
           }}
         />
+        <Button
+          label="Estadísticas"
+          variant="outline"
+          className="mt-3 w-full"
+          onPress={() => {
+            router.push('/stats');
+          }}
+        />
         <Button label="Cerrar sesión" variant="outline" className="mt-3 w-full" onPress={profile.signOut} />
       </View>
     </ScreenTemplate>
