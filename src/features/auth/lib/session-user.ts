@@ -9,6 +9,10 @@ export interface SessionUser {
   readonly fullName: string;
   readonly phone: string;
   readonly mustChangePassword: boolean;
+  /** Correo de contacto (recuperación y avisos); ausente o `null` si no tiene. */
+  readonly contactEmail?: string | null;
+  /** `true` si ya confirmó el correo con el código que recibió. */
+  readonly contactEmailVerified?: boolean;
 }
 
 const AuthUserSchema = z.object({
@@ -16,6 +20,8 @@ const AuthUserSchema = z.object({
   name: z.string(),
   phoneNumber: z.string(),
   mustChangePassword: z.boolean(),
+  contactEmail: z.string().nullish(),
+  contactEmailVerified: z.boolean().nullish(),
 });
 
 /**
@@ -30,5 +36,7 @@ export function toSessionUser(authUser: unknown): SessionUser {
     fullName: parsed.name,
     phone: parsed.phoneNumber,
     mustChangePassword: parsed.mustChangePassword,
+    contactEmail: parsed.contactEmail ?? null,
+    contactEmailVerified: parsed.contactEmailVerified ?? false,
   };
 }

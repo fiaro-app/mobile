@@ -1,16 +1,15 @@
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Avatar } from '@/components/atoms/Avatar';
 import { Button } from '@/components/atoms/Button';
+import { MenuRow } from '@/components/molecules/MenuRow';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
+import { ACCOUNT_COPY } from '@/features/account/content/messages';
 import { useProfileScreen } from '@/features/auth/hooks/use-profile-screen';
 
-/**
- * Ruta `/profile`: perfil mínimo (nombre, celular y cerrar sesión). El diseño "Perfil / Cierre de
- * ruta" suma cerrar la ruta del día y las estadísticas, que llegan con sus propias pantallas.
- */
+/** Ruta `/profile`: la persona, sus accesos (editar perfil, cuadre, estadísticas) y cerrar sesión. */
 export default function ProfileScreen() {
   const router = useRouter();
   const profile = useProfileScreen();
@@ -18,38 +17,58 @@ export default function ProfileScreen() {
     <ScreenTemplate
       topBar={
         <TopBar
-          title="Perfil"
+          title={ACCOUNT_COPY.profileTitle}
           onBack={() => {
             router.back();
           }}
         />
       }
     >
-      <View className="items-center gap-3 px-6 pt-10">
-        <Avatar initials={profile.initials} size="lg" />
-        <AppText variant="title" accessibilityRole="header">
-          {profile.fullName}
-        </AppText>
-        <AppText variant="mono" tone="muted">
-          {profile.phone}
-        </AppText>
-        <Button
-          label="Cuadre del día"
-          className="mt-8 w-full"
-          onPress={() => {
-            router.push('/settlement');
-          }}
-        />
-        <Button
-          label="Estadísticas"
-          variant="outline"
-          className="mt-3 w-full"
-          onPress={() => {
-            router.push('/stats');
-          }}
-        />
-        <Button label="Cerrar sesión" variant="outline" className="mt-3 w-full" onPress={profile.signOut} />
-      </View>
+      <ScrollView contentContainerClassName="pb-8">
+        <View className="items-center gap-3 px-6 py-8">
+          <Avatar initials={profile.initials} size="lg" />
+          <AppText variant="title" accessibilityRole="header">
+            {profile.fullName}
+          </AppText>
+          <AppText variant="mono" tone="muted">
+            {profile.phone}
+          </AppText>
+        </View>
+        <View className="gap-px bg-surface-2">
+          <MenuRow
+            icon="person-outline"
+            label={ACCOUNT_COPY.editTitle}
+            detail={profile.emailStatus}
+            onPress={() => {
+              router.push('/profile-edit');
+            }}
+          />
+          <MenuRow
+            icon="wallet-outline"
+            label="Cuadre del día"
+            onPress={() => {
+              router.push('/settlement');
+            }}
+          />
+          <MenuRow
+            icon="stats-chart-outline"
+            label="Estadísticas"
+            onPress={() => {
+              router.push('/stats');
+            }}
+          />
+          <MenuRow
+            icon="notifications-outline"
+            label="Notificaciones"
+            onPress={() => {
+              router.push('/notifications');
+            }}
+          />
+        </View>
+        <View className="px-5 pt-8">
+          <Button label="Cerrar sesión" variant="outline" onPress={profile.signOut} />
+        </View>
+      </ScrollView>
     </ScreenTemplate>
   );
 }
