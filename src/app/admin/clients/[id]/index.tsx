@@ -40,8 +40,10 @@ export default function ClientProfileScreen() {
         loansEmpty={copy.noLoans}
         loans={profile.loans}
         loansLoading={profile.loansLoading}
-        newLoanLabel={null}
-        onNewLoan={() => undefined}
+        newLoanLabel={copy.newLoan}
+        onNewLoan={() => {
+          router.push({ pathname: '/admin/loans/new', params: { clientId: id } });
+        }}
       />
     );
   }

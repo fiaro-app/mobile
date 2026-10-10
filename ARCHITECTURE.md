@@ -340,6 +340,23 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
 - **Ficha:** datos, llamar (`tel:`; avisa si el dispositivo no puede), editar y los préstamos del cliente (`QUERY /loans` con `clientId`).
   Las formas de préstamo (`features/loans/lib`) las comparten Clientes y Préstamos.
 
+## 5l. Préstamos del administrador (M-24)
+
+`admin/loans` (lista), `admin/loans/new`, `admin/loans/[id]` (detalle), `[id]/calendar` y `[id]/history`.
+
+- **Lista:** el estado (Activos / Pagados / Anulados) lo filtra el API; **"En mora" y la búsqueda por cliente son locales** sobre lo cargado. La lista de
+  préstamos solo trae `clientId`, así que el nombre sale de `useClientNames` (una consulta por cliente distinto, con la misma caché que la ficha:
+  lo ya visto no se repite).
+- **Detalle:** saldo, mora y progreso vienen de `GET /loans/:id/balance` (el motor de calendario del API: la app NUNCA recalcula mora). El progreso en
+  cuotas (`paidInstallments`) es aproximado (pagado ÷ valor de cuota); el estado real de cada cuota está en el calendario. El cobrador vigente sale de
+  `currentAssignment` (abierta primero, luego la más reciente). Acciones: asignar cobrador (desde hoy) y anular (solo vigente).
+- **Historial de cobros y reversión:** `POST /payments/:id/reversals` exige motivo; un pago ya revertido se muestra "REVERTIDO" con su motivo y no ofrece
+  la acción. Al revertir sube el saldo: se refrescan saldo, calendario, listas y Resumen.
+- **Nuevo préstamo:** el **total a pagar se sugiere** (cuotas × valor) hasta que se edita a mano (con intereses el total es otro). El cliente se elige
+  buscando en el API (`ClientPickerSheet`); la fecha de inicio, de 7 días atrás a 14 adelante (sin calendario nativo). Si el préstamo se crea pero la
+  asignación del cobrador falla, se avisa, se bloquea crear otro igual y se asigna después desde el detalle (igual que la web).
+- `useApiQuery` (`lib/hooks`) concentra el patrón "lanzar el error, cerrar sesión en 401, `staleTime` 30 s" para no repetirlo en cada consulta.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
