@@ -324,6 +324,22 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
   restablecer contraseña (otra contraseña temporal de una sola vez) y desactivar (quita el acceso y conserva el historial).
 - **Peligro en rojo:** `Button` ganó las variantes `danger` y `danger-outline`, y `ConfirmDialog` el prop `destructive`.
 
+## 5k. Clientes del administrador (M-23)
+
+`admin/clients` (lista), `admin/clients/new`, `admin/clients/[id]` (ficha) y `admin/clients/[id]/edit`.
+
+- **Lista paginada de verdad.** `QUERY /clients` devuelve páginas con saldo y mora; la app usa `useInfiniteQuery` (30 por página, la siguiente al llegar al
+  final de la lista: `EntityList.onEndReached`). La **búsqueda por nombre o cédula la hace el API** (con 350 ms de espera tras la última letra:
+  `useDebouncedValue`), no un filtro local.
+- **Filtro "Al día / En mora" es local.** El API no filtra por situación de pago, así que se aplica a lo ya cargado: con un filtro activo puede verse
+  menos de lo que existe hasta cargar más páginas. Es un compromiso consciente (pedir todo para filtrar no escala).
+- **Estado del cliente** con la misma regla de mora de todo el sistema (`classifyEntry`: 0 días al día, 1–7 atraso, más de 7 mora); sin préstamos activos
+  se muestra "SIN DEUDA". En la ficha manda el **peor préstamo vigente** (más días de mora).
+- **Un solo formulario para registrar y editar** (`useClientForm`). Al editar solo se envía lo que cambió (`PATCH`), sin cambios no se llama al API, y la
+  cédula repetida (`CLIENT_NATIONAL_ID_TAKEN`) se explica en el formulario. Cédula y celular se normalizan igual que en el API.
+- **Ficha:** datos, llamar (`tel:`; avisa si el dispositivo no puede), editar y los préstamos del cliente (`QUERY /loans` con `clientId`).
+  Las formas de préstamo (`features/loans/lib`) las comparten Clientes y Préstamos.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
