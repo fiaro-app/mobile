@@ -405,6 +405,12 @@ Antes "¿Olvidaste tu contraseña?" solo mandaba a hablar con el administrador. 
 - Ambas llaman rutas públicas con `apiPost` (sin cookie). Las validaciones son funciones puras (`access-forms.ts`) y las mismas reglas del API (cédula 3–10 dígitos sin cero
   inicial, contraseña 8–128).
 
+## 5q. Bloqueo por inactividad
+
+El PIN ya no protege solo el arranque en frío: `useInactivityLock` (en `AppShell`) anota cuándo la app pasa a segundo plano y, si al volver ya pasó más de **1 minuto**
+(`LOCK_AFTER_MS`), llama `lock()` del store de sesión y `resolveAccess` devuelve `locked` (pantalla de PIN). Solo actúa con sesión lista y **PIN activado** (`lock` no hace nada sin PIN).
+Un minuto deja contestar un mensaje sin fricción y es poco para un teléfono perdido o prestado.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
@@ -477,6 +483,6 @@ Todo lo que se hace en la web se puede hacer en la app (cobrador y administrador
 - **Revisar en Penpot** las pantallas hechas sin mock cerrado (los mocks nuevos están en la página "3 · Mobile · Cobrador", a partir de y = 18000) y ajustar diferencias.
 - **M-11:** instalar `@fiaro-app/contracts` (paquete privado: necesita el token del usuario) para dejar de copiar esquemas (`*-schemas.ts`) y consumir `overdueStatus`.
 - **Push de verdad** (§5g): `eas init`, credenciales FCM/APNs y una development build.
-- **Bloqueo por inactividad** al volver de segundo plano (hoy el PIN solo bloquea al abrir en frío) e **iconos/splash propios** (siguen los de la plantilla de Expo).
+- **Iconos/splash propios** (siguen los de la plantilla de Expo).
 - **Fecha de inicio de un préstamo** fuera de −7/+14 días y la **paginación de colaboradores** (> 100) no están en la app todavía.
 - **Verificación en dispositivo:** el administrador se verificó en la vista web contra el API de desarrollo; falta repasar cada pantalla nueva en Android/iOS.

@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { BlockedView } from '@/components/organisms/BlockedView';
+import { useInactivityLock } from '@/features/auth/hooks/use-inactivity-lock';
 import { useBootstrap } from '@/features/auth/hooks/use-bootstrap';
 import { useAccess, useSessionStore } from '@/features/auth/store/session-store';
 import { LoadingScreen } from '@/components/templates/LoadingScreen';
@@ -22,6 +23,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
   const boot = useBootstrap();
   const access = useAccess();
   const userId = useSessionStore((state) => state.user?.id ?? null);
+  useInactivityLock(access === 'signed-in');
   useVisitQueueSync(access === 'signed-in' ? userId : null);
   usePushRegistration(access === 'signed-in' ? userId : null);
   useWorkspace(access === 'signed-in' ? userId : null);
