@@ -32,7 +32,7 @@ export interface PortfolioManager {
  */
 export function usePortfolioManager(portfolios: readonly Portfolio[]): PortfolioManager {
   const [mode, setMode] = useState<PortfolioMode>({ kind: 'none' });
-  const [name, setNameState] = useState('');
+  const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string | null>(null);
   const action = useSaveAction(settingsFailureMessage);
   const deleteAction = useSaveAction(portfolioDeleteFailureMessage);
@@ -40,7 +40,7 @@ export function usePortfolioManager(portfolios: readonly Portfolio[]): Portfolio
 
   const close = () => {
     setMode({ kind: 'none' });
-    setNameState('');
+    setName('');
     setNameError(null);
   };
   const deleting = mode.kind === 'delete' ? (portfolios.find((portfolio) => portfolio.id === mode.id) ?? null) : null;
@@ -61,7 +61,7 @@ export function usePortfolioManager(portfolios: readonly Portfolio[]): Portfolio
     startRename: (portfolio) => {
       action.clear();
       deleteAction.clear();
-      setNameState(portfolio.name);
+      setName(portfolio.name);
       setMode({ kind: 'rename', id: portfolio.id });
     },
     startDelete: (portfolio) => {
@@ -71,7 +71,7 @@ export function usePortfolioManager(portfolios: readonly Portfolio[]): Portfolio
     },
     cancel: close,
     setName: (text) => {
-      setNameState(text);
+      setName(text);
       setNameError(null);
     },
     submitName: () => {

@@ -13,7 +13,7 @@ export interface RegisterViewProps {
   readonly texts: {
     readonly accountTitle: string; readonly companyTitle: string; readonly accountSubtitle: string; readonly companySubtitle: string; readonly fullName: string; readonly fullNamePlaceholder: string;
     readonly nationalId: string; readonly nationalIdPlaceholder: string; readonly phone: string; readonly phonePlaceholder: string; readonly email: string; readonly emailPlaceholder: string;
-    readonly password: string; readonly hint: string; readonly business: string; readonly businessPlaceholder: string; readonly next: string; readonly submit: string; readonly back: string;
+    readonly secretLabel: string; readonly hint: string; readonly business: string; readonly businessPlaceholder: string; readonly next: string; readonly submit: string; readonly back: string;
     readonly doneTitle: string; readonly doneSubtitle: string; readonly toLogin: string;
   };
   readonly values: Record<Field, string>;
@@ -56,7 +56,7 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
             {text('nationalId', texts.nationalId, texts.nationalIdPlaceholder, { keyboardType: 'number-pad' })}
             {text('phone', texts.phone, texts.phonePlaceholder, { keyboardType: 'phone-pad', autoComplete: 'tel' })}
             {text('contactEmail', texts.email, texts.emailPlaceholder, { keyboardType: 'email-address', autoCapitalize: 'none', autoComplete: 'email' })}
-            {text('password', texts.password, '••••••••', { secureTextEntry: true, autoCapitalize: 'none', autoComplete: 'new-password' }, texts.hint)}
+            {text('password', texts.secretLabel, '••••••••', { secureTextEntry: true, autoCapitalize: 'none', autoComplete: 'new-password' }, texts.hint)}
             <Button label={texts.next} onPress={props.onNext} />
             <View className="items-center">
               <TextLink label={texts.toLogin} onPress={props.onCancel} />

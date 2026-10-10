@@ -19,6 +19,12 @@ export interface SessionRowModel {
   readonly isCurrent: boolean;
 }
 
+function detailOf(session: AccountSession): string {
+  const ip = session.ipAddress ? `IP ${session.ipAddress} · ` : '';
+  const when = session.isCurrent ? 'activa ahora' : `último uso ${formatShortDate(session.lastUsedAt)}`;
+  return ip + when;
+}
+
 /** La actual primero y luego por último uso (la más reciente arriba); el detalle dice la IP y cuándo se usó. */
 export function toSessionRows(sessions: readonly AccountSession[]): SessionRowModel[] {
   return sessions
@@ -27,6 +33,6 @@ export function toSessionRows(sessions: readonly AccountSession[]): SessionRowMo
       id: session.id,
       device: session.device.label,
       isCurrent: session.isCurrent,
-      detail: `${session.ipAddress ? `IP ${session.ipAddress} · ` : ''}${session.isCurrent ? 'activa ahora' : `último uso ${formatShortDate(session.lastUsedAt)}`}`,
+      detail: detailOf(session),
     }));
 }

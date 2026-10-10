@@ -36,7 +36,7 @@ export const ACCESS_COPY = {
     phonePlaceholder: '300 123 4567',
     email: 'Correo de contacto (opcional)',
     emailPlaceholder: 'tu@correo.com',
-    password: 'Contraseña',
+    secretLabel: 'Contraseña',
     hint: 'Mínimo 8 caracteres.',
     business: 'Nombre de tu financiera',
     businessPlaceholder: 'Ej: Préstamos El Águila',

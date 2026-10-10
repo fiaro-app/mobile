@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { ACCESS_COPY } from '@/features/auth/content/access-messages';
 import { toMobileE164 } from '@/features/auth/lib/phone';
 import { PASSWORD_MAX, PASSWORD_MIN } from '@/features/auth/schemas/change-password-schema';
@@ -54,7 +55,7 @@ export function validateAccountStep(values: RegisterValues): FieldErrors<Account
   if (!/^[1-9]\d{2,9}$/.test(values.nationalId.replaceAll(/[\s.,-]/g, ''))) errors.nationalId = ACCESS_COPY.validation.nationalId;
   if (toMobileE164(values.phone) === null) errors.phone = AUTH_COPY.validation.phone;
   const email = values.contactEmail.trim();
-  if (email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.contactEmail = ACCESS_COPY.validation.email;
+  if (email !== '' && !z.email().safeParse(email).success) errors.contactEmail = ACCESS_COPY.validation.email;
   const weak = passwordError(values.password);
   if (weak) errors.password = weak;
   return errors;
