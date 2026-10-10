@@ -64,6 +64,10 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="admin/clients/new" />
         <Stack.Screen name="admin/clients/[id]/index" />
         <Stack.Screen name="admin/clients/[id]/edit" />
+        <Stack.Screen name="admin/loans/index" />
+        <Stack.Screen name="admin/loans/[id]/index" />
+        <Stack.Screen name="admin/loans/[id]/calendar" />
+        <Stack.Screen name="admin/loans/[id]/history" />
       </Stack.Protected>
       <Stack.Protected guard={access === 'signed-in' && mode === 'collector'}>
         <Stack.Screen name="index" />
