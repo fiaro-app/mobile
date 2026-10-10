@@ -21,6 +21,7 @@ export default function AdminSummaryScreen() {
     body = (
       <DashboardView
         kpis={model.kpis}
+        banner={screen.banner}
         alertsTitle={DASHBOARD_COPY.alerts}
         alerts={model.alerts}
         pendingTitle={DASHBOARD_COPY.pending}
