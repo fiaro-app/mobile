@@ -390,6 +390,19 @@ Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un a
   teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".
 - **Falta respecto a la web:** subir el logo del negocio (necesita elegir una imagen y subirla a una URL firmada) y exportar estadísticas a PDF; ver §9.
 
+## 5p. Recuperar contraseña y registro (M-12 resuelto)
+
+Antes "¿Olvidaste tu contraseña?" solo mandaba a hablar con el administrador. Ahora hay recuperación por código, igual que la web:
+
+- **Recuperar** (`forgot-password`): `POST /auth/request-password-reset` manda un código de 6 dígitos al **correo de contacto** de la cuenta y responde IGUAL exista o no
+  la cuenta (no revela quién tiene cuenta), por eso el segundo paso se muestra siempre; `POST /auth/reset-password` lo canjea por una contraseña nueva y el API cierra
+  todas las sesiones de la persona. Un cobrador sin correo de contacto no puede usarlo: la pantalla le dice que pida una contraseña temporal a su administrador
+  (`resetPassword` de §5j).
+- **Registro** (`register`, enlace "Crear cuenta" en el login): dos pasos (cuenta y empresa) y `POST /register`, que NO abre sesión: al terminar se invita a iniciarla. Si el API
+  rechaza algo del paso 1 (celular ya registrado, contraseña débil), se vuelve a ese paso con el mensaje.
+- Ambas llaman rutas públicas con `apiPost` (sin cookie). Las validaciones son funciones puras (`access-forms.ts`) y las mismas reglas del API (cédula 3–10 dígitos sin cero
+  inicial, contraseña 8–128).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

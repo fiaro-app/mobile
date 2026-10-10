@@ -20,6 +20,12 @@ export default function LoginScreen() {
         onForgotPassword={() => {
           router.push('/forgot-password');
         }}
+        register={{
+          label: '¿Tu negocio es nuevo? Crear cuenta',
+          onPress: () => {
+            router.push('/register');
+          },
+        }}
       />
     </AuthTemplate>
   );

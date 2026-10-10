@@ -45,3 +45,30 @@ export async function apiGet<T>(path: string, parse: (body: unknown) => T): Prom
     clearTimeout(timer);
   }
 }
+
+/**
+ * `POST` con cuerpo JSON a una ruta pública del API (sin sesión): recuperar contraseña y registrarse. Igual que `apiGet`,
+ * nunca lanza: devuelve el `Result` con el fallo ya clasificado. Una respuesta sin cuerpo (204) se pasa a `parse` como `null`.
+ */
+export async function apiPost<T>(path: string, body: unknown, parse: (body: unknown) => T): Promise<Result<T, ApiFailure>> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${API_URL}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
+    if (!response.ok) {
+      const code = await readErrorCode(response);
+      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after')));
+    }
+    try {
+      return ok(parse(response.status === 204 ? null : await response.json()));
+    } catch {
+      return fail(classifyHttpFailure(200, 'INVALID_RESPONSE'));
+    }
+  } catch {
+    return fail(OFFLINE_FAILURE);
+  } finally {
+    clearTimeout(timer);
+  }
+}

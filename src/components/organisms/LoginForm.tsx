@@ -28,6 +28,8 @@ export interface LoginFormProps {
   readonly formError: string | null;
   readonly onSubmit: () => void;
   readonly onForgotPassword: () => void;
+  /** Enlace "Crear cuenta" bajo el botón (registro de un negocio nuevo). */
+  readonly register?: { readonly label: string; readonly onPress: () => void };
 }
 
 /**
@@ -35,7 +37,7 @@ export interface LoginFormProps {
  * Solo dibuja: los valores, errores y el envío llegan por props desde `useLoginForm`. Los textos
  * también llegan por props para que este archivo no dependa de `features`.
  */
-export function LoginForm({ texts, phone, password, submitting, formError, onSubmit, onForgotPassword }: Readonly<LoginFormProps>) {
+export function LoginForm({ texts, phone, password, submitting, formError, onSubmit, onForgotPassword, register }: Readonly<LoginFormProps>) {
   const passwordRef = useRef<TextInput>(null);
   return (
     <View className="gap-8">
@@ -84,6 +86,11 @@ export function LoginForm({ texts, phone, password, submitting, formError, onSub
           <TextLink label={texts.forgot} onPress={onForgotPassword} />
         </View>
         <Button label={texts.submit} onPress={onSubmit} loading={submitting} />
+        {register ? (
+          <View className="items-center">
+            <TextLink label={register.label} onPress={register.onPress} />
+          </View>
+        ) : null}
       </View>
     </View>
   );
