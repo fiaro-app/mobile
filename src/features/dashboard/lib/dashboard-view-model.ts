@@ -23,6 +23,12 @@ export interface Kpi {
   readonly tone: Tone;
 }
 
+/** Tono de la diferencia de un cuadre: cuadra (verde), faltante (rojo) o sobrante (ámbar). */
+function differenceTone(difference: number): Tone {
+  if (difference === 0) return 'good';
+  return difference < 0 ? 'bad' : 'warning';
+}
+
 /** Un cuadre por revisar, listo para dibujar. */
 export interface PendingRow {
   readonly id: string;
@@ -65,7 +71,7 @@ export function buildDashboardModel(dashboard: Dashboard, names: ReadonlyMap<str
         collectorName: names.get(settlement.collectorMembershipId) ?? UNKNOWN_COLLECTOR,
         expected: `Cuadre: ${formatCop(settlement.expectedAmount)}`,
         difference: difference === 0 ? 'Cuadra' : formatCop(difference),
-        differenceTone: difference === 0 ? 'good' : difference < 0 ? 'bad' : 'warning',
+        differenceTone: differenceTone(difference),
       };
     }),
   };

@@ -14,7 +14,8 @@ export const LOW_EFFECTIVENESS = 0.6;
 
 function tone(ratio: number | null): Tone {
   if (ratio === null) return 'neutral';
-  return ratio < LOW_EFFECTIVENESS ? 'bad' : effectivenessTone(ratio) === 'good' ? 'good' : 'warning';
+  if (ratio < LOW_EFFECTIVENESS) return 'bad';
+  return effectivenessTone(ratio) === 'good' ? 'good' : 'warning';
 }
 
 /** Convierte las estadísticas de un cobrador en cifras y tonos (la mora vencida en rojo si hay). */

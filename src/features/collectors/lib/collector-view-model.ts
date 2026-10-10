@@ -36,6 +36,12 @@ export function fold(text: string): string {
   return text.normalize('NFD').replaceAll(/\p{Diacritic}/gu, '').toLowerCase();
 }
 
+/** Activos primero y, dentro de cada grupo, por nombre. */
+function compareMembers(a: Member, b: Member): number {
+  if (a.status !== b.status) return a.status === 'ACTIVE' ? -1 : 1;
+  return a.fullName.localeCompare(b.fullName, 'es');
+}
+
 /**
  * Cobradores a mostrar: filtra por estado y por la búsqueda (nombre o celular, sin tildes ni mayúsculas) y los
  * ordena activos primero y por nombre dentro de cada grupo.
@@ -45,7 +51,7 @@ export function toCollectorRows(members: readonly Member[], portfolios: readonly
   return collectorsOf(members)
     .filter((member) => (status === 'all' ? true : (member.status === 'ACTIVE') === (status === 'active')))
     .filter((member) => needle === '' || fold(member.fullName).includes(needle) || member.phone.replaceAll(/\D/g, '').includes(needle.replaceAll(/\D/g, '') || '\u0000'))
-    .toSorted((a, b) => (a.status === b.status ? a.fullName.localeCompare(b.fullName, 'es') : a.status === 'ACTIVE' ? -1 : 1))
+    .toSorted(compareMembers)
     .map((member) => ({
       id: member.id,
       initials: initials(member.fullName),

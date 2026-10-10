@@ -26,7 +26,9 @@ export interface AdminDrawerProps {
 }
 
 function Row({ item }: Readonly<{ item: DrawerItem }>) {
-  const tone = item.tone === 'destructive' ? 'destructive' : item.active || item.tone === 'primary' ? 'primary' : 'default';
+  let tone: 'default' | 'primary' | 'destructive' = 'default';
+  if (item.tone === 'destructive') tone = 'destructive';
+  else if (item.active || item.tone === 'primary') tone = 'primary';
   return (
     <Pressable
       accessibilityRole="button"

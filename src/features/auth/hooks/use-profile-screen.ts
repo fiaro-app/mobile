@@ -9,6 +9,10 @@ function emailStatusOf(email: string | null | undefined, verified: boolean | und
   return verified === true ? 'Verificado' : 'Sin verificar';
 }
 
+function switchLabelOf(mode: 'admin' | 'collector'): string {
+  return mode === 'admin' ? 'Cambiar a modo Cobrador' : 'Cambiar a modo Administrador';
+}
+
 /** Lo que la pantalla de perfil dibuja y puede hacer. */
 export interface ProfileScreen {
   readonly fullName: string;
@@ -42,7 +46,7 @@ export function useProfileScreen(): ProfileScreen {
     phone: user?.phone ?? '',
     emailStatus: emailStatusOf(user?.contactEmail, user?.contactEmailVerified),
     mode,
-    switchLabel: both ? (mode === 'admin' ? 'Cambiar a modo Cobrador' : 'Cambiar a modo Administrador') : null,
+    switchLabel: both ? switchLabelOf(mode) : null,
     switchMode: () => {
       setMode(mode === 'admin' ? 'collector' : 'admin');
     },
