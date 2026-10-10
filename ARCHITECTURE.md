@@ -405,7 +405,13 @@ Antes "¿Olvidaste tu contraseña?" solo mandaba a hablar con el administrador. 
 - Ambas llaman rutas públicas con `apiPost` (sin cookie). Las validaciones son funciones puras (`access-forms.ts`) y las mismas reglas del API (cédula 3–10 dígitos sin cero
   inicial, contraseña 8–128).
 
-## 5q. Bloqueo por inactividad
+## 5q. Identidad (ícono y splash) y bloqueo por inactividad
+
+**Ícono y splash propios:** una "F" de Fraunces (la fuente de los títulos) sobre el anil de Fiaro, diseñada en Penpot (página "3 · Mobile · Cobrador", boards `Icon / ...`) y exportada a `assets/images/`:
+`icon.png` (1024, sin transparencia: iOS la rechaza), `android-icon-{foreground,background,monochrome}.png` (el primer plano va dentro de la zona segura central, que Android recorta en círculo
+o "squircle"), `splash-icon.png` (la F en anil sobre transparente; el fondo del splash es el color de la app) y `favicon.png`. Rediseñarlos = editar los boards y volver a exportar.
+
+**Bloqueo por inactividad:**
 
 El PIN ya no protege solo el arranque en frío: `useInactivityLock` (en `AppShell`) anota cuándo la app pasa a segundo plano y, si al volver ya pasó más de **1 minuto**
 (`LOCK_AFTER_MS`), llama `lock()` del store de sesión y `resolveAccess` devuelve `locked` (pantalla de PIN). Solo actúa con sesión lista y **PIN activado** (`lock` no hace nada sin PIN).
@@ -483,6 +489,5 @@ Todo lo que se hace en la web se puede hacer en la app (cobrador y administrador
 - **Revisar en Penpot** las pantallas hechas sin mock cerrado (los mocks nuevos están en la página "3 · Mobile · Cobrador", a partir de y = 18000) y ajustar diferencias.
 - **M-11:** instalar `@fiaro-app/contracts` (paquete privado: necesita el token del usuario) para dejar de copiar esquemas (`*-schemas.ts`) y consumir `overdueStatus`.
 - **Push de verdad** (§5g): `eas init`, credenciales FCM/APNs y una development build.
-- **Iconos/splash propios** (siguen los de la plantilla de Expo).
 - **Fecha de inicio de un préstamo** fuera de −7/+14 días y la **paginación de colaboradores** (> 100) no están en la app todavía.
 - **Verificación en dispositivo:** el administrador se verificó en la vista web contra el API de desarrollo; falta repasar cada pantalla nueva en Android/iOS.
