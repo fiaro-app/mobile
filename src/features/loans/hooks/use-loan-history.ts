@@ -37,7 +37,7 @@ export function useLoanHistory(loanId: string): LoanHistory {
   const query = useLoanVisitsQuery(loanId);
   const members = useMembers();
   const [target, setTarget] = useState<{ paymentId: string; amount: string } | null>(null);
-  const [reason, setReasonState] = useState('');
+  const [reason, setReason] = useState('');
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export function useLoanHistory(loanId: string): LoanHistory {
 
   const close = () => {
     setTarget(null);
-    setReasonState('');
+    setReason('');
     setReasonError(null);
   };
 
@@ -70,7 +70,7 @@ export function useLoanHistory(loanId: string): LoanHistory {
       setTarget({ paymentId: row.reversiblePaymentId, amount: row.trailing });
     },
     setReason: (text) => {
-      setReasonState(text);
+      setReason(text);
       setReasonError(null);
     },
     cancelReverse: close,

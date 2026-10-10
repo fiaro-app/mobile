@@ -11,6 +11,11 @@ import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanHistory } from '@/features/loans/hooks/use-loan-history';
 
+function detailOf(row: { reversiblePaymentId: string | null; detail: string }, reverseLabel: string): string | undefined {
+  if (row.reversiblePaymentId) return reverseLabel;
+  return row.detail === '' ? undefined : row.detail;
+}
+
 /** Ruta `/admin/loans/[id]/history`: historial de cobros del préstamo; tocar un pago permite revertirlo con un motivo. */
 export default function LoanHistoryScreen() {
   const router = useRouter();
@@ -38,7 +43,7 @@ export default function LoanHistoryScreen() {
           id: row.id,
           title: row.title,
           subtitle: row.subtitle,
-          detail: row.reversiblePaymentId ? copy.reverse : row.detail === '' ? undefined : row.detail,
+          detail: detailOf(row, copy.reverse),
           badge: row.badge ?? undefined,
           trailing: row.trailing === '' ? undefined : row.trailing,
           onPress: row.reversiblePaymentId
