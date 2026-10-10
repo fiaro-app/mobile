@@ -307,6 +307,23 @@ cobradores, clientes, préstamos, cuadres, estadísticas, configuración). Lo qu
   (`features/team`); si esa no carga, se muestra "Cobrador sin nombre" en vez de bloquear la pantalla. Umbrales de efectividad iguales a la web
   (≥ 90 % verde, ≥ 70 % ámbar, menos rojo).
 
+## 5j. Cobradores del administrador (M-22)
+
+`admin/collectors` (lista), `admin/collectors/new` (registrar) y `admin/collectors/[id]` (gestionar). Piezas reutilizables para las demás
+listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `Badge` (cobradores, clientes, préstamos, cuadres comparten forma).
+
+- **Un solo listado de colaboradores.** `QUERY /memberships` (hasta 100, sin paginar en la app) alimenta la lista de cobradores, el nombre de
+  cada cuadre del Resumen y la pantalla de gestión (se busca la membresía por `id` en esa misma caché, sin pedir `GET /memberships/:id`). Un
+  prestamista con más de 100 colaboradores necesitaría paginar: hoy no es un caso real del producto.
+- **Búsqueda sin tildes ni mayúsculas** (`fold`), por nombre o por dígitos del celular. Orden: activos primero, luego por nombre.
+- **Registrar** = `POST /memberships` con rol `COLLECTOR` y cartera (por defecto la `isDefault`). El API devuelve la **contraseña temporal una sola
+  vez**, así que la pantalla de éxito la muestra y ofrece compartirla (hoja del sistema, `Share`); si la persona ya tenía cuenta no hay contraseña
+  y se avisa que usará la suya. Cédula y celular se normalizan igual que en el API (`normalizeNationalId`, `toMobileE164`).
+- **Gestionar:** desempeño del mes (`GET /collectors/:id/stats?from&to`, mismo esquema que las estadísticas del cobrador; la ficha pinta rojo la
+  efectividad < 60 %, distinto del Resumen, igual que la web), cambiar cartera (`PATCH /memberships/:id/roles` exige reenviar los roles),
+  restablecer contraseña (otra contraseña temporal de una sola vez) y desactivar (quita el acceso y conserva el historial).
+- **Peligro en rojo:** `Button` ganó las variantes `danger` y `danger-outline`, y `ConfirmDialog` el prop `destructive`.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

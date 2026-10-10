@@ -57,6 +57,9 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
       </Stack.Protected>
       <Stack.Protected guard={access === 'signed-in' && mode === 'admin'}>
         <Stack.Screen name="admin/index" />
+        <Stack.Screen name="admin/collectors/index" />
+        <Stack.Screen name="admin/collectors/new" />
+        <Stack.Screen name="admin/collectors/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={access === 'signed-in' && mode === 'collector'}>
         <Stack.Screen name="index" />
