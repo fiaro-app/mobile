@@ -368,6 +368,14 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
   bajar. Tocar una visita abre su préstamo.
 - Corrección de paso: `FlatList` recibe `ListHeaderComponent`/`ListEmptyComponent` como `View` (con un `Fragment` React avisa por `onLayout` en web).
 
+## 5n. Estadísticas del administrador (M-26)
+
+`admin/stats`: `QUERY /lenders/me/stats` con `includePrevious` (el API trae también el período anterior y de ahí salen las **tendencias**: ↑/↓ en % para montos y
+en puntos para proporciones). El color de una tendencia depende de la **polaridad**: subir el cobrado es bueno (verde) pero subir la mora es malo (rojo)
+(`trend.ts`). Umbrales iguales a la web: % en mora ≥ 10 % ámbar, ≥ 20 % rojo; efectividad ≥ 90 % verde, ≥ 70 % ámbar. Filtros: período (semana, mes, año hasta hoy) y un
+cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone="destructive"`: verde significaría "pagado").
+Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un archivo; ver §9).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

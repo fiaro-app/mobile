@@ -69,6 +69,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="admin/settlements/index" />
         <Stack.Screen name="admin/settlements/[id]" />
         <Stack.Screen name="admin/payments/index" />
+        <Stack.Screen name="admin/stats/index" />
         <Stack.Screen name="admin/loans/[id]/index" />
         <Stack.Screen name="admin/loans/[id]/calendar" />
         <Stack.Screen name="admin/loans/[id]/history" />
