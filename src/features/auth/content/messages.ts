@@ -17,7 +17,7 @@ export const AUTH_COPY = {
     passwordRequired: 'Ingresa tu contraseña.',
     passwordMin: 'La contraseña debe tener mínimo 8 caracteres.',
     passwordMatch: 'Las contraseñas no coinciden.',
-    currentRequired: 'Ingresa tu contraseña temporal.',
+    currentRequired: 'Ingresa tu contraseña actual.',
   },
   changePassword: {
     title: 'Crea tu contraseña',

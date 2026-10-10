@@ -44,6 +44,20 @@ export default function ProfileScreen() {
               router.push('/profile-edit');
             }}
           />
+          <MenuRow
+            icon="key-outline"
+            label="Cambiar contraseña"
+            onPress={() => {
+              router.push('/account-password');
+            }}
+          />
+          <MenuRow
+            icon="phone-portrait-outline"
+            label="Sesiones abiertas"
+            onPress={() => {
+              router.push('/account-sessions');
+            }}
+          />
           {collector ? (
             <MenuRow
               icon="wallet-outline"

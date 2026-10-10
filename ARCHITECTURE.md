@@ -376,6 +376,20 @@ en puntos para proporciones). El color de una tendencia depende de la **polarida
 cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone="destructive"`: verde significaría "pagado").
 Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un archivo; ver §9).
 
+## 5o. Configuración, plan, contraseña y sesiones (M-27)
+
+- **Configuración** (`admin/settings`): cada sección guarda POR SEPARADO (`useSaveAction`: ocupado, error y aviso propios, así un fallo de "Días sin cobro" no aparece
+  bajo "Carteras"). Nombre y color de marca van a `PATCH /lender`; el color se **aplica al instante** en la app (`applyBrandColor`) y solo se ofrece la paleta
+  de la web, cuyos colores ya pasan el contraste WCAG AA con texto blanco (4.5; `contrastWithWhite`). **Días sin cobro**: el calendario del API mueve las cuotas de esos días al
+  siguiente día de cobro, así que guardar cambia saldos y mora de TODOS los préstamos: se invalidan préstamos, Resumen y la ruta del cobrador.
+  **Carteras:** crear, renombrar y borrar (la por defecto no se borra; una con cobradores activos tampoco, ambos `CONFLICT` con su propio mensaje).
+- **Plan** (`GET /subscription`, solo informa): bloque "Tu plan" y un **aviso en el Resumen** (prueba por terminar ≤ 7 días, en gracia o solo lectura). Si el plan no carga
+  simplemente no se muestra.
+- **Cambiar contraseña** (`account-password`): igual que el cambio obligatorio pero voluntario (sin "Cerrar sesión" como salida) y al terminar vuelve al Perfil.
+- **Sesiones abiertas** (`account-sessions`): `GET /account/sessions`; cerrar una (`DELETE`) o todas las demás (`POST /auth/revoke-other-sessions`). La de este
+  teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".
+- **Falta respecto a la web:** subir el logo del negocio (necesita elegir una imagen y subirla a una URL firmada) y exportar estadísticas a PDF; ver §9.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

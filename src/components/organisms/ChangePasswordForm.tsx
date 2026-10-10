@@ -15,7 +15,8 @@ export interface ChangePasswordTexts {
   readonly confirmLabel: string;
   readonly hint: string;
   readonly submit: string;
-  readonly signOut: string;
+  /** Texto del enlace de salida; sin él no se muestra (el cambio voluntario no atrapa a nadie). */
+  readonly signOut?: string;
 }
 
 export interface ChangePasswordFormProps {
@@ -26,7 +27,7 @@ export interface ChangePasswordFormProps {
   readonly submitting: boolean;
   readonly formError: string | null;
   readonly onSubmit: () => void;
-  readonly onSignOut: () => void;
+  readonly onSignOut?: () => void;
 }
 
 /**
@@ -90,9 +91,11 @@ export function ChangePasswordForm(props: Readonly<ChangePasswordFormProps>) {
           )}
         </FormField>
         <Button label={texts.submit} onPress={onSubmit} loading={submitting} />
-        <View className="items-center">
-          <TextLink label={texts.signOut} onPress={onSignOut} />
-        </View>
+        {texts.signOut && onSignOut ? (
+          <View className="items-center">
+            <TextLink label={texts.signOut} onPress={onSignOut} />
+          </View>
+        ) : null}
       </View>
     </View>
   );
