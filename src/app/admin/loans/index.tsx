@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { Fab } from '@/components/atoms/Fab';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ListHeader } from '@/components/molecules/ListHeader';
 import { EntityList } from '@/components/organisms/EntityList';
@@ -42,12 +43,19 @@ export default function LoansScreen() {
         onEndReached={screen.loadMore}
         loadingMore={screen.loadingMore}
         empty={empty}
+        bottomSpace
         header={
           <ListHeader
             search={{ value: screen.search, placeholder: copy.searchPlaceholder, onChange: screen.setSearch }}
             filters={{ options: copy.filters, value: screen.filter, onChange: screen.setFilter }}
           />
         }
+      />
+      <Fab
+        label={copy.newLoan}
+        onPress={() => {
+          router.push('/admin/loans/new');
+        }}
       />
     </AdminTemplate>
   );

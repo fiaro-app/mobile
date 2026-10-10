@@ -70,6 +70,22 @@ export function assignCollector(loanId: string, collectorMembershipId: string): 
   });
 }
 
+/** Cuerpo de `POST /loans`. */
+export interface CreateLoanBody {
+  readonly clientId: string;
+  readonly principalAmount: number;
+  readonly installmentCount: number;
+  readonly installmentValue: number;
+  readonly totalPayable: number;
+  readonly frequency: string;
+  readonly startDate: string;
+}
+
+/** `POST /loans`: da de alta un préstamo (solo Owner y Lender). */
+export function createLoan(body: CreateLoanBody): Response<Loan> {
+  return authedRequest('/loans', (response) => LoanSchema.parse(response), { method: 'POST', body });
+}
+
 /** `POST /loans/:id/cancel`: anula un préstamo vigente (error de registro, antes de recibir pagos). */
 export function cancelLoan(id: string): Response<Loan> {
   return authedRequest(`/loans/${id}/cancel`, (body) => LoanSchema.parse(body), { method: 'POST', body: {} });
