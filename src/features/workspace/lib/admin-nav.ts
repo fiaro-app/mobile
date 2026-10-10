@@ -2,6 +2,7 @@
 export const ADMIN_NAV = [
   { key: 'summary', label: 'Resumen', href: '/admin' },
   { key: 'collectors', label: 'Cobradores', href: '/admin/collectors' },
+  { key: 'clients', label: 'Clientes', href: '/admin/clients' },
 ] as const;
 
 export type AdminNavKey = (typeof ADMIN_NAV)[number]['key'];

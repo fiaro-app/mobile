@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
 import { ClientRowSkeleton } from '@/components/molecules/ClientRowSkeleton';
 import { EntityRow, type EntityRowProps } from '@/components/molecules/EntityRow';
 
@@ -19,6 +19,10 @@ export interface EntityListProps {
   readonly header?: ReactNode;
   /** Espacio al final para que un botón flotante no tape la última fila. */
   readonly bottomSpace?: boolean;
+  /** Se llama al acercarse al final de la lista (para pedir la página siguiente). */
+  readonly onEndReached?: () => void;
+  /** Muestra un indicador al final mientras llega la página siguiente. */
+  readonly loadingMore?: boolean;
 }
 
 const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
@@ -28,7 +32,7 @@ function Divider() {
 }
 
 /** Lista del administrador: `FlatList` con jalar-para-actualizar, esqueleto de carga y hueco para el estado vacío. Es la de cobradores, clientes, préstamos y cuadres. */
-export function EntityList({ items, loading, refreshing, onRefresh, empty, header, bottomSpace }: Readonly<EntityListProps>) {
+export function EntityList({ items, loading, refreshing, onRefresh, empty, header, bottomSpace, onEndReached, loadingMore }: Readonly<EntityListProps>) {
   if (loading) {
     return (
       <View className="flex-1">
@@ -50,7 +54,14 @@ export function EntityList({ items, loading, refreshing, onRefresh, empty, heade
       ItemSeparatorComponent={Divider}
       ListHeaderComponent={<>{header}</>}
       ListEmptyComponent={<>{empty}</>}
-      ListFooterComponent={bottomSpace ? <View className="h-24" /> : null}
+      ListFooterComponent={
+        <View>
+          {loadingMore ? <ActivityIndicator className="py-4" color="#3B3382" /> : null}
+          {bottomSpace ? <View className="h-24" /> : null}
+        </View>
+      }
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       keyboardShouldPersistTaps="handled"
       contentContainerClassName="grow"
