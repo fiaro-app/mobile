@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { DashboardView } from '@/components/organisms/DashboardView';
@@ -8,6 +9,7 @@ import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 
 /** Ruta `/admin`: "Resumen" del negocio, la pantalla de inicio del administrador. */
 export default function AdminSummaryScreen() {
+  const router = useRouter();
   const menu = useAdminMenu('summary');
   const screen = useDashboardScreen();
   const model = screen.model;
@@ -23,7 +25,7 @@ export default function AdminSummaryScreen() {
         alerts={model.alerts}
         pendingTitle={DASHBOARD_COPY.pending}
         pendingEmpty={DASHBOARD_COPY.pendingEmpty}
-        pending={model.pending.map((row) => ({ id: row.id, name: row.collectorName, detail: row.expected, amount: row.difference, tone: row.differenceTone }))}
+        pending={model.pending.map((row) => ({ id: row.id, name: row.collectorName, detail: row.expected, amount: row.difference, tone: row.differenceTone, onPress: () => { router.push({ pathname: '/admin/settlements/[id]', params: { id: row.id } }); } }))}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
       />

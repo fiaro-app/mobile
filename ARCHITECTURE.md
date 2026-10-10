@@ -357,6 +357,17 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
   asignación del cobrador falla, se avisa, se bloquea crear otro igual y se asigna después desde el detalle (igual que la web).
 - `useApiQuery` (`lib/hooks`) concentra el patrón "lanzar el error, cerrar sesión en 401, `staleTime` 30 s" para no repetirlo en cada consulta.
 
+## 5m. Cuadres y Cobros del día del administrador (M-25)
+
+- **Cuadres** (`admin/settlements`, `[id]`): lista por estado (el API filtra; **Pendientes primero**) con nombre del cobrador, y detalle con el desglose por
+  medio de pago, la nota del cobrador y los botones Aprobar / Rechazar (solo `PENDING`). El comentario es opcional pero el cobrador lo lee al rechazar
+  (§5e). Un `CONFLICT` significa que otra persona ya lo revisó. Al decidir se actualizan el detalle, la lista y el Resumen. Tocar un cuadre del Resumen
+  abre este mismo detalle.
+- **Cobros del día** (`admin/payments`): `QUERY /collection-visits` de UN día (hoy; se puede elegir cualquiera de los últimos 14). "Pagos" filtra en el API
+  y "Sin pago" en la app. El total cobrado suma lo **cargado** (sin pagos revertidos): si hay más páginas el resumen dice "(hasta ahora)" y crece al
+  bajar. Tocar una visita abre su préstamo.
+- Corrección de paso: `FlatList` recibe `ListHeaderComponent`/`ListEmptyComponent` como `View` (con un `Fragment` React avisa por `onLayout` en web).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

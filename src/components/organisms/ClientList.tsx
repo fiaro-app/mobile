@@ -50,8 +50,8 @@ export function ClientList({ items, loading, refreshing, onRefresh, empty, heade
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <ClientRow {...item} />}
       ItemSeparatorComponent={Divider}
-      ListHeaderComponent={<>{header}</>}
-      ListEmptyComponent={<>{empty}</>}
+      ListHeaderComponent={<View>{header}</View>}
+      ListEmptyComponent={<View className="flex-1">{empty}</View>}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       keyboardShouldPersistTaps="handled"
       contentContainerClassName="grow"
