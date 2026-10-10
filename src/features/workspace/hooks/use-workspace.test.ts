@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as actions from '@/features/auth/store/session-actions';
 import * as api from '@/features/workspace/api/workspace-api';
-import { useWorkspace } from '@/features/workspace/hooks/use-workspace';
+import { ROLES_PATIENCE_MS, useWorkspace } from '@/features/workspace/hooks/use-workspace';
 import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import * as brand from '@/lib/theme/brand';
 
@@ -69,6 +69,27 @@ describe('useWorkspace', () => {
       expect(store().status).toBe('ready');
     });
     expect(store()).toMatchObject({ roles: ['COLLECTOR'], mode: 'collector' });
+  });
+
+  it('si los roles tardan abre con los guardados y aplica la respuesta cuando llega', async () => {
+    jest.useFakeTimers();
+    await AsyncStorage.setItem('fiaro.roles.u1', '["COLLECTOR"]');
+    let resolveRoles: (value: Awaited<ReturnType<typeof api.fetchOwnRoles>>) => void = () => undefined;
+    a.fetchOwnRoles.mockReturnValue(new Promise((resolve) => { resolveRoles = resolve; }));
+    await renderHook(() => useWorkspace('u1'));
+    await act(async () => {
+      jest.advanceTimersByTime(ROLES_PATIENCE_MS + 10);
+    });
+    jest.useRealTimers();
+    await waitFor(() => {
+      expect(store()).toMatchObject({ status: 'ready', roles: ['COLLECTOR'], mode: 'collector' });
+    });
+    await act(async () => {
+      resolveRoles({ ok: true, value: ['OWNER'] });
+    });
+    await waitFor(() => {
+      expect(store()).toMatchObject({ roles: ['OWNER'], mode: 'admin' });
+    });
   });
 
   it('al perder la sesión reinicia el estado', async () => {

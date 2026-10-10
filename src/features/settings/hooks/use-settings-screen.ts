@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { usePortfolios } from '@/features/collectors/hooks/use-portfolios';
 import { useBrandSettings, useBusinessSettings } from '@/features/settings/hooks/use-business-settings';
+import { useLogoSettings } from '@/features/settings/hooks/use-logo-settings';
 import { useCollectionDays } from '@/features/settings/hooks/use-collection-days';
 import { usePortfolioManager } from '@/features/settings/hooks/use-portfolio-manager';
 import { useLenderSettings, useSubscription } from '@/features/settings/hooks/use-settings-data';
@@ -14,6 +15,7 @@ export interface SettingsScreen {
   readonly business: ReturnType<typeof useBusinessSettings>;
   readonly brand: ReturnType<typeof useBrandSettings>;
   readonly swatches: ReturnType<typeof swatchesFor>;
+  readonly logo: ReturnType<typeof useLogoSettings>;
   readonly days: ReturnType<typeof useCollectionDays>;
   readonly portfolios: ReturnType<typeof usePortfolioManager>;
   readonly portfolioItems: readonly { id: string; name: string; isDefault: boolean }[];
@@ -34,6 +36,7 @@ export function useSettingsScreen(): SettingsScreen {
     business: useBusinessSettings(settings.data),
     brand: useBrandSettings(settings.data),
     swatches: swatchesFor(settings.data?.brandColor ?? null),
+    logo: useLogoSettings(settings.data),
     days: useCollectionDays(settings.data),
     portfolios: usePortfolioManager(portfolioItems),
     portfolioItems,

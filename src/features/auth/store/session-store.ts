@@ -18,6 +18,7 @@ interface SessionActions {
   /** El API devolvió la persona actualizada (por ejemplo, tras cambiar la contraseña temporal). */
   readonly userUpdated: (user: SessionUser) => void;
   readonly unlock: () => void;
+  readonly lock: () => void;
   readonly pinCreated: () => void;
   readonly pinOfferDismissed: () => void;
   readonly signedOut: () => void;
@@ -46,6 +47,9 @@ export const useSessionStore = create<SessionState & SessionActions>()((set) => 
   },
   unlock: () => {
     set({ unlocked: true });
+  },
+  lock: () => {
+    set((state) => (state.pinEnabled ? { unlocked: false } : state));
   },
   pinCreated: () => {
     set({ pinEnabled: true, pinOfferPending: false });
