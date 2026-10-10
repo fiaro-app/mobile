@@ -10,6 +10,7 @@ import { InfoRow } from '@/components/molecules/InfoRow';
 import { SettingsSection } from '@/components/molecules/SettingsSection';
 import { SwatchPicker } from '@/components/molecules/SwatchPicker';
 import { ToggleRow } from '@/components/molecules/ToggleRow';
+import { LogoSection, type LogoSectionProps } from '@/components/organisms/LogoSection';
 import { PortfolioSection, type PortfolioSectionProps } from '@/components/organisms/PortfolioSection';
 
 interface Status {
@@ -23,6 +24,8 @@ export interface SettingsViewProps {
   readonly business: Status & { readonly title: string; readonly label: string; readonly name: string; readonly save: string; readonly onName: (text: string) => void; readonly onSave: () => void };
   readonly brand: Status & { readonly title: string; readonly hint: string; readonly swatches: readonly { value: string; label: string }[]; readonly color: string; readonly save: string; readonly reset: string; readonly onChoose: (hex: string) => void; readonly onSave: () => void; readonly onReset: () => void };
   readonly days: Status & { readonly title: string; readonly hint: string; readonly weekdays: readonly { value: string; label: string; checked: boolean }[]; readonly holidaysLabel: string; readonly holidays: boolean; readonly save: string; readonly onToggle: (day: string, checked: boolean) => void; readonly onHolidays: (value: boolean) => void; readonly onSave: () => void };
+  readonly logo: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & LogoSectionProps;
+  readonly removeLogoDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
   readonly portfolios: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & PortfolioSectionProps;
   readonly plan: { readonly title: string; readonly rows: readonly { label: string; value: string }[]; readonly percent: number; readonly notice: { readonly kind: 'warning' | 'error'; readonly message: string } | null } | null;
   readonly deleteDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
@@ -30,7 +33,7 @@ export interface SettingsViewProps {
 
 /** Configuración del negocio: nombre, color de marca, días sin cobro, carteras y plan. Cada sección guarda por separado. Solo dibuja. */
 export function SettingsView(props: Readonly<SettingsViewProps>) {
-  const { business, brand, days, portfolios, plan } = props;
+  const { business, brand, days, portfolios, plan, logo } = props;
   return (
     <View className="flex-1">
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-5 px-5 pb-8 pt-5">
@@ -38,6 +41,9 @@ export function SettingsView(props: Readonly<SettingsViewProps>) {
         <SettingsSection title={business.title} error={business.error} notice={business.notice}>
           <TextField accessibilityLabel={business.label} value={business.name} onChangeText={business.onName} invalid={business.error !== null} maxLength={120} editable={!business.busy} />
           <Button label={business.save} onPress={business.onSave} loading={business.busy} disabled={!business.dirty} />
+        </SettingsSection>
+        <SettingsSection title={logo.title} hint={logo.hint} error={logo.error} notice={logo.notice}>
+          <LogoSection {...logo} />
         </SettingsSection>
         <SettingsSection title={brand.title} hint={brand.hint} error={brand.error} notice={brand.notice}>
           <SwatchPicker swatches={brand.swatches} selected={brand.color} onSelect={brand.onChoose} />
@@ -73,6 +79,7 @@ export function SettingsView(props: Readonly<SettingsViewProps>) {
         ) : null}
       </ScrollView>
       <ConfirmDialog {...props.deleteDialog} busy={portfolios.busy} />
+      <ConfirmDialog {...props.removeLogoDialog} busy={logo.busy} />
     </View>
   );
 }

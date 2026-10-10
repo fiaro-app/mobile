@@ -36,6 +36,25 @@ export function deletePortfolio(id: string): Response<unknown> {
   return authedRequest(`/portfolios/${id}`, (body) => body, { method: 'DELETE' });
 }
 
+/** `POST /lender/logo-upload-url`: URL firmada para subir el logo directo al almacenamiento (solo Owner y Lender). */
+export function requestLogoUploadUrl(contentType: 'image/png' | 'image/jpeg'): Response<{ uploadUrl: string; publicUrl: string }> {
+  return authedRequest('/lender/logo-upload-url', (body) => z.object({ uploadUrl: z.string(), publicUrl: z.string() }).parse(body), { method: 'POST', body: { contentType } });
+}
+
+/**
+ * Sube la imagen a la URL firmada (`PUT` directo al almacenamiento, SIN la sesión de Fiaro: la firma ya autoriza). Devuelve `true` si el
+ * almacenamiento respondió bien; un fallo de red o de permiso del almacenamiento no es un error del API y se informa aparte.
+ */
+export async function uploadToStorage(uploadUrl: string, imageUri: string, contentType: string): Promise<boolean> {
+  try {
+    const blob = await (await fetch(imageUri)).blob();
+    const response = await fetch(uploadUrl, { method: 'PUT', headers: { 'content-type': contentType }, body: blob });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 /** `GET /subscription`: el plan del negocio (cualquier rol con membresía activa). */
 export function fetchSubscription(): Response<Subscription> {
   return authedRequest('/subscription', (body) => SubscriptionSchema.parse(body));

@@ -4,6 +4,7 @@ import type { ApiFailure } from '@/lib/http/failure';
 export const SETTINGS_COPY = {
   title: 'Configuración',
   business: { title: 'Tu negocio', name: 'Nombre de la financiera', save: 'Guardar nombre', saved: 'Nombre guardado.' },
+  logo: { title: 'Logo', hint: 'PNG o JPG de hasta 2 MB. Se muestra en tu panel.', empty: 'Sin logo', choose: 'Elegir logo', remove: 'Quitar logo', removeTitle: '¿Quitar el logo?', removeMessage: 'Tus cobradores verán la app sin el logo del negocio.', removeConfirm: 'Quitar', cancel: 'Cancelar' },
   brand: { title: 'Color de marca', hint: 'Es el color de los botones en la app de tus cobradores y en la web.', save: 'Guardar color', saved: 'Color guardado.', reset: 'Usar el de Fiaro' },
   days: {
     title: 'Días sin cobro',

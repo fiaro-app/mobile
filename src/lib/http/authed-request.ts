@@ -12,7 +12,8 @@ export interface AuthedRequestOptions {
   readonly body?: unknown;
 }
 
-async function sessionHeaders(): Promise<Record<string, string>> {
+/** Cabeceras de sesión del dispositivo (cookie + esquema de la app); en web las pone el navegador. */
+export async function sessionHeaders(): Promise<Record<string, string>> {
   if (Platform.OS === 'web') return {};
   const cookie = await authClient.getCookie();
   return { 'expo-origin': `${APP_SCHEME}://`, ...(cookie ? { cookie } : {}) };

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useStatsExport, type StatsExport } from '@/features/lender-stats/hooks/use-stats-export';
 import { fetchLenderStats } from '@/features/lender-stats/api/lender-stats-api';
 import { buildLenderStatsModel, type LenderStatsModel } from '@/features/lender-stats/lib/lender-stats-view';
 import { currentRange, type Period } from '@/features/stats/lib/period-range';
@@ -21,6 +22,7 @@ export interface LenderStatsScreen {
   readonly setCollector: (id: string) => void;
   readonly openSheet: () => void;
   readonly closeSheet: () => void;
+  readonly pdf: StatsExport;
   readonly refresh: () => void;
 }
 
@@ -42,6 +44,7 @@ export function useLenderStatsScreen(): LenderStatsScreen {
     () => [{ value: ALL_COLLECTORS, label: 'Todos los cobradores' }, ...(members.data ?? []).filter((member) => member.roles.includes('COLLECTOR')).map((member) => ({ value: member.id, label: member.fullName }))],
     [members.data],
   );
+  const pdf = useStatsExport(range, collectorId);
   const model = useMemo(() => (query.data ? buildLenderStatsModel(query.data) : null), [query.data]);
   return {
     period,
@@ -53,6 +56,7 @@ export function useLenderStatsScreen(): LenderStatsScreen {
     loadFailed: query.data === undefined && query.isError,
     refreshing: query.isRefetching,
     model,
+    pdf,
     setPeriod,
     setCollector: (id) => {
       setCollectorId(id);

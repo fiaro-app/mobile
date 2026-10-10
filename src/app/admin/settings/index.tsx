@@ -22,6 +22,8 @@ export default function SettingsScreen() {
     body = (
       <SettingsView
         business={{ ...business, title: copy.business.title, label: copy.business.name, save: copy.business.save, onName: business.setName, onSave: business.save }}
+        logo={{ title: copy.logo.title, hint: copy.logo.hint, error: screen.logo.error, notice: screen.logo.notice, logoUrl: screen.logo.logoUrl, emptyLabel: copy.logo.empty, chooseLabel: copy.logo.choose, removeLabel: copy.logo.remove, busy: screen.logo.busy, onChoose: screen.logo.choose, onRemove: screen.logo.askRemove }}
+        removeLogoDialog={{ visible: screen.logo.confirmingRemove, title: copy.logo.removeTitle, message: copy.logo.removeMessage, cancelLabel: copy.logo.cancel, confirmLabel: copy.logo.removeConfirm, onCancel: screen.logo.cancelRemove, onConfirm: screen.logo.confirmRemove, destructive: true }}
         brand={{ ...brand, title: copy.brand.title, hint: copy.brand.hint, swatches: screen.swatches, save: copy.brand.save, reset: copy.brand.reset, onChoose: brand.choose, onSave: brand.save, onReset: brand.reset }}
         days={{
           ...days,

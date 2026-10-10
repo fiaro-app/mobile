@@ -374,7 +374,8 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
 en puntos para proporciones). El color de una tendencia depende de la **polaridad**: subir el cobrado es bueno (verde) pero subir la mora es malo (rojo)
 (`trend.ts`). Umbrales iguales a la web: % en mora ≥ 10 % ámbar, ≥ 20 % rojo; efectividad ≥ 90 % verde, ≥ 70 % ámbar. Filtros: período (semana, mes, año hasta hoy) y un
 cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone="destructive"`: verde significaría "pagado").
-Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un archivo; ver §9).
+**Exportar a PDF:** `QUERY /lenders/me/stats/export` con los mismos filtros; `authedDownload` (hermana de `authedRequest` para respuestas que no son JSON) trae los bytes y el nombre
+(`Content-Disposition`), se guardan en la caché (`expo-file-system`) y se abre la hoja de compartir del sistema (`expo-sharing`: guardar en Archivos, WhatsApp, correo).
 
 ## 5o. Configuración, plan, contraseña y sesiones (M-27)
 
@@ -388,7 +389,8 @@ Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un a
 - **Cambiar contraseña** (`account-password`): igual que el cambio obligatorio pero voluntario (sin "Cerrar sesión" como salida) y al terminar vuelve al Perfil.
 - **Sesiones abiertas** (`account-sessions`): `GET /account/sessions`; cerrar una (`DELETE`) o todas las demás (`POST /auth/revoke-other-sessions`). La de este
   teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".
-- **Falta respecto a la web:** subir el logo del negocio (necesita elegir una imagen y subirla a una URL firmada) y exportar estadísticas a PDF; ver §9.
+- **Logo:** se elige de la galería (`expo-image-picker`, PNG o JPG de hasta 2 MB, igual que la web), se pide `POST /lender/logo-upload-url`, se sube la imagen con `PUT` directo al
+  almacenamiento (SIN la sesión de Fiaro: la firma ya autoriza) y se guarda la dirección pública con `PATCH /lender`. Un fallo del almacenamiento no es un error del API y tiene su mensaje.
 
 ## 5p. Recuperar contraseña y registro (M-12 resuelto)
 
@@ -470,7 +472,11 @@ pnpm start        # Expo; `i` abre el simulador de iPhone, `a` el emulador de An
 
 ## 9. Pendiente conocido
 
-- Pantallas del resto del diseño: el Perfil completo (cerrar ruta). Estadísticas (§5f) hecha, pendiente de revisar en Penpot. El Cuadre (§5e) está hecho con lógica y
-  vista, pendiente de revisar contra el mock en Penpot.
-- M-11 contratos instalados; M-12 recuperar contraseña; bloqueo automático por inactividad al volver de segundo
-  plano (hoy solo bloquea al abrir en frío); iconos/splash propios (siguen los de la plantilla de Expo).
+Todo lo que se hace en la web se puede hacer en la app (cobrador y administrador), salvo lo que sigue:
+
+- **Revisar en Penpot** las pantallas hechas sin mock cerrado (los mocks nuevos están en la página "3 · Mobile · Cobrador", a partir de y = 18000) y ajustar diferencias.
+- **M-11:** instalar `@fiaro-app/contracts` (paquete privado: necesita el token del usuario) para dejar de copiar esquemas (`*-schemas.ts`) y consumir `overdueStatus`.
+- **Push de verdad** (§5g): `eas init`, credenciales FCM/APNs y una development build.
+- **Bloqueo por inactividad** al volver de segundo plano (hoy el PIN solo bloquea al abrir en frío) e **iconos/splash propios** (siguen los de la plantilla de Expo).
+- **Fecha de inicio de un préstamo** fuera de −7/+14 días y la **paginación de colaboradores** (> 100) no están en la app todavía.
+- **Verificación en dispositivo:** el administrador se verificó en la vista web contra el API de desarrollo; falta repasar cada pantalla nueva en Android/iOS.

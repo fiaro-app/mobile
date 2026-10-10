@@ -18,6 +18,7 @@ export type LenderSettings = z.infer<typeof LenderSettingsSchema>;
 /** Cuerpo de `PATCH /lender`: solo los campos que cambian. */
 export interface LenderPatch {
   readonly name?: string;
+  readonly logoUrl?: string | null;
   readonly brandColor?: string | null;
   readonly nonWorkingWeekdays?: readonly Weekday[];
   readonly skipNationalHolidays?: boolean;

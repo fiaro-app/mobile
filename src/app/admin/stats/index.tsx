@@ -36,6 +36,7 @@ export default function AdminStatsScreen() {
         collectorsTitle={copy.collectors}
         collectors={model.collectors}
         empty={model.isEmpty ? copy.empty : null}
+        exportPdf={{ label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start }}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
         sheet={{ visible: screen.sheetOpen, title: copy.collectorSheet, options: screen.collectorOptions, selected: screen.collectorId, onSelect: screen.setCollector, onClose: screen.closeSheet }}

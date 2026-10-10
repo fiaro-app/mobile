@@ -31,14 +31,20 @@
         }
       ],
       "expo-secure-store",
-      ["expo-notifications", { "color": "#3B3382" }],
+      [
+        "expo-notifications",
+        {
+          "color": "#3B3382"
+        }
+      ],
       "expo-font",
       [
         "expo-local-authentication",
         {
           "faceIDPermission": "Fiaro usa Face ID para que entres a tu ruta sin escribir el PIN."
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

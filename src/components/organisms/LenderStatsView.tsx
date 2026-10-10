@@ -1,4 +1,6 @@
 import { RefreshControl, ScrollView, View } from 'react-native';
+import { Button } from '@/components/atoms/Button';
+import { Alert } from '@/components/molecules/Alert';
 import { AppText } from '@/components/atoms/AppText';
 import { FilterPill } from '@/components/atoms/FilterPill';
 import { ProgressBar } from '@/components/atoms/ProgressBar';
@@ -23,6 +25,7 @@ export interface LenderStatsViewProps {
   readonly collectorsTitle: string;
   readonly collectors: readonly { readonly id: string; readonly name: string; readonly effectiveness: string; readonly tone: Tone; readonly overdue: string }[];
   readonly empty: string | null;
+  readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void };
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
   readonly sheet: { readonly visible: boolean; readonly title: string; readonly options: readonly { value: string; label: string }[]; readonly selected: string; readonly onSelect: (value: string) => void; readonly onClose: () => void };
@@ -44,6 +47,8 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
         <AppText variant="caption" tone="muted">
           {props.periodLabel}
         </AppText>
+        <Button label={props.exportPdf.label} variant="outline" loading={props.exportPdf.busy} onPress={props.exportPdf.onPress} />
+        {props.exportPdf.error ? <Alert message={props.exportPdf.error} /> : null}
         {props.empty ? <AppText variant="small">{props.empty}</AppText> : null}
         <View className="flex-row flex-wrap gap-3">
           {props.kpis.map((kpi) => (
