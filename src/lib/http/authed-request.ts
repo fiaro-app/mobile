@@ -5,7 +5,7 @@ import { fail, ok, type Result } from '@/lib/result';
 import { Platform } from 'react-native';
 
 /** Métodos que usa el API; `QUERY` es el de las búsquedas con cuerpo (ver `authedRequest`). */
-export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'QUERY';
+export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'QUERY';
 
 export interface AuthedRequestOptions {
   readonly method?: HttpMethod;

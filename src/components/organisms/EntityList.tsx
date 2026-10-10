@@ -52,8 +52,8 @@ export function EntityList({ items, loading, refreshing, onRefresh, empty, heade
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <EntityRow {...item} />}
       ItemSeparatorComponent={Divider}
-      ListHeaderComponent={<>{header}</>}
-      ListEmptyComponent={<>{empty}</>}
+      ListHeaderComponent={<View>{header}</View>}
+      ListEmptyComponent={<View className="flex-1">{empty}</View>}
       ListFooterComponent={
         <View>
           {loadingMore ? <ActivityIndicator className="py-4" color="#3B3382" /> : null}

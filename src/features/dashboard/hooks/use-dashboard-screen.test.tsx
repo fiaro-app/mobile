@@ -4,9 +4,11 @@ import type { ReactNode } from 'react';
 import * as actions from '@/features/auth/store/session-actions';
 import * as api from '@/features/dashboard/api/dashboard-api';
 import { useDashboardScreen } from '@/features/dashboard/hooks/use-dashboard-screen';
+import * as settings from '@/features/settings/api/settings-api';
 import * as team from '@/features/team/api/team-api';
 
 jest.mock('@/features/dashboard/api/dashboard-api', () => ({ fetchDashboard: jest.fn() }));
+jest.mock('@/features/settings/api/settings-api', () => ({ fetchSubscription: jest.fn() }));
 jest.mock('@/features/team/api/team-api', () => ({ fetchMembers: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
@@ -23,6 +25,7 @@ function wrapper({ children }: Readonly<{ children: ReactNode }>) {
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(api).fetchDashboard.mockResolvedValue({ ok: true, value: dashboard });
+  jest.mocked(settings).fetchSubscription.mockResolvedValue({ ok: true, value: { planCode: 'TRIAL', status: 'GRACE_PERIOD', currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 0, graceDaysRemaining: 3, isReadOnly: false, limits: { maxCollectors: 5 }, usage: { activeCollectors: 1 } } });
   jest.mocked(team).fetchMembers.mockResolvedValue({ ok: true, value: [{ id: 'm1', userId: 'u', fullName: 'Ana Gómez', phone: '+573001234567', roles: ['COLLECTOR'], status: 'ACTIVE', portfolioId: null }] });
 });
 
@@ -33,6 +36,9 @@ describe('useDashboardScreen', () => {
       expect(result.current.model?.pending[0]?.collectorName).toBe('Ana Gómez');
     });
     expect(result.current.loadFailed).toBe(false);
+    await waitFor(() => {
+      expect(result.current.banner?.kind).toBe('warning');
+    });
   });
 
   it('muestra el resumen aunque los colaboradores fallen', async () => {

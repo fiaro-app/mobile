@@ -4,6 +4,8 @@ import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
 import { fetchDashboard } from '@/features/dashboard/api/dashboard-api';
 import { buildDashboardModel, type DashboardModel } from '@/features/dashboard/lib/dashboard-view-model';
 import type { Dashboard } from '@/features/dashboard/lib/dashboard-schemas';
+import { useSubscription } from '@/features/settings/hooks/use-settings-data';
+import { subscriptionNotice, type SubscriptionNotice } from '@/features/settings/lib/subscription-view';
 import { useMembers } from '@/features/team/hooks/use-members';
 import { unwrapOrThrow } from '@/lib/http/api-failure-error';
 
@@ -13,6 +15,8 @@ export interface DashboardScreen {
   readonly loadFailed: boolean;
   readonly refreshing: boolean;
   readonly model: DashboardModel | null;
+  /** Aviso del plan (prueba por vencer, en gracia o solo lectura), o `null`. */
+  readonly banner: SubscriptionNotice | null;
   readonly refresh: () => void;
 }
 
@@ -31,6 +35,7 @@ export function useDashboardScreen(): DashboardScreen {
     staleTime: 30_000,
   });
   const members = useMembers();
+  const subscription = useSubscription();
   const names = useMemo(() => new Map((members.data ?? []).map((member) => [member.id, member.fullName])), [members.data]);
   const model = useMemo(() => (query.data ? buildDashboardModel(query.data, names) : null), [query.data, names]);
   return {
@@ -38,6 +43,7 @@ export function useDashboardScreen(): DashboardScreen {
     loadFailed: query.data === undefined && query.isError,
     refreshing: query.isFetching && query.data !== undefined,
     model,
+    banner: subscription.data ? subscriptionNotice(subscription.data) : null,
     refresh: () => {
       void query.refetch();
       void members.refetch();

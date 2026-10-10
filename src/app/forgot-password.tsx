@@ -1,27 +1,35 @@
 import { useRouter } from 'expo-router';
-import { StatusCard } from '@/components/molecules/StatusCard';
-import { CenteredTemplate } from '@/components/templates/CenteredTemplate';
+import { RecoveryView } from '@/components/organisms/RecoveryView';
+import { AuthTemplate } from '@/components/templates/AuthTemplate';
+import { ACCESS_COPY } from '@/features/auth/content/access-messages';
+import { usePasswordRecovery } from '@/features/auth/hooks/use-password-recovery';
 
-/**
- * Ruta `/forgot-password`. Por ahora informativa: el cobrador recibe su contraseña temporal del
- * Lender, así que quien se la puede restablecer es su administrador. La recuperación por código
- * (`POST /auth/request-password-reset`) exige un correo de contacto que un cobrador puede no
- * tener; se agrega cuando producto decida el flujo (ver ARCHITECTURE.md, M-12).
- */
+/** Ruta `/forgot-password`: recuperar la contraseña con un código que llega al correo de contacto de la cuenta. */
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const recovery = usePasswordRecovery();
+  const toLogin = () => {
+    router.replace('/login');
+  };
   return (
-    <CenteredTemplate>
-      <StatusCard
-        icon="help-circle-outline"
-        tone="primary"
-        title="¿Olvidaste tu contraseña?"
-        message="Habla con tu administrador: él puede darte una contraseña temporal para que vuelvas a entrar."
-        actionLabel="Volver"
-        onAction={() => {
+    <AuthTemplate>
+      <RecoveryView
+        step={recovery.step}
+        texts={ACCESS_COPY.recovery}
+        values={recovery.values}
+        errors={recovery.errors}
+        formError={recovery.formError}
+        notice={recovery.notice}
+        busy={recovery.busy}
+        onField={recovery.setField}
+        onSendCode={recovery.sendCode}
+        onResend={recovery.resend}
+        onReset={recovery.submitReset}
+        onToLogin={toLogin}
+        onBack={() => {
           router.back();
         }}
       />
-    </CenteredTemplate>
+    </AuthTemplate>
   );
 }

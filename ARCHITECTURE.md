@@ -357,6 +357,52 @@ listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `B
   asignación del cobrador falla, se avisa, se bloquea crear otro igual y se asigna después desde el detalle (igual que la web).
 - `useApiQuery` (`lib/hooks`) concentra el patrón "lanzar el error, cerrar sesión en 401, `staleTime` 30 s" para no repetirlo en cada consulta.
 
+## 5m. Cuadres y Cobros del día del administrador (M-25)
+
+- **Cuadres** (`admin/settlements`, `[id]`): lista por estado (el API filtra; **Pendientes primero**) con nombre del cobrador, y detalle con el desglose por
+  medio de pago, la nota del cobrador y los botones Aprobar / Rechazar (solo `PENDING`). El comentario es opcional pero el cobrador lo lee al rechazar
+  (§5e). Un `CONFLICT` significa que otra persona ya lo revisó. Al decidir se actualizan el detalle, la lista y el Resumen. Tocar un cuadre del Resumen
+  abre este mismo detalle.
+- **Cobros del día** (`admin/payments`): `QUERY /collection-visits` de UN día (hoy; se puede elegir cualquiera de los últimos 14). "Pagos" filtra en el API
+  y "Sin pago" en la app. El total cobrado suma lo **cargado** (sin pagos revertidos): si hay más páginas el resumen dice "(hasta ahora)" y crece al
+  bajar. Tocar una visita abre su préstamo.
+- Corrección de paso: `FlatList` recibe `ListHeaderComponent`/`ListEmptyComponent` como `View` (con un `Fragment` React avisa por `onLayout` en web).
+
+## 5n. Estadísticas del administrador (M-26)
+
+`admin/stats`: `QUERY /lenders/me/stats` con `includePrevious` (el API trae también el período anterior y de ahí salen las **tendencias**: ↑/↓ en % para montos y
+en puntos para proporciones). El color de una tendencia depende de la **polaridad**: subir el cobrado es bueno (verde) pero subir la mora es malo (rojo)
+(`trend.ts`). Umbrales iguales a la web: % en mora ≥ 10 % ámbar, ≥ 20 % rojo; efectividad ≥ 90 % verde, ≥ 70 % ámbar. Filtros: período (semana, mes, año hasta hoy) y un
+cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone="destructive"`: verde significaría "pagado").
+Pendiente respecto a la web: **exportar a PDF** (necesita guardar/compartir un archivo; ver §9).
+
+## 5o. Configuración, plan, contraseña y sesiones (M-27)
+
+- **Configuración** (`admin/settings`): cada sección guarda POR SEPARADO (`useSaveAction`: ocupado, error y aviso propios, así un fallo de "Días sin cobro" no aparece
+  bajo "Carteras"). Nombre y color de marca van a `PATCH /lender`; el color se **aplica al instante** en la app (`applyBrandColor`) y solo se ofrece la paleta
+  de la web, cuyos colores ya pasan el contraste WCAG AA con texto blanco (4.5; `contrastWithWhite`). **Días sin cobro**: el calendario del API mueve las cuotas de esos días al
+  siguiente día de cobro, así que guardar cambia saldos y mora de TODOS los préstamos: se invalidan préstamos, Resumen y la ruta del cobrador.
+  **Carteras:** crear, renombrar y borrar (la por defecto no se borra; una con cobradores activos tampoco, ambos `CONFLICT` con su propio mensaje).
+- **Plan** (`GET /subscription`, solo informa): bloque "Tu plan" y un **aviso en el Resumen** (prueba por terminar ≤ 7 días, en gracia o solo lectura). Si el plan no carga
+  simplemente no se muestra.
+- **Cambiar contraseña** (`account-password`): igual que el cambio obligatorio pero voluntario (sin "Cerrar sesión" como salida) y al terminar vuelve al Perfil.
+- **Sesiones abiertas** (`account-sessions`): `GET /account/sessions`; cerrar una (`DELETE`) o todas las demás (`POST /auth/revoke-other-sessions`). La de este
+  teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".
+- **Falta respecto a la web:** subir el logo del negocio (necesita elegir una imagen y subirla a una URL firmada) y exportar estadísticas a PDF; ver §9.
+
+## 5p. Recuperar contraseña y registro (M-12 resuelto)
+
+Antes "¿Olvidaste tu contraseña?" solo mandaba a hablar con el administrador. Ahora hay recuperación por código, igual que la web:
+
+- **Recuperar** (`forgot-password`): `POST /auth/request-password-reset` manda un código de 6 dígitos al **correo de contacto** de la cuenta y responde IGUAL exista o no
+  la cuenta (no revela quién tiene cuenta), por eso el segundo paso se muestra siempre; `POST /auth/reset-password` lo canjea por una contraseña nueva y el API cierra
+  todas las sesiones de la persona. Un cobrador sin correo de contacto no puede usarlo: la pantalla le dice que pida una contraseña temporal a su administrador
+  (`resetPassword` de §5j).
+- **Registro** (`register`, enlace "Crear cuenta" en el login): dos pasos (cuenta y empresa) y `POST /register`, que NO abre sesión: al terminar se invita a iniciarla. Si el API
+  rechaza algo del paso 1 (celular ya registrado, contraseña débil), se vuelve a ese paso con el mensaje.
+- Ambas llaman rutas públicas con `apiPost` (sin cookie). Las validaciones son funciones puras (`access-forms.ts`) y las mismas reglas del API (cédula 3–10 dígitos sin cero
+  inicial, contraseña 8–128).
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:
