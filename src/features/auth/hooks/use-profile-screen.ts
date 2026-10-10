@@ -1,6 +1,8 @@
 import { initials, firstName } from '@/features/auth/lib/names';
 import { completeSignOut } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
+import { canAdminister } from '@/features/workspace/lib/roles';
+import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 
 function emailStatusOf(email: string | null | undefined, verified: boolean | undefined): string {
   if (!email) return 'Sin correo';
@@ -16,6 +18,11 @@ export interface ProfileScreen {
   /** Estado del correo de contacto para mostrarlo junto a la fila: verificado, sin verificar o sin correo. */
   readonly emailStatus: string;
   readonly signOut: () => void;
+  /** Modo con el que se usa la app ahora. */
+  readonly mode: 'admin' | 'collector';
+  /** Texto del botón para cambiar de modo, o `null` si la persona solo tiene un rol. */
+  readonly switchLabel: string | null;
+  readonly switchMode: () => void;
 }
 
 /**
@@ -24,12 +31,21 @@ export interface ProfileScreen {
 export function useProfileScreen(): ProfileScreen {
   const user = useSessionStore((state) => state.user);
   const fullName = user?.fullName ?? '';
+  const roles = useWorkspaceStore((state) => state.roles);
+  const mode = useWorkspaceStore((state) => state.mode);
+  const setMode = useWorkspaceStore((state) => state.setMode);
+  const both = canAdminister(roles) && roles.includes('COLLECTOR');
   return {
     fullName,
     firstName: firstName(fullName),
     initials: initials(fullName),
     phone: user?.phone ?? '',
     emailStatus: emailStatusOf(user?.contactEmail, user?.contactEmailVerified),
+    mode,
+    switchLabel: both ? (mode === 'admin' ? 'Cambiar a modo Cobrador' : 'Cambiar a modo Administrador') : null,
+    switchMode: () => {
+      setMode(mode === 'admin' ? 'collector' : 'admin');
+    },
     signOut: () => {
       void completeSignOut();
     },

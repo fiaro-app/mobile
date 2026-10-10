@@ -9,10 +9,11 @@ import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ACCOUNT_COPY } from '@/features/account/content/messages';
 import { useProfileScreen } from '@/features/auth/hooks/use-profile-screen';
 
-/** Ruta `/profile`: la persona, sus accesos (editar perfil, cuadre, estadísticas) y cerrar sesión. */
+/** Ruta `/profile`: la persona, sus accesos según el modo (cobrador o administrador) y cerrar sesión. */
 export default function ProfileScreen() {
   const router = useRouter();
   const profile = useProfileScreen();
+  const collector = profile.mode === 'collector';
   return (
     <ScreenTemplate
       topBar={
@@ -43,20 +44,24 @@ export default function ProfileScreen() {
               router.push('/profile-edit');
             }}
           />
-          <MenuRow
-            icon="wallet-outline"
-            label="Cuadre del día"
-            onPress={() => {
-              router.push('/settlement');
-            }}
-          />
-          <MenuRow
-            icon="stats-chart-outline"
-            label="Estadísticas"
-            onPress={() => {
-              router.push('/stats');
-            }}
-          />
+          {collector ? (
+            <MenuRow
+              icon="wallet-outline"
+              label="Cuadre del día"
+              onPress={() => {
+                router.push('/settlement');
+              }}
+            />
+          ) : null}
+          {collector ? (
+            <MenuRow
+              icon="stats-chart-outline"
+              label="Estadísticas"
+              onPress={() => {
+                router.push('/stats');
+              }}
+            />
+          ) : null}
           <MenuRow
             icon="notifications-outline"
             label="Notificaciones"
@@ -65,7 +70,8 @@ export default function ProfileScreen() {
             }}
           />
         </View>
-        <View className="px-5 pt-8">
+        <View className="gap-3 px-5 pt-8">
+          {profile.switchLabel ? <Button label={profile.switchLabel} onPress={profile.switchMode} /> : null}
           <Button label="Cerrar sesión" variant="outline" onPress={profile.signOut} />
         </View>
       </ScrollView>

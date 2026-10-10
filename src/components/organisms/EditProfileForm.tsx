@@ -73,7 +73,7 @@ export function EditProfileForm(props: Readonly<EditProfileFormProps>) {
       ) : null}
       <Button label={props.saveLabel} onPress={props.onSubmit} loading={props.submitting} />
       {verification ? (
-        <View className="gap-3 rounded-md border border-foreground/10 bg-surface p-4">
+        <View className="gap-3 rounded-md border border-surface-3 bg-surface p-4">
           <AppText variant="label">{verification.title}</AppText>
           <AppText variant="small">{verification.message}</AppText>
           {verification.error ? <Alert message={verification.error} /> : null}
