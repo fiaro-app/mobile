@@ -67,7 +67,7 @@ describe('useInactivityLock', () => {
     const spy = jest.mocked(AppState.addEventListener);
     const before = spy.mock.calls.length;
     const idle = await renderHook(() => useInactivityLock(false));
-    expect(spy.mock.calls.length).toBe(before);
+    expect(spy.mock.calls).toHaveLength(before);
     await idle.unmount();
     const active = await renderHook(() => useInactivityLock(true));
     await active.unmount();
