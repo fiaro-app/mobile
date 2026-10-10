@@ -287,6 +287,43 @@ Bandeja `notifications` (campana con globo de sin leer en la Ruta) y registro de
 - **Verificar el correo:** `POST /account/contact-email/request-verification` manda un código de 6 dígitos y
   `/verify` lo confirma. La sección solo aparece con correo sin verificar. Los fallos se traducen por el `code` estable del API.
 
+## 5i. Modo administrador (M-21)
+
+La app sirve a dos caras con las mismas reglas que la web: **cobrador** (ruta del día) y **administrador** (Owner/Lender: resumen,
+cobradores, clientes, préstamos, cuadres, estadísticas, configuración). Lo que se hace en la web se puede hacer en el celular y al revés.
+
+- **Cómo se sabe el rol.** El API no tiene "mis roles": se lista `QUERY /memberships` (solo lo puede quien administra) y se busca la
+  propia membresía; un **403 significa cobrador** (igual que en la web). Sin conexión se usan los últimos roles guardados por persona
+  (`fiaro.roles.<userId>`) y, si nunca hubo, **cobrador**: es el rol con menos permisos, así equivocarse hacia ese lado no expone nada.
+- **Modo.** `workspace-store` guarda `roles` y `mode`. Quien administra entra en modo administrador aunque también cobre; desde el
+  menú/Perfil cambia a "modo Cobrador" y viceversa (solo aparece si tiene ambos roles). El modo no se persiste: se reinicia al iniciar sesión.
+- **Rutas.** `AppShell` tiene tres grupos `Stack.Protected`: administrador (`admin/*`), cobrador y compartido (perfil, edición de perfil,
+  notificaciones). Mientras se averiguan los roles se muestra `LoadingScreen`. La seguridad real está en el API (cada ruta valida el rol);
+  esto solo decide qué se ve.
+- **Menú lateral** (`AdminDrawer`, capa dentro de la pantalla, no `Modal`). Las secciones se abren con `replace`, no `push`: son destinos del
+  mismo nivel y apilarlas haría que "atrás" recorriera todas las visitadas. `ADMIN_NAV` (`workspace/lib/admin-nav.ts`) es la lista de secciones.
+- **Color de marca.** Tras conocer los roles se pide `GET /lender` y se aplica `brandColor` (mejor esfuerzo) en ambos modos.
+- **Resumen** (`GET /lenders/me/dashboard`): indicadores, alertas y cuadres por revisar; los nombres salen de la lista de colaboradores
+  (`features/team`); si esa no carga, se muestra "Cobrador sin nombre" en vez de bloquear la pantalla. Umbrales de efectividad iguales a la web
+  (≥ 90 % verde, ≥ 70 % ámbar, menos rojo).
+
+## 5j. Cobradores del administrador (M-22)
+
+`admin/collectors` (lista), `admin/collectors/new` (registrar) y `admin/collectors/[id]` (gestionar). Piezas reutilizables para las demás
+listas del administrador: `EntityRow` / `EntityList` / `ListHeader` / `Fab` / `Badge` (cobradores, clientes, préstamos, cuadres comparten forma).
+
+- **Un solo listado de colaboradores.** `QUERY /memberships` (hasta 100, sin paginar en la app) alimenta la lista de cobradores, el nombre de
+  cada cuadre del Resumen y la pantalla de gestión (se busca la membresía por `id` en esa misma caché, sin pedir `GET /memberships/:id`). Un
+  prestamista con más de 100 colaboradores necesitaría paginar: hoy no es un caso real del producto.
+- **Búsqueda sin tildes ni mayúsculas** (`fold`), por nombre o por dígitos del celular. Orden: activos primero, luego por nombre.
+- **Registrar** = `POST /memberships` con rol `COLLECTOR` y cartera (por defecto la `isDefault`). El API devuelve la **contraseña temporal una sola
+  vez**, así que la pantalla de éxito la muestra y ofrece compartirla (hoja del sistema, `Share`); si la persona ya tenía cuenta no hay contraseña
+  y se avisa que usará la suya. Cédula y celular se normalizan igual que en el API (`normalizeNationalId`, `toMobileE164`).
+- **Gestionar:** desempeño del mes (`GET /collectors/:id/stats?from&to`, mismo esquema que las estadísticas del cobrador; la ficha pinta rojo la
+  efectividad < 60 %, distinto del Resumen, igual que la web), cambiar cartera (`PATCH /memberships/:id/roles` exige reenviar los roles),
+  restablecer contraseña (otra contraseña temporal de una sola vez) y desactivar (quita el acceso y conserva el historial).
+- **Peligro en rojo:** `Button` ganó las variantes `danger` y `danger-outline`, y `ConfirmDialog` el prop `destructive`.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

@@ -1,0 +1,83 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { renderHook, waitFor } from '@testing-library/react-native';
+import * as actions from '@/features/auth/store/session-actions';
+import * as api from '@/features/workspace/api/workspace-api';
+import { useWorkspace } from '@/features/workspace/hooks/use-workspace';
+import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
+import * as brand from '@/lib/theme/brand';
+
+jest.mock('@react-native-async-storage/async-storage', () => jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'));
+jest.mock('@/features/workspace/api/workspace-api', () => ({ fetchOwnRoles: jest.fn(), fetchLender: jest.fn() }));
+jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
+jest.mock('@/lib/theme/brand', () => ({ applyBrandColor: jest.fn() }));
+
+const a = jest.mocked(api);
+const store = () => useWorkspaceStore.getState();
+
+beforeEach(async () => {
+  await AsyncStorage.clear();
+  jest.clearAllMocks();
+  store().reset();
+  a.fetchLender.mockResolvedValue({ ok: true, value: { id: 'l', name: 'X', brandColor: '#112233' } });
+});
+
+describe('useWorkspace', () => {
+  it('no hace nada sin sesión', async () => {
+    await renderHook(() => useWorkspace(null));
+    expect(store().status).toBe('idle');
+    expect(a.fetchOwnRoles).not.toHaveBeenCalled();
+  });
+
+  it('carga los roles, elige el modo, guarda el caché y aplica el color de marca', async () => {
+    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: ['OWNER', 'COLLECTOR'] });
+    await renderHook(() => useWorkspace('u1'));
+    await waitFor(() => {
+      expect(store().status).toBe('ready');
+    });
+    expect(store()).toMatchObject({ roles: ['OWNER', 'COLLECTOR'], mode: 'admin' });
+    expect(await AsyncStorage.getItem('fiaro.roles.u1')).toBe('["OWNER","COLLECTOR"]');
+    await waitFor(() => {
+      expect(brand.applyBrandColor).toHaveBeenCalledWith('#112233');
+    });
+  });
+
+  it('sin roles conocidos entra como cobrador', async () => {
+    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: [] });
+    await renderHook(() => useWorkspace('u1'));
+    await waitFor(() => {
+      expect(store().status).toBe('ready');
+    });
+    expect(store().mode).toBe('collector');
+  });
+
+  it('sin conexión usa los últimos roles guardados', async () => {
+    await AsyncStorage.setItem('fiaro.roles.u1', '["LENDER"]');
+    a.fetchOwnRoles.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
+    await renderHook(() => useWorkspace('u1'));
+    await waitFor(() => {
+      expect(store().status).toBe('ready');
+    });
+    expect(store()).toMatchObject({ roles: ['LENDER'], mode: 'admin' });
+    expect(actions.signOutIfSessionExpired).toHaveBeenCalled();
+  });
+
+  it('sin conexión y sin caché (o con caché dañado) entra como cobrador', async () => {
+    await AsyncStorage.setItem('fiaro.roles.u1', 'no-es-json');
+    a.fetchOwnRoles.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
+    await renderHook(() => useWorkspace('u1'));
+    await waitFor(() => {
+      expect(store().status).toBe('ready');
+    });
+    expect(store()).toMatchObject({ roles: ['COLLECTOR'], mode: 'collector' });
+  });
+
+  it('al perder la sesión reinicia el estado', async () => {
+    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: ['OWNER'] });
+    const hook = await renderHook(({ id }: { id: string | null }) => useWorkspace(id), { initialProps: { id: 'u1' as string | null } });
+    await waitFor(() => {
+      expect(store().status).toBe('ready');
+    });
+    await hook.rerender({ id: null });
+    expect(store().status).toBe('idle');
+  });
+});

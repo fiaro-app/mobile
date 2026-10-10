@@ -41,7 +41,7 @@ export function SettlementView(props: Readonly<SettlementViewProps>) {
     <View className="flex-1">
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-5 px-5 pb-8 pt-5">
         {props.notice ? <ReviewNotice {...props.notice} /> : null}
-        <View className="overflow-hidden rounded-md border border-foreground/10 bg-surface py-1">
+        <View className="overflow-hidden rounded-md border border-surface-3 bg-surface py-1">
           <InfoRow label={props.expectedTitle} value={props.expectedLabel} />
           <InfoRow label={props.collectedTitle} value={props.collectedLabel} />
           <InfoRow label="Diferencia" value={props.differenceText} />

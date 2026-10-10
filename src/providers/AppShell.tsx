@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { BlockedView } from '@/components/organisms/BlockedView';
 import { useBootstrap } from '@/features/auth/hooks/use-bootstrap';
 import { useAccess, useSessionStore } from '@/features/auth/store/session-store';
+import { LoadingScreen } from '@/components/templates/LoadingScreen';
+import { useWorkspace } from '@/features/workspace/hooks/use-workspace';
+import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import { usePushRegistration } from '@/features/notifications/hooks/use-push-registration';
 import { useVisitQueueSync } from '@/features/visit/hooks/use-visit-queue-sync';
 
@@ -21,6 +24,9 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
   const userId = useSessionStore((state) => state.user?.id ?? null);
   useVisitQueueSync(access === 'signed-in' ? userId : null);
   usePushRegistration(access === 'signed-in' ? userId : null);
+  useWorkspace(access === 'signed-in' ? userId : null);
+  const workspace = useWorkspaceStore((state) => state.status);
+  const mode = useWorkspaceStore((state) => state.mode);
   const settled = fontsLoaded && (boot.ready || boot.blocked !== null);
 
   useEffect(() => {
@@ -31,6 +37,8 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
   if (boot.blocked) {
     return <BlockedView kind={boot.blocked} downloadUrl={boot.downloadUrl} retrying={boot.retrying} onRetry={boot.retry} />;
   }
+
+  if (access === 'signed-in' && workspace !== 'ready') return <LoadingScreen />;
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F6F5FB' } }}>
@@ -47,17 +55,25 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
       <Stack.Protected guard={access === 'offer-pin'}>
         <Stack.Screen name="create-pin" />
       </Stack.Protected>
-      <Stack.Protected guard={access === 'signed-in'}>
+      <Stack.Protected guard={access === 'signed-in' && mode === 'admin'}>
+        <Stack.Screen name="admin/index" />
+        <Stack.Screen name="admin/collectors/index" />
+        <Stack.Screen name="admin/collectors/new" />
+        <Stack.Screen name="admin/collectors/[id]" />
+      </Stack.Protected>
+      <Stack.Protected guard={access === 'signed-in' && mode === 'collector'}>
         <Stack.Screen name="index" />
         <Stack.Screen name="clients" />
-        <Stack.Screen name="profile" />
-        <Stack.Screen name="profile-edit" />
         <Stack.Screen name="settlement" />
         <Stack.Screen name="stats" />
-        <Stack.Screen name="notifications" />
         <Stack.Screen name="client/[loanId]" />
         <Stack.Screen name="visit/[loanId]" />
         <Stack.Screen name="visit-done" />
+      </Stack.Protected>
+      <Stack.Protected guard={access === 'signed-in'}>
+        <Stack.Screen name="profile" />
+        <Stack.Screen name="profile-edit" />
+        <Stack.Screen name="notifications" />
       </Stack.Protected>
     </Stack>
   );

@@ -3,12 +3,16 @@ import { AppText } from '@/components/atoms/AppText';
 import { LoadingDots } from '@/components/atoms/LoadingDots';
 import { cn } from '@/lib/cn';
 
-export type ButtonVariant = 'primary' | 'outline';
+export type ButtonVariant = 'primary' | 'outline' | 'danger' | 'danger-outline';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary',
   outline: 'border-[1.5px] border-primary bg-surface',
+  danger: 'bg-destructive',
+  'danger-outline': 'border-[1.5px] border-destructive bg-surface',
 };
+
+const TEXT_TONES = { primary: 'inverse', outline: 'primary', danger: 'inverse', 'danger-outline': 'destructive' } as const;
 
 export interface ButtonProps extends Omit<PressableProps, 'children'> {
   readonly label: string;
@@ -46,7 +50,7 @@ export function Button({
       )}
       {...props}
     >
-      <AppText variant="label" tone={variant === 'primary' ? 'inverse' : 'primary'} className={cn(loading && 'opacity-0')}>
+      <AppText variant="label" tone={TEXT_TONES[variant]} className={cn(loading && 'opacity-0')}>
         {label}
       </AppText>
       {loading && (

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Button } from '@/components/atoms/Button';
@@ -10,6 +11,12 @@ export interface ConfirmDialogProps {
   readonly confirmLabel: string;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
+  /** Pinta la confirmación en rojo (acciones que no se deshacen: desactivar, anular, rechazar). */
+  readonly destructive?: boolean;
+  /** Contenido extra bajo el mensaje (por ejemplo, un campo de comentario). */
+  readonly children?: ReactNode;
+  /** Deshabilita los botones mientras se procesa. */
+  readonly busy?: boolean;
 }
 
 /**
@@ -17,7 +24,7 @@ export interface ConfirmDialogProps {
  * dentro de la pantalla y no el `Modal` de React Native (da una advertencia en la vista web de desarrollo).
  * Tocar el fondo equivale a cancelar.
  */
-export function ConfirmDialog({ visible, title, message, cancelLabel, confirmLabel, onCancel, onConfirm }: Readonly<ConfirmDialogProps>) {
+export function ConfirmDialog({ visible, title, message, cancelLabel, confirmLabel, onCancel, onConfirm, destructive = false, children, busy = false }: Readonly<ConfirmDialogProps>) {
   if (!visible) return null;
   return (
     <View className="absolute inset-0 items-center justify-center px-8">
@@ -27,9 +34,10 @@ export function ConfirmDialog({ visible, title, message, cancelLabel, confirmLab
           {title}
         </AppText>
         <AppText variant="body">{message}</AppText>
+        {children}
         <View className="mt-2 flex-row gap-3">
-          <Button label={cancelLabel} variant="outline" className="flex-1" onPress={onCancel} />
-          <Button label={confirmLabel} className="flex-1" onPress={onConfirm} />
+          <Button label={cancelLabel} variant="outline" className="flex-1" onPress={onCancel} disabled={busy} />
+          <Button label={confirmLabel} variant={destructive ? 'danger' : 'primary'} className="flex-1" onPress={onConfirm} loading={busy} />
         </View>
       </View>
     </View>
