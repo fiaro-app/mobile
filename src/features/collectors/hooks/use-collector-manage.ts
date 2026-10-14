@@ -17,6 +17,7 @@ import { toCollectorStatsView } from '@/features/collectors/lib/collector-stats-
 import { displayPhone, portfolioName } from '@/features/collectors/lib/collector-view-model';
 import { currentRange } from '@/features/stats/lib/period-range';
 import { useMembers } from '@/features/team/hooks/use-members';
+import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import { businessDateOf } from '@/lib/business-date';
 import { unwrapOrThrow } from '@/lib/http/api-failure-error';
 import type { ApiFailure } from '@/lib/http/failure';
@@ -88,6 +89,7 @@ export function useCollectorManage(id: string): CollectorManage {
     );
   };
 
+  const ownMembershipId = useWorkspaceStore((state) => state.membershipId);
   const portfolioId = chosen ?? member?.portfolioId ?? '';
   return {
     loading: members.isPending,
@@ -100,6 +102,7 @@ export function useCollectorManage(id: string): CollectorManage {
           portfolio: portfolioName(portfolios.data ?? [], member.portfolioId),
           initials: initials(member.fullName),
           isOwner: member.roles.includes('OWNER'),
+          isSelf: member.id === ownMembershipId,
         }
       : null,
     stats: stats.data ? toCollectorStatsView(stats.data) : null,

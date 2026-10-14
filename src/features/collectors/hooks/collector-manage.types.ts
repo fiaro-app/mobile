@@ -15,6 +15,8 @@ export interface CollectorManage {
     readonly initials: string;
     /** El dueño del negocio: nunca se borra. */
     readonly isOwner: boolean;
+    /** Es la propia persona: la API no deja administrarse a uno mismo (cartera, contraseña, baja). */
+    readonly isSelf: boolean;
   } | null;
   readonly stats: CollectorStatsView | null;
   readonly statsFailed: boolean;

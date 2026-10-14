@@ -1,33 +1,22 @@
-import { fetchLender, fetchOwnRoles } from '@/features/workspace/api/workspace-api';
+import { fetchLender, fetchOwnMembership } from '@/features/workspace/api/workspace-api';
 import { authedRequest } from '@/lib/http/authed-request';
 
 jest.mock('@/lib/http/authed-request', () => ({ authedRequest: jest.fn() }));
 
 const request = jest.mocked(authedRequest);
-const http = (status: number) => ({ ok: false, failure: { kind: 'http', status, code: null, retryAfterSeconds: null } }) as const;
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('fetchOwnRoles', () => {
-  it('pide la membresía propia y devuelve sus roles', async () => {
-    request.mockResolvedValue({ ok: true, value: { roles: ['OWNER', 'COLLECTOR'] } });
-    expect(await fetchOwnRoles()).toEqual({ ok: true, value: ['OWNER', 'COLLECTOR'] });
+describe('fetchOwnMembership', () => {
+  it('pide la membresía propia y valida su id y sus roles', async () => {
+    request.mockResolvedValue({ ok: true, value: { id: 'm1', roles: ['OWNER'] } });
+    expect(await fetchOwnMembership()).toEqual({ ok: true, value: { id: 'm1', roles: ['OWNER'] } });
     expect(request.mock.calls[0]?.[0]).toBe('/memberships/me');
-  });
-
-  it('propaga los fallos', async () => {
-    request.mockResolvedValue(http(500));
-    expect((await fetchOwnRoles()).ok).toBe(false);
-  });
-
-  it('valida la respuesta', async () => {
-    request.mockResolvedValue(http(500));
-    await fetchOwnRoles();
     const parse = request.mock.calls[0]?.[1] as (body: unknown) => unknown;
-    expect(parse({ id: 'm', roles: ['COLLECTOR'] })).toEqual({ roles: ['COLLECTOR'] });
-    expect(() => parse({ roles: ['ROOT'] })).toThrow();
+    expect(parse({ id: 'm', roles: ['COLLECTOR'], status: 'ACTIVE' })).toEqual({ id: 'm', roles: ['COLLECTOR'] });
+    expect(() => parse({ id: 'm', roles: ['ROOT'] })).toThrow();
   });
 });
 
