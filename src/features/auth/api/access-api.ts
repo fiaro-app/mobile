@@ -4,8 +4,8 @@ import type { ApiFailure } from '@/lib/http/failure';
 import type { Result } from '@/lib/result';
 
 /** `POST /auth/request-password-reset`: manda un código al correo de contacto. Responde igual exista o no la cuenta (no revela quién tiene cuenta). */
-export function requestPasswordReset(phone: string): Promise<Result<unknown, ApiFailure>> {
-  return apiPost('/auth/request-password-reset', { phoneNumber: toMobileE164(phone) ?? phone }, (body) => body);
+export function requestPasswordReset(phone: string, turnstileToken?: string): Promise<Result<unknown, ApiFailure>> {
+  return apiPost('/auth/request-password-reset', { phoneNumber: toMobileE164(phone) ?? phone, ...(turnstileToken ? { turnstileToken } : {}) }, (body) => body);
 }
 
 /** `POST /auth/reset-password`: canjea el código por una contraseña nueva y cierra todas las sesiones de la persona. */

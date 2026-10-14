@@ -17,6 +17,11 @@ describe('access-api', () => {
     expect(post.mock.calls[0]?.[1]).toEqual({ phoneNumber: '+573001234567' });
   });
 
+  it('pide el código con el token de Turnstile cuando lo hay', async () => {
+    await requestPasswordReset('300 123 4567', 'tok');
+    expect(post.mock.calls[0]?.[1]).toEqual({ phoneNumber: '+573001234567', turnstileToken: 'tok' });
+  });
+
   it('canjea el código', async () => {
     await resetPassword({ phone: '3001234567', code: '123456', newPassword: 'nueva-clave' });
     expect(post.mock.calls[0]).toMatchObject(['/auth/reset-password', { phoneNumber: '+573001234567', code: '123456', newPassword: 'nueva-clave' }, expect.any(Function)]);

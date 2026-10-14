@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { requestPasswordReset, resetPassword } from '@/features/auth/api/access-api';
-import { accessFailureMessage, ACCESS_COPY } from '@/features/auth/content/access-messages';
+import { accessFailureMessage, ACCESS_COPY, TURNSTILE_LOAD_ERROR, TURNSTILE_PENDING } from '@/features/auth/content/access-messages';
 import { cleanCode, validateRecoveryPhone, validateReset, type FieldErrors } from '@/features/auth/lib/access-forms';
 import { formatPhoneInput } from '@/features/auth/lib/phone';
+import { TURNSTILE_SITE_KEY } from '@/lib/config';
 
 /** Pasos de la recuperación. */
 export type RecoveryStep = 'request' | 'reset' | 'done';
@@ -20,6 +21,10 @@ export interface PasswordRecovery {
   readonly sendCode: () => void;
   readonly resend: () => void;
   readonly submitReset: () => void;
+  /** Cambia para pedir un desafío de Turnstile nuevo: cada pedido de código (y cada reenvío) gasta un token. */
+  readonly turnstileResetKey: number;
+  readonly setTurnstileToken: (token: string | null) => void;
+  readonly turnstileError: () => void;
 }
 
 const EMPTY: Record<Field, string> = { phone: '', code: '', newPassword: '', confirmPassword: '' };
@@ -36,11 +41,22 @@ export function usePasswordRecovery(): PasswordRecovery {
   const [formError, setFormError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+  const turnstileError = useCallback(() => {
+    setFormError(TURNSTILE_LOAD_ERROR);
+  }, []);
 
   const request = async (afterSend: () => void, message: string | null) => {
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setFormError(TURNSTILE_PENDING);
+      return;
+    }
     setBusy(true);
     setFormError(null);
-    const result = await requestPasswordReset(values.phone);
+    setTurnstileToken(null);
+    setTurnstileResetKey((current) => current + 1);
+    const result = await requestPasswordReset(values.phone, turnstileToken ?? undefined);
     setBusy(false);
     if (!result.ok) {
       setFormError(accessFailureMessage(result.failure));
@@ -57,6 +73,9 @@ export function usePasswordRecovery(): PasswordRecovery {
     formError,
     notice,
     busy,
+    turnstileResetKey,
+    setTurnstileToken,
+    turnstileError,
     setField: (field, text) => {
       let next = text;
       if (field === 'phone') next = formatPhoneInput(text);

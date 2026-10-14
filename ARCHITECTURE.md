@@ -417,9 +417,9 @@ El PIN ya no protege solo el arranque en frío: `useInactivityLock` (en `AppShel
 (`LOCK_AFTER_MS`), llama `lock()` del store de sesión y `resolveAccess` devuelve `locked` (pantalla de PIN). Solo actúa con sesión lista y **PIN activado** (`lock` no hace nada sin PIN).
 Un minuto deja contestar un mensaje sin fricción y es poco para un teléfono perdido o prestado.
 
-## 5r. Verificación contra robots en el registro (Cloudflare Turnstile)
+## 5r. Verificación contra robots en el registro y la recuperación (Cloudflare Turnstile)
 
-`POST /register` exige un token de Cloudflare Turnstile cuando el API tiene `CLOUDFLARE_TURNSTILE_SECRET_KEY` (obligatoria en producción). La web y la app usan
+`POST /register` y `POST /auth/request-password-reset` (cada pedido manda un correo) exigen un token de Cloudflare Turnstile cuando el API tiene `CLOUDFLARE_TURNSTILE_SECRET_KEY` (obligatoria en producción). La web y la app usan
 el **mismo widget** (misma site key), en modo gestionado: casi siempre pasa solo y a veces pide marcar una casilla.
 
 - **Nativo (`TurnstileWidget.tsx`):** Cloudflare no tiene SDK para React Native, así que el widget corre en un `react-native-webview` con una página mínima que

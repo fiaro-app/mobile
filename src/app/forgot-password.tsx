@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { TurnstileWidget } from '@/components/molecules/TurnstileWidget';
 import { RecoveryView } from '@/components/organisms/RecoveryView';
 import { AuthTemplate } from '@/components/templates/AuthTemplate';
 import { ACCESS_COPY } from '@/features/auth/content/access-messages';
@@ -26,6 +27,7 @@ export default function ForgotPasswordScreen() {
         onResend={recovery.resend}
         onReset={recovery.submitReset}
         onToLogin={toLogin}
+        verification={<TurnstileWidget action="password-reset" resetKey={recovery.turnstileResetKey} onToken={recovery.setTurnstileToken} onError={recovery.turnstileError} />}
         onBack={() => {
           router.back();
         }}
