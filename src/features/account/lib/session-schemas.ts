@@ -27,8 +27,8 @@ function detailOf(session: AccountSession): string {
 
 /** La actual primero y luego por último uso (la más reciente arriba); el detalle dice la IP y cuándo se usó. */
 export function toSessionRows(sessions: readonly AccountSession[]): SessionRowModel[] {
-  return sessions
-    .toSorted((a, b) => Number(b.isCurrent) - Number(a.isCurrent) || b.lastUsedAt.localeCompare(a.lastUsedAt))
+  return [...sessions]
+    .sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent) || b.lastUsedAt.localeCompare(a.lastUsedAt))
     .map((session) => ({
       id: session.id,
       device: session.device.label,
