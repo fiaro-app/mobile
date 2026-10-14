@@ -44,7 +44,7 @@ export function useLoanHistory(loanId: string): LoanHistory {
   const [notice, setNotice] = useState<string | null>(null);
 
   const names = useMemo(() => new Map((members.data ?? []).map((member) => [member.id, member.fullName])), [members.data]);
-  const rows = useMemo(() => (query.data ?? []).toSorted((a, b) => b.occurredAt.localeCompare(a.occurredAt)).map((visit) => toVisitRow(visit, names)), [query.data, names]);
+  const rows = useMemo(() => [...(query.data ?? [])].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).map((visit) => toVisitRow(visit, names)), [query.data, names]);
 
   const close = () => {
     setTarget(null);
