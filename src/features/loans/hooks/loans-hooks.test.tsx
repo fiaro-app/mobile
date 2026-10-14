@@ -101,6 +101,10 @@ describe('useLoanDetail', () => {
 
   it('arma el modelo con saldo, progreso, mora y cobrador', async () => {
     const { result } = await ready();
+    // El nombre del cliente llega en otra consulta: en CI puede tardar más que el préstamo.
+    await waitFor(() => {
+      expect(result.current.model?.clientName).toBe('Cliente c-l1');
+    });
     expect(result.current.model).toMatchObject({
       clientName: 'Cliente c-l1', balance: '$420.000', percent: 60, progress: '60 % pagado · 18 de 30 cuotas', collectorName: 'Ana Gómez', canCancel: true, badge: { label: 'ATRASO' },
     });
