@@ -28,13 +28,13 @@ export function useCollectorsScreen(): CollectorsScreen {
   const members = useMembers();
   const portfolios = usePortfolios();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<CollectorStatusFilter>('all');
+  const [status, setStatus] = useState<CollectorStatusFilter>('active');
   const rows = useMemo(() => toCollectorRows(members.data ?? [], portfolios.data ?? [], status, search), [members.data, portfolios.data, status, search]);
 
   let empty: CollectorsEmpty = 'none';
   const failure = failureOf(members.error);
   if (members.data === undefined && failure) empty = failure.kind === 'http' && failure.status === 403 ? 'forbidden' : 'error';
-  else if (members.data && rows.length === 0) empty = search.trim() === '' && status === 'all' ? 'no-collectors' : 'no-results';
+  else if (members.data && rows.length === 0) empty = toCollectorRows(members.data, [], 'all', '').length === 0 ? 'no-collectors' : 'no-results';
 
   return {
     rows,

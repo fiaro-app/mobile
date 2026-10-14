@@ -6,9 +6,9 @@ export const COLLECTORS_COPY = {
   title: 'Cobradores',
   searchPlaceholder: 'Buscar cobrador',
   statusOptions: [
-    { value: 'all', label: 'Todos' },
     { value: 'active', label: 'Activos' },
     { value: 'inactive', label: 'Inactivos' },
+    { value: 'all', label: 'Todos' },
   ] satisfies readonly { value: CollectorStatusFilter; label: string }[],
   register: 'Registrar cobrador',
   emptyTitle: 'Aún no tienes cobradores',
@@ -80,6 +80,7 @@ export const COLLECTORS_COPY = {
     removeMessage: (name: string) => `Solo se puede si ${name} nunca tuvo préstamos asignados, cobros ni cuadres (un registro por error). No se puede deshacer.`,
     removeConfirm: 'Borrar',
     inactiveNote: 'Este cobrador está desactivado y no puede iniciar sesión.',
+    selfNote: 'Eres tú. Tu contraseña la cambias desde Perfil, y tu cartera o tu baja, otra persona que administre el negocio.',
     cancel: 'Cancelar',
     notFoundTitle: 'Cobrador no encontrado',
     notFoundMessage: 'Ese cobrador ya no existe. Vuelve a la lista y actualiza.',

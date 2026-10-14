@@ -53,6 +53,10 @@ describe('useCollectorsScreen', () => {
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
+    expect(result.current.rows.map((row) => row.name)).toEqual(['Ana Gómez']);
+    await act(async () => {
+      result.current.setStatus('all');
+    });
     expect(result.current.rows.map((row) => row.name)).toEqual(['Ana Gómez', 'Luis Díaz']);
     await act(async () => {
       result.current.setStatus('inactive');

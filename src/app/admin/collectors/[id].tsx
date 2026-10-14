@@ -65,6 +65,7 @@ export default function ManageCollectorScreen() {
         person={person}
         statusLabel={person.active ? 'ACTIVO' : 'INACTIVO'}
         inactiveNote={copy.inactiveNote}
+        selfNote={copy.selfNote}
         error={manage.error}
         notice={manage.notice}
         statsTitle={copy.statsTitle}

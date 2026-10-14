@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import * as api from '@/features/collectors/api/collectors-api';
 import { useCollectorManage } from '@/features/collectors/hooks/use-collector-manage';
 import * as team from '@/features/team/api/team-api';
+import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 
 jest.mock('@/features/collectors/api/collectors-api', () => ({
   inviteCollector: jest.fn(),
@@ -111,7 +112,14 @@ describe('useCollectorManage: baja, reactivación y borrado', () => {
     await waitFor(() => {
       expect(result.current.removed).toBe(true);
     });
-    expect(result.current.person?.isOwner).toBe(false);
+    expect(result.current.person).toMatchObject({ isOwner: false, isSelf: false });
+  });
+
+  it('reconoce a la propia persona para no ofrecerle administrarse', async () => {
+    useWorkspaceStore.getState().loaded(['OWNER', 'COLLECTOR'], 'm2');
+    const { result } = await ready('m2');
+    expect(result.current.person?.isSelf).toBe(true);
+    useWorkspaceStore.getState().reset();
   });
 
 });

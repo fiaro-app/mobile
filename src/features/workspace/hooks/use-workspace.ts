@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
-import { fetchLender, fetchOwnRoles } from '@/features/workspace/api/workspace-api';
+import { fetchLender, fetchOwnMembership } from '@/features/workspace/api/workspace-api';
 import { RoleSchema, type Role } from '@/features/workspace/lib/roles';
 import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import { applyBrandColor } from '@/lib/theme/brand';
@@ -51,13 +51,13 @@ export function useWorkspace(userId: string | null): void {
     let cancelled = false;
     loading();
     void (async () => {
-      const pending = fetchOwnRoles();
+      const pending = fetchOwnMembership();
       const first = await Promise.race([pending, wait(ROLES_PATIENCE_MS)]);
       if (cancelled) return;
       const apply = async (result: Awaited<typeof pending>) => {
         if (result.ok) {
-          void AsyncStorage.setItem(rolesKey(userId), JSON.stringify(result.value));
-          loaded(result.value.length > 0 ? result.value : ['COLLECTOR']);
+          void AsyncStorage.setItem(rolesKey(userId), JSON.stringify(result.value.roles));
+          loaded(result.value.roles.length > 0 ? result.value.roles : ['COLLECTOR'], result.value.id);
         } else {
           signOutIfSessionExpired(result.failure);
           loaded((await readCachedRoles(userId)) ?? ['COLLECTOR']);
