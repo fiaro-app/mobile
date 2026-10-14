@@ -1,11 +1,16 @@
 name: CI
 
+# Solo en PRs: correr otra vez al fusionar en dev repetía lo mismo y duplicaba los minutos. Un cambio
+# que solo toca documentación no corre el CI, y un push nuevo cancela la corrida anterior del mismo PR.
 on:
   pull_request:
     branches: [dev, main]
-  push:
-    branches: [dev]
+    paths-ignore: ['**/*.md', 'docs/**']
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -35,15 +40,25 @@ jobs:
       - name: Bundle check
         run: pnpm run build
 
+      # La documentación solo se publica como artefacto en los PRs de release a main.
       - name: Generate docs
+        if: github.base_ref == 'main'
         run: pnpm run docs
 
       - name: Upload docs artifact
+        if: github.base_ref == 'main'
         uses: actions/upload-artifact@v4
         with:
           name: docs
           path: docs
           retention-days: 14
+
+      # El scanner de Sonar descarga su JRE y sus analizadores en cada corrida (~300 MB): se guardan entre corridas.
+      - name: Cache Sonar
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: sonar-${{ runner.os }}
 
       # Requires the SONAR_TOKEN repo secret and Automatic Analysis disabled in Sonar
       # (Administration -> Analysis Method -> keep only CI-based Analysis).
