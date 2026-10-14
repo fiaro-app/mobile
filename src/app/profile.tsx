@@ -85,6 +85,13 @@ export default function ProfileScreen() {
               router.push('/notifications');
             }}
           />
+          <MenuRow
+            icon="close-circle-outline"
+            label="Desactivar mi cuenta"
+            onPress={() => {
+              router.push('/account-deactivate');
+            }}
+          />
         </View>
         <View className="gap-3 px-5 pt-8">
           {profile.switchLabel ? <Button label={profile.switchLabel} onPress={profile.switchMode} /> : null}

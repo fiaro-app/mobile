@@ -36,3 +36,8 @@ export function revokeSession(id: string): Response<unknown> {
 export function revokeOtherSessions(): Response<unknown> {
   return authedRequest('/auth/revoke-other-sessions', (body) => body, { method: 'POST', body: {} });
 }
+
+/** `POST /account/deactivate`: desactiva la cuenta propia confirmando con la contraseña (la sesión muere en el servidor). */
+export function deactivateAccount(password: string): Response<unknown> {
+  return authedRequest('/account/deactivate', (body) => body, { method: 'POST', body: { password } });
+}

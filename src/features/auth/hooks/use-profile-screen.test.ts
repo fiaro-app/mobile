@@ -16,7 +16,7 @@ describe('useProfileScreen', () => {
       pinOfferPending: false,
     });
     const { result } = await renderHook(() => useProfileScreen());
-    expect(result.current).toMatchObject({ fullName: 'Alejo Pérez', firstName: 'Alejo', initials: 'AP', phone: '+573001234567' });
+    expect(result.current).toMatchObject({ fullName: 'Alejo Pérez', firstName: 'Alejo', initials: 'AP', phone: '+57 300 123 4567' });
     result.current.signOut();
     expect(actions.completeSignOut).toHaveBeenCalled();
   });

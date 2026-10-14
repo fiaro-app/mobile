@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { initials, firstName } from '@/features/auth/lib/names';
+import { formatPhone } from '@/features/client-detail/lib/detail-labels';
 import { completeSignOut } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
 import { homeOf } from '@/features/workspace/hooks/use-go-back';
@@ -47,7 +48,7 @@ export function useProfileScreen(): ProfileScreen {
     fullName,
     firstName: firstName(fullName),
     initials: initials(fullName),
-    phone: user?.phone ?? '',
+    phone: formatPhone(user?.phone ?? ''),
     emailStatus: emailStatusOf(user?.contactEmail, user?.contactEmailVerified),
     mode,
     switchLabel: both ? switchLabelOf(mode) : null,
