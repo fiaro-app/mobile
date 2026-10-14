@@ -1,6 +1,8 @@
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
+import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
 import { LenderStatsView } from '@/components/organisms/LenderStatsView';
+import { OptionSheet } from '@/components/organisms/OptionSheet';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { LENDER_STATS_COPY } from '@/features/lender-stats/content/messages';
 import { useLenderStatsScreen } from '@/features/lender-stats/hooks/use-lender-stats-screen';
@@ -8,7 +10,7 @@ import { STATS_COPY } from '@/features/stats/content/messages';
 import type { Period } from '@/features/stats/lib/period-range';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 
-/** Ruta `/admin/stats`: estadísticas del negocio por semana, mes o año, con tendencias y filtro por cobrador. */
+/** Ruta `/admin/stats`: estadísticas del negocio por semana, mes, año o un rango de fechas, con tendencias y filtros por cobrador y cartera. */
 export default function AdminStatsScreen() {
   const menu = useAdminMenu('stats');
   const screen = useLenderStatsScreen();
@@ -26,7 +28,9 @@ export default function AdminStatsScreen() {
         onPeriod={(value) => {
           screen.setPeriod(value as Period);
         }}
-        collector={{ label: screen.collectorLabel, onOpen: screen.openSheet }}
+        dates={{ range: screen.dates.range, onOpen: screen.dates.open, onClear: screen.dates.clear, hint: copy.periodHint }}
+        collector={{ label: screen.collectorLabel, active: screen.collectorId !== '', onOpen: screen.openSheet }}
+        portfolio={{ label: screen.portfolio.label, active: screen.portfolio.id !== '', onOpen: screen.portfolio.openSheet }}
         periodLabel={model.period}
         kpis={model.kpis}
         bucketsTitle={copy.buckets}
@@ -41,7 +45,21 @@ export default function AdminStatsScreen() {
         exportPdf={{ label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start }}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
-        sheet={{ visible: screen.sheetOpen, title: copy.collectorSheet, options: screen.collectorOptions, selected: screen.collectorId, onSelect: screen.setCollector, onClose: screen.closeSheet }}
+        sheets={
+          <>
+            <OptionSheet visible={screen.sheetOpen} title={copy.collectorSheet} options={screen.collectorOptions} selected={screen.collectorId} onSelect={screen.setCollector} onClose={screen.closeSheet} />
+            <OptionSheet visible={screen.portfolio.open} title={copy.portfolioSheet} options={screen.portfolio.options} selected={screen.portfolio.id} onSelect={screen.portfolio.select} onClose={screen.portfolio.closeSheet} />
+            <DatePickerSheet
+              visible={screen.dates.editing !== null}
+              title={screen.dates.editing === 'to' ? 'Hasta' : 'Desde'}
+              value={screen.dates.editingValue}
+              today={screen.dates.today}
+              max={screen.dates.today}
+              onSelect={screen.dates.pick}
+              onClose={screen.dates.close}
+            />
+          </>
+        }
       />
     );
   }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Button } from '@/components/atoms/Button';
 import { Alert } from '@/components/molecules/Alert';
@@ -6,8 +7,9 @@ import { FilterPill } from '@/components/atoms/FilterPill';
 import { ProgressBar } from '@/components/atoms/ProgressBar';
 import { SelectButton } from '@/components/atoms/SelectButton';
 import type { FilterOption } from '@/components/molecules/FilterBar';
+import { DateRangeFields } from '@/components/molecules/DateRangeFields';
 import { StatCard } from '@/components/molecules/StatCard';
-import { OptionSheet } from '@/components/organisms/OptionSheet';
+import type { DateRangeValue, RangeEdge } from '@/lib/date-range';
 
 type Tone = 'neutral' | 'good' | 'warning' | 'bad';
 
@@ -20,9 +22,12 @@ interface MoreButton {
 
 export interface LenderStatsViewProps {
   readonly periods: readonly FilterOption<string>[];
-  readonly period: string;
+  /** El período rápido elegido, o `null` si manda un rango de fechas. */
+  readonly period: string | null;
   readonly onPeriod: (value: string) => void;
-  readonly collector: { readonly label: string; readonly onOpen: () => void };
+  readonly dates: { readonly range: DateRangeValue; readonly onOpen: (edge: RangeEdge) => void; readonly onClear: () => void; readonly hint: string };
+  readonly collector: { readonly label: string; readonly active: boolean; readonly onOpen: () => void };
+  readonly portfolio: { readonly label: string; readonly active: boolean; readonly onOpen: () => void };
   readonly periodLabel: string;
   readonly kpis: readonly { readonly key: string; readonly label: string; readonly value: string; readonly tone: Tone; readonly trend: { readonly label: string; readonly tone: Tone } | null }[];
   readonly bucketsTitle: string;
@@ -38,12 +43,13 @@ export interface LenderStatsViewProps {
   readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void };
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
-  readonly sheet: { readonly visible: boolean; readonly title: string; readonly options: readonly { value: string; label: string }[]; readonly selected: string; readonly onSelect: (value: string) => void; readonly onClose: () => void };
+  /** Hojas de los filtros (cobrador, cartera, calendario): van encima de todo. */
+  readonly sheets: ReactNode;
 }
 
 const TONE_CLASSES = { neutral: '', good: 'text-success', warning: 'text-warning', bad: 'text-destructive' } as const;
 
-/** Estadísticas del administrador: período y cobrador, indicadores con tendencia, mora por antigüedad, mayores morosos y desempeño por cobrador. Solo dibuja. */
+/** Estadísticas del administrador: período, fechas, cobrador y cartera, indicadores con tendencia, mora por antigüedad, mayores morosos y desempeño por cobrador. Solo dibuja. */
 export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
   return (
     <View className="flex-1">
@@ -53,7 +59,9 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
             <FilterPill key={option.value} label={option.label} active={option.value === props.period} onPress={() => { props.onPeriod(option.value); }} />
           ))}
         </View>
-        <SelectButton label={props.collector.label} active onPress={props.collector.onOpen} />
+        <DateRangeFields range={props.dates.range} onOpen={props.dates.onOpen} onClear={props.dates.onClear} emptyHint={props.dates.hint} />
+        <SelectButton label={props.collector.label} active={props.collector.active} onPress={props.collector.onOpen} />
+        <SelectButton label={props.portfolio.label} active={props.portfolio.active} onPress={props.portfolio.onOpen} />
         <AppText variant="caption" tone="muted">
           {props.periodLabel}
         </AppText>
@@ -135,7 +143,7 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
           </View>
         ) : null}
       </ScrollView>
-      <OptionSheet {...props.sheet} />
+      {props.sheets}
     </View>
   );
 }

@@ -37,7 +37,7 @@ export default function NewLoanScreen() {
         submitting={form.submitting}
         formError={form.formError}
         createdLoanId={form.createdLoanId}
-        sheets={{ active: form.sheet, frequency: form.frequencyOptions, startDate: form.startDateOptions, collector: form.collectorOptions, onClose: form.closeSheet }}
+        sheets={{ active: form.sheet, frequency: form.frequencyOptions, today: form.today, collector: form.collectorOptions, onClose: form.closeSheet }}
         onOpen={form.openSheet}
         onAmount={form.setAmount}
         onCount={form.setCount}

@@ -14,8 +14,10 @@ beforeEach(() => {
 
 describe('review-api', () => {
   it('lista por estado y devuelve items y total', async () => {
-    await fetchSettlements(2, 'PENDING');
-    expect(request.mock.calls[0]).toMatchObject(['/daily-settlements', expect.any(Function), { method: 'QUERY', body: { page: 2, pageSize: 10, status: 'PENDING' } }]);
+    await fetchSettlements(2, { status: 'PENDING', range: { from: '2026-10-01', to: '2026-10-09' }, collectorId: 'm1' });
+    expect(request.mock.calls[0]).toMatchObject(['/daily-settlements', expect.any(Function), { method: 'QUERY', body: { page: 2, pageSize: 10, status: 'PENDING', dateRange: { from: '2026-10-01', to: '2026-10-09' }, collectorMembershipId: 'm1' } }]);
+    await fetchSettlements(1, { status: null, range: null, collectorId: null });
+    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10 } });
     expect(parserOf(0)({ data: [settlement], meta: { total: 7 } })).toMatchObject({ total: 7 });
   });
 

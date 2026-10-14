@@ -45,7 +45,7 @@ describe('cuadres del administrador', () => {
     expect(reviewFailureMessage(failure)).toMatch(expected);
   });
 
-  it('los filtros ofrecen los tres estados', () => {
-    expect(REVIEW_COPY.filters.map((filter) => filter.value)).toEqual(['PENDING', 'APPROVED', 'REJECTED']);
+  it('los filtros ofrecen los tres estados y «Todos» al final', () => {
+    expect(REVIEW_COPY.filters.map((filter) => filter.value)).toEqual(['PENDING', 'APPROVED', 'REJECTED', 'ALL']);
   });
 });

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { AlertBanner } from '@/components/molecules/AlertBanner';
@@ -14,6 +15,8 @@ export interface DashboardViewProps {
   readonly pending: readonly (SettlementRowProps & { readonly id: string })[];
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
+  /** Filtro de período de lo cobrado (va sobre los indicadores). */
+  readonly period: ReactNode;
 }
 
 /** Resumen del administrador: indicadores, alertas del día y cuadres por revisar. Solo dibuja. */
@@ -21,6 +24,7 @@ export function DashboardView(props: Readonly<DashboardViewProps>) {
   return (
     <ScrollView contentContainerClassName="gap-5 px-5 pb-8 pt-5" refreshControl={<RefreshControl refreshing={props.refreshing} onRefresh={props.onRefresh} />}>
       {props.banner ? <AlertBanner message={props.banner.message} kind={props.banner.kind} /> : null}
+      {props.period}
       <View className="flex-row flex-wrap gap-3">
         {props.kpis.map((kpi) => (
           <StatCard key={kpi.key} label={kpi.label} value={kpi.value} tone={kpi.tone} className="min-w-[45%] flex-1" />

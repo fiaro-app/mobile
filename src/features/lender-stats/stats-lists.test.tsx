@@ -39,6 +39,10 @@ describe('listas largas de las estadísticas: API', () => {
     request.mockResolvedValue({ ok: true, value: { items: [], total: 0 } });
     await fetchTopArrears(1);
     expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10 } });
+    await fetchTopArrears(1, undefined, 'p1');
+    await fetchCollectorPerformance(1, { from: 'a', to: 'b' }, 'p1');
+    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10, portfolioId: 'p1' } });
+    expect(request.mock.calls[2]?.[2]).toMatchObject({ body: { portfolioId: 'p1' } });
   });
 });
 
