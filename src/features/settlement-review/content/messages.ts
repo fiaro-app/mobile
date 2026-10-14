@@ -1,6 +1,9 @@
 import type { ApiFailure } from '@/lib/http/failure';
 import type { SettlementStatus } from '@/features/settlement/lib/settlement-schemas';
 
+/** Filtro de estado de la lista: un estado o todos. */
+export type ReviewStatusFilter = SettlementStatus | 'ALL';
+
 /** Textos de la revisión de cuadres. */
 export const REVIEW_COPY = {
   title: 'Cuadres',
@@ -8,7 +11,9 @@ export const REVIEW_COPY = {
     { value: 'PENDING', label: 'Pendientes' },
     { value: 'APPROVED', label: 'Aprobados' },
     { value: 'REJECTED', label: 'Rechazados' },
-  ] satisfies readonly { value: SettlementStatus; label: string }[],
+    { value: 'ALL', label: 'Todos' },
+  ] satisfies readonly { value: ReviewStatusFilter; label: string }[],
+  periodHint: 'Sin fechas se ven todos los días. Hasta 366 días.',
   emptyTitle: 'No hay cuadres',
   emptyMessage: 'Cuando un cobrador envíe su cuadre aparecerá aquí.',
   loadFailedTitle: 'No pudimos cargar los cuadres',

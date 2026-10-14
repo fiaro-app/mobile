@@ -5,6 +5,7 @@ import { SelectButton } from '@/components/atoms/SelectButton';
 import { TextField } from '@/components/atoms/TextField';
 import { Alert } from '@/components/molecules/Alert';
 import { FormField } from '@/components/molecules/FormField';
+import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
 import { OptionSheet } from '@/components/organisms/OptionSheet';
 
 type Option = { readonly value: string; readonly label: string; readonly description?: string };
@@ -18,7 +19,7 @@ export interface LoanFormViewProps {
   readonly submitting: boolean;
   readonly formError: string | null;
   readonly createdLoanId: string | null;
-  readonly sheets: { readonly active: 'none' | 'client' | 'frequency' | 'startDate' | 'collector'; readonly frequency: readonly Option[]; readonly startDate: readonly Option[]; readonly collector: readonly Option[]; readonly onClose: () => void };
+  readonly sheets: { readonly active: 'none' | 'client' | 'frequency' | 'startDate' | 'collector'; readonly frequency: readonly Option[]; readonly today: string; readonly collector: readonly Option[]; readonly onClose: () => void };
   readonly onOpen: (sheet: 'client' | 'frequency' | 'startDate' | 'collector') => void;
   readonly onAmount: (field: 'principal' | 'installment' | 'total', text: string) => void;
   readonly onCount: (text: string) => void;
@@ -74,7 +75,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
         </AppText>
       </ScrollView>
       <OptionSheet visible={props.sheets.active === 'frequency'} title={texts.frequency} options={props.sheets.frequency} selected={values.frequency} onSelect={props.onFrequency} onClose={props.sheets.onClose} />
-      <OptionSheet visible={props.sheets.active === 'startDate'} title={texts.startDate} options={props.sheets.startDate} selected={values.startDate} onSelect={props.onStartDate} onClose={props.sheets.onClose} />
+      <DatePickerSheet visible={props.sheets.active === 'startDate'} title={texts.startDate} value={values.startDate} today={props.sheets.today} onSelect={props.onStartDate} onClose={props.sheets.onClose} />
       <OptionSheet visible={props.sheets.active === 'collector'} title={texts.collector} options={props.sheets.collector} selected={values.collectorId} onSelect={props.onCollector} onClose={props.sheets.onClose} />
     </View>
   );
