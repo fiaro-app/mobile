@@ -8,7 +8,7 @@ jest.mock('@/lib/config', () => ({ ...jest.requireActual<object>('@/lib/config')
 jest.mock('@/features/auth/api/access-api', () => ({ requestPasswordReset: jest.fn(), resetPassword: jest.fn(), registerOwner: jest.fn() }));
 
 const a = jest.mocked(api);
-const valid = { fullName: 'Daniel Rojas', nationalId: '1020304050', phone: '3001234567', contactEmail: '', password: 'clave-larga-1', businessName: 'Préstamos El Águila' };
+const valid = { fullName: 'Daniel Rojas', nationalId: '1020304050', phone: '3001234567', contactEmail: '', password: 'clave-larga-de-prueba-1', businessName: 'Préstamos El Águila' };
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -9,7 +9,7 @@ jest.mock('@/features/auth/api/access-api', () => ({ requestPasswordReset: jest.
 
 const a = jest.mocked(api);
 const http = (status: number, code: string | null = null) => ({ ok: false, failure: { kind: 'http', status, code, retryAfterSeconds: null } }) as const;
-const valid = { fullName: 'Daniel Rojas', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: '', password: 'clave-larga-1', businessName: 'Préstamos El Águila' };
+const valid = { fullName: 'Daniel Rojas', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: '', password: 'clave-larga-de-prueba-1', businessName: 'Préstamos El Águila' };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -30,8 +30,8 @@ describe('validaciones de acceso', () => {
 
   it('segundo paso de recuperar', () => {
     expect(Object.keys(validateReset({ code: '', newPassword: 'x', confirmPassword: '' }))).toEqual(['code', 'newPassword', 'confirmPassword']);
-    expect(validateReset({ code: '123', newPassword: 'clave-larga', confirmPassword: 'otra-clave-larga' })).toMatchObject({ code: expect.stringMatching(/6 dígitos/) as string, confirmPassword: expect.stringMatching(/no coinciden/) as string });
-    expect(validateReset({ code: '123456', newPassword: 'clave-larga', confirmPassword: 'clave-larga' })).toEqual({});
+    expect(validateReset({ code: '123', newPassword: 'clave-larga-de-prueba', confirmPassword: 'otra-clave-larga' })).toMatchObject({ code: expect.stringMatching(/6 dígitos/) as string, confirmPassword: expect.stringMatching(/no coinciden/) as string });
+    expect(validateReset({ code: '123456', newPassword: 'clave-larga-de-prueba', confirmPassword: 'clave-larga-de-prueba' })).toEqual({});
   });
 
   it('pasos del registro', () => {
@@ -45,7 +45,7 @@ describe('validaciones de acceso', () => {
   it.each([
     [{ kind: 'offline' }, /conectarnos/], [{ kind: 'maintenance' }, /mantenimiento/], [http(400, 'PASSWORD_RESET_CODE_INVALID'), /no es correcto/], [http(400, 'PASSWORD_RESET_CODE_EXPIRED'), /venció/],
     [http(409, 'PHONE_ALREADY_REGISTERED'), /Ya existe una cuenta/], [http(400, 'INVALID_PHONE'), /celular colombiano/], [http(400, 'PASSWORD_TOO_WEAK'), /fácil de adivinar/],
-    [http(400, 'INVALID_PASSWORD_LENGTH'), /entre 8 y 128/], [http(429, 'RATE_LIMITED'), /Demasiadas/], [http(429), /Demasiadas/], [http(500), /No pudimos/],
+    [http(400, 'INVALID_PASSWORD_LENGTH'), /entre 15 y 128/], [http(429, 'RATE_LIMITED'), /Demasiadas/], [http(429), /Demasiadas/], [http(500), /No pudimos/],
   ] as const)('%j', (failure, expected) => {
     expect(accessFailureMessage('ok' in failure ? failure.failure : failure)).toMatch(expected);
   });
@@ -74,8 +74,8 @@ describe('usePasswordRecovery', () => {
     expect(a.resetPassword).not.toHaveBeenCalled();
     await act(async () => {
       result.current.setField('code', '12 34 56');
-      result.current.setField('newPassword', 'clave-larga-1');
-      result.current.setField('confirmPassword', 'clave-larga-1');
+      result.current.setField('newPassword', 'clave-larga-de-prueba-1');
+      result.current.setField('confirmPassword', 'clave-larga-de-prueba-1');
     });
     await act(async () => {
       result.current.submitReset();
@@ -83,7 +83,7 @@ describe('usePasswordRecovery', () => {
     await waitFor(() => {
       expect(result.current.step).toBe('done');
     });
-    expect(a.resetPassword).toHaveBeenCalledWith({ phone: '300 123 4567', code: '123456', newPassword: 'clave-larga-1' });
+    expect(a.resetPassword).toHaveBeenCalledWith({ phone: '300 123 4567', code: '123456', newPassword: 'clave-larga-de-prueba-1' });
   });
 
   it('explica el código inválido, reenvía y explica el fallo de red al pedir', async () => {
@@ -107,8 +107,8 @@ describe('usePasswordRecovery', () => {
     a.resetPassword.mockResolvedValueOnce(http(400, 'PASSWORD_RESET_CODE_INVALID'));
     await act(async () => {
       result.current.setField('code', '123456');
-      result.current.setField('newPassword', 'clave-larga-1');
-      result.current.setField('confirmPassword', 'clave-larga-1');
+      result.current.setField('newPassword', 'clave-larga-de-prueba-1');
+      result.current.setField('confirmPassword', 'clave-larga-de-prueba-1');
     });
     await act(async () => {
       result.current.submitReset();
