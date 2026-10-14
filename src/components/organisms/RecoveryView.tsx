@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Button } from '@/components/atoms/Button';
@@ -27,6 +28,8 @@ export interface RecoveryViewProps {
   readonly onReset: () => void;
   readonly onToLogin: () => void;
   readonly onBack: () => void;
+  /** Verificación contra robots (Turnstile): antes de pedir el código y, en el paso 2, antes de reenviarlo. */
+  readonly verification?: ReactNode;
 }
 
 /** "Recuperar contraseña" en tres pasos (celular, código y contraseña nueva, listo). Solo dibuja. */
@@ -51,6 +54,7 @@ export function RecoveryView(props: Readonly<RecoveryViewProps>) {
             <FormField label={texts.phone} error={errors.phone}>
               {(a11y) => <TextField {...a11y} value={values.phone} onChangeText={(text) => { props.onField('phone', text); }} invalid={Boolean(errors.phone)} placeholder={texts.phonePlaceholder} keyboardType="phone-pad" autoComplete="tel" returnKeyType="go" onSubmitEditing={props.onSendCode} editable={!props.busy} />}
             </FormField>
+            {props.verification}
             <Button label={texts.sendCode} onPress={props.onSendCode} loading={props.busy} />
             <AppText variant="caption" tone="muted" className="text-center">
               {texts.noEmail}
@@ -69,6 +73,7 @@ export function RecoveryView(props: Readonly<RecoveryViewProps>) {
             </FormField>
             {props.notice ? <AppText variant="small" tone="primary">{props.notice}</AppText> : null}
             <Button label={texts.reset} onPress={props.onReset} loading={props.busy} />
+            {props.verification}
             <View className="items-center">
               <TextLink label={texts.resend} onPress={props.onResend} />
             </View>

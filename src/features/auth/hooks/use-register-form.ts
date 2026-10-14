@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { registerOwner } from '@/features/auth/api/access-api';
-import { accessFailureMessage } from '@/features/auth/content/access-messages';
+import { TURNSTILE_LOAD_ERROR, TURNSTILE_PENDING, accessFailureMessage } from '@/features/auth/content/access-messages';
 import { validateAccountStep, validateCompanyStep, type FieldErrors, type RegisterValues } from '@/features/auth/lib/access-forms';
 import { formatPhoneInput } from '@/features/auth/lib/phone';
+import { TURNSTILE_SITE_KEY } from '@/lib/config';
 
 /** Pasos del registro. */
 export type RegisterStep = 'account' | 'company' | 'done';
@@ -19,6 +20,10 @@ export interface RegisterForm {
   readonly next: () => void;
   readonly back: () => void;
   readonly submit: () => void;
+  /** Cambia para pedir un desafío de Turnstile nuevo (cada token sirve una vez). */
+  readonly turnstileResetKey: number;
+  readonly setTurnstileToken: (token: string | null) => void;
+  readonly turnstileError: () => void;
 }
 
 const EMPTY: RegisterValues = { fullName: '', nationalId: '', phone: '', contactEmail: '', password: '', businessName: '' };
@@ -37,6 +42,11 @@ export function useRegisterForm(): RegisterForm {
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+  const turnstileError = useCallback(() => {
+    setFormError(TURNSTILE_LOAD_ERROR);
+  }, []);
 
   return {
     step,
@@ -44,6 +54,9 @@ export function useRegisterForm(): RegisterForm {
     errors,
     formError,
     busy,
+    turnstileResetKey,
+    setTurnstileToken,
+    turnstileError,
     setField: (field, text) => {
       setValues((current) => ({ ...current, [field]: field === 'phone' ? formatPhoneInput(text) : text }));
       setErrors((current) => ({ ...current, [field]: undefined }));
@@ -62,15 +75,21 @@ export function useRegisterForm(): RegisterForm {
       const problems = validateCompanyStep(values);
       setErrors(problems);
       if (Object.keys(problems).length > 0) return;
+      if (TURNSTILE_SITE_KEY && !turnstileToken) {
+        setFormError(TURNSTILE_PENDING);
+        return;
+      }
       void (async () => {
         setBusy(true);
         setFormError(null);
-        const result = await registerOwner({ ...values, fullName: values.fullName.trim(), businessName: values.businessName.trim(), contactEmail: values.contactEmail.trim() });
+        const result = await registerOwner({ ...values, fullName: values.fullName.trim(), businessName: values.businessName.trim(), contactEmail: values.contactEmail.trim(), turnstileToken: turnstileToken ?? undefined });
         setBusy(false);
         if (result.ok) {
           setStep('done');
           return;
         }
+        setTurnstileToken(null);
+        setTurnstileResetKey((current) => current + 1);
         setFormError(accessFailureMessage(result.failure));
         if (result.failure.kind === 'http' && result.failure.code && ACCOUNT_CODES.has(result.failure.code)) setStep('account');
       })();

@@ -57,6 +57,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-web": "~0.21.0",
+    "react-native-webview": "13.16.1",
     "react-native-worklets": "0.10.1",
     "tailwindcss": "4.3.3",
     "uniwind": "1.12.1",
@@ -77,8 +78,9 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "dev": "expo start --ios",
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "bash scripts/run-android.sh",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
