@@ -38,13 +38,17 @@ pnpm start        # `i` simulador de iPhone, `a` emulador de Android, `w` vista 
 
 La app necesita el API: en el repo `api`, `pnpm docker:dev` lo deja en `http://localhost:3040` y `pnpm docker:seed`
 crea los usuarios de prueba. En un teléfono físico copia `.env.example` a `.env.local` y pon la IP de tu máquina.
-Para la vista web, el API debe tener `http://localhost:8081` en `CORS_ORIGINS`. En el emulador de Android hay que
-hacer `adb reverse tcp:3040 tcp:3040` y `adb reverse tcp:8081 tcp:8081` (ver [ARCHITECTURE.md §8](./ARCHITECTURE.md)).
+La app se prueba en un **simulador o emulador**, no en el navegador: `pnpm dev` abre el simulador de iPhone y
+`pnpm android` arranca el emulador de Android Studio (si no está abierto), reenvía los puertos del API y Metro, y
+abre la app. Para la vista web, el API debe tener `http://localhost:8081` en `CORS_ORIGINS` (ver
+[ARCHITECTURE.md §8](./ARCHITECTURE.md)).
 
 | Comando | Qué hace |
 |---|---|
 | `pnpm start` | Servidor de desarrollo de Expo |
-| `pnpm android` / `pnpm ios` / `pnpm web` | Arranca en esa plataforma |
+| `pnpm dev` / `pnpm ios` | Abre la app en el simulador de iPhone (Xcode) |
+| `pnpm android` | Arranca el emulador de Android Studio si hace falta, reenvía puertos y abre la app |
+| `pnpm web` | Vista web (solo para revisar interfaz; no es la app real) |
 | `pnpm lint` | `expo lint` (incluye alias `@/`, máx. 200 líneas y la frontera diseño/lógica) |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm test` / `pnpm test:cov` | Tests (Jest + `jest-expo`); el segundo con cobertura |

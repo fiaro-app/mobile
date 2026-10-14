@@ -78,8 +78,9 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "dev": "expo start --ios",
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "bash scripts/run-android.sh",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",

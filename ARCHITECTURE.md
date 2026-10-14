@@ -479,10 +479,10 @@ pnpm start        # Expo; `i` abre el simulador de iPhone, `a` el emulador de An
 - **Simulador de iPhone (Xcode).** Basta con tener Xcode instalado; `pnpm ios` instala Expo Go solo. `localhost` del
   simulador es tu Mac, así que el API se ve sin configurar nada.
 - **Emulador de Android (Android Studio).** Hace falta un dispositivo virtual (Device Manager) y que `adb`
-  esté en el PATH: `export ANDROID_HOME=$HOME/Library/Android/sdk` y
-  `export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools`. Arráncalo con
-  `emulator -avd <nombre>`. **`localhost` dentro del emulador es el propio emulador**, no tu Mac: por eso se ejecuta
-  `adb reverse tcp:3040 tcp:3040` y `adb reverse tcp:8081 tcp:8081` (el API y Metro) y luego `pnpm android`.
+  exista (Device Manager). **`localhost` dentro del emulador es el propio emulador**, no tu Mac: hay que reenviar los
+  puertos del API y de Metro con `adb reverse`. `pnpm android` (`scripts/run-android.sh`) lo hace todo: usa
+  `$HOME/Library/Android/sdk` si no hay `ANDROID_HOME`, arranca el primer emulador (o el de `AVD=<nombre>`) si no hay
+  uno abierto, espera a que inicie, hace `adb reverse tcp:3040` y `tcp:8081` y abre la app.
 - En un teléfono físico copia `.env.example` a `.env.local` y pon la IP de tu máquina.
 - **Expo Go vs build de desarrollo.** Expo Go (lo que usan `pnpm ios/android`) ya trae `expo-secure-store` y
   `expo-local-authentication`. Si se agrega una librería con código nativo propio hará falta `expo run:android|ios` o
