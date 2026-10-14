@@ -6,7 +6,7 @@ import type { Member } from '@/features/team/lib/member-schemas';
 
 const member = (id: string, fullName: string, over: Partial<Member> = {}): Member => ({ id, userId: `u-${id}`, fullName, phone: '+573001234567', roles: ['COLLECTOR'], status: 'ACTIVE', portfolioId: 'p1', ...over });
 const portfolios = [{ id: 'p1', name: 'General', isDefault: true }, { id: 'p2', name: 'Norte', isDefault: false }];
-const valid = { fullName: 'Carlos Ramírez', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: '', portfolioId: 'p1' };
+const valid = { fullName: 'Carlos Ramírez', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: 'c@correo.com', portfolioId: 'p1' };
 
 describe('formulario de cobrador', () => {
   it('acepta datos válidos', () => {
@@ -20,6 +20,7 @@ describe('formulario de cobrador', () => {
     ['nationalId', '0123456'],
     ['phone', '123'],
     ['contactEmail', 'no-correo'],
+    ['contactEmail', ''],
     ['portfolioId', ''],
   ])('rechaza %s = %j', (field, value) => {
     expect(CollectorFormSchema.safeParse({ ...valid, [field]: value }).success).toBe(false);
@@ -27,8 +28,7 @@ describe('formulario de cobrador', () => {
 
   it('normaliza la cédula y arma el cuerpo de la invitación', () => {
     expect(normalizeNationalId('1.020 304-050')).toBe('1020304050');
-    expect(toInviteBody(valid)).toEqual({ phone: '+573001234567', fullName: 'Carlos Ramírez', nationalId: '1020304050', roles: ['COLLECTOR'], portfolioId: 'p1' });
-    expect(toInviteBody({ ...valid, contactEmail: 'c@correo.com' })).toMatchObject({ contactEmail: 'c@correo.com' });
+    expect(toInviteBody(valid)).toEqual({ phone: '+573001234567', fullName: 'Carlos Ramírez', nationalId: '1020304050', contactEmail: 'c@correo.com', roles: ['COLLECTOR'], portfolioId: 'p1' });
   });
 
   it('valida la respuesta de invitar', () => {

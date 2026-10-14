@@ -22,21 +22,23 @@ export const CollectorFormSchema = z.object({
     .trim()
     .min(1, 'Escribe el celular.')
     .refine((value) => toMobileE164(value) !== null, 'Escribe un celular colombiano válido, por ejemplo 300 123 4567.'),
+  /** Obligatorio (D-120): es por donde le llegan su contraseña temporal y los avisos. */
   contactEmail: z
     .string()
     .trim()
-    .refine((value) => value === '' || z.email().safeParse(value).success, 'Escribe un correo válido, por ejemplo cobrador@correo.com.'),
+    .min(1, 'Escribe el correo del cobrador: ahí le llegan su contraseña y los avisos.')
+    .refine((value) => z.email().safeParse(value).success, 'Escribe un correo válido, por ejemplo cobrador@correo.com.'),
   portfolioId: z.string().min(1, 'Elige la cartera del cobrador.'),
 });
 export type CollectorFormValues = z.infer<typeof CollectorFormSchema>;
 
-/** Cuerpo de `POST /memberships` para un cobrador. El correo vacío no se envía. */
+/** Cuerpo de `POST /memberships` para un cobrador. */
 export function toInviteBody(values: CollectorFormValues) {
   return {
     phone: toMobileE164(values.phone) ?? values.phone,
     fullName: values.fullName,
     nationalId: normalizeNationalId(values.nationalId),
-    ...(values.contactEmail === '' ? {} : { contactEmail: values.contactEmail }),
+    contactEmail: values.contactEmail,
     roles: ['COLLECTOR'] as const,
     portfolioId: values.portfolioId,
   };

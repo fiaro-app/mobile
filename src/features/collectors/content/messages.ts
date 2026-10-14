@@ -27,7 +27,7 @@ export const COLLECTORS_COPY = {
     nationalIdPlaceholder: '1.020.304.050',
     phone: 'Teléfono',
     phonePlaceholder: '300 123 4567',
-    email: 'Correo electrónico (opcional)',
+    email: 'Correo electrónico',
     emailPlaceholder: 'carlos.ramirez@correo.com',
     portfolio: 'Cartera asignada',
     portfolioPlaceholder: 'Elige una cartera',
