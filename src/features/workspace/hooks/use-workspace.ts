@@ -51,7 +51,7 @@ export function useWorkspace(userId: string | null): void {
     let cancelled = false;
     loading();
     void (async () => {
-      const pending = fetchOwnRoles(userId);
+      const pending = fetchOwnRoles();
       const first = await Promise.race([pending, wait(ROLES_PATIENCE_MS)]);
       if (cancelled) return;
       const apply = async (result: Awaited<typeof pending>) => {

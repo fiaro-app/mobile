@@ -11,29 +11,23 @@ beforeEach(() => {
 });
 
 describe('fetchOwnRoles', () => {
-  it('busca la membresía propia entre las activas', async () => {
-    request.mockResolvedValue({ ok: true, value: { data: [{ userId: 'u2', roles: ['COLLECTOR'] }, { userId: 'u1', roles: ['OWNER'] }] } });
-    expect(await fetchOwnRoles('u1')).toEqual({ ok: true, value: ['OWNER'] });
-    expect(request.mock.calls[0]).toMatchObject(['/memberships', expect.any(Function), { method: 'QUERY', body: { page: 1, pageSize: 50, status: 'ACTIVE' } }]);
+  it('pide la membresía propia y devuelve sus roles', async () => {
+    request.mockResolvedValue({ ok: true, value: { roles: ['OWNER', 'COLLECTOR'] } });
+    expect(await fetchOwnRoles()).toEqual({ ok: true, value: ['OWNER', 'COLLECTOR'] });
+    expect(request.mock.calls[0]?.[0]).toBe('/memberships/me');
   });
 
-  it('sin membresía propia devuelve una lista vacía', async () => {
-    request.mockResolvedValue({ ok: true, value: { data: [] } });
-    expect(await fetchOwnRoles('u1')).toEqual({ ok: true, value: [] });
-  });
-
-  it('un 403 significa cobrador; otros fallos se propagan', async () => {
-    request.mockResolvedValue(http(403));
-    expect(await fetchOwnRoles('u1')).toEqual({ ok: true, value: ['COLLECTOR'] });
+  it('propaga los fallos', async () => {
     request.mockResolvedValue(http(500));
-    expect((await fetchOwnRoles('u1')).ok).toBe(false);
+    expect((await fetchOwnRoles()).ok).toBe(false);
   });
 
   it('valida la respuesta', async () => {
-    request.mockResolvedValue({ ok: true, value: { data: [] } });
-    await fetchOwnRoles('u1');
+    request.mockResolvedValue(http(500));
+    await fetchOwnRoles();
     const parse = request.mock.calls[0]?.[1] as (body: unknown) => unknown;
-    expect(() => parse({ data: [{ userId: 'u', roles: ['ROOT'] }] })).toThrow();
+    expect(parse({ id: 'm', roles: ['COLLECTOR'] })).toEqual({ roles: ['COLLECTOR'] });
+    expect(() => parse({ roles: ['ROOT'] })).toThrow();
   });
 });
 
