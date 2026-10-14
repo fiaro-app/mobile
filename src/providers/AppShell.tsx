@@ -92,6 +92,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="profile-edit" />
         <Stack.Screen name="account-password" />
         <Stack.Screen name="account-sessions" />
+        <Stack.Screen name="account-deactivate" />
         <Stack.Screen name="notifications" />
       </Stack.Protected>
     </Stack>
