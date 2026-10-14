@@ -1,12 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, type ComponentProps } from 'react';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { CollectorManageView } from '@/components/organisms/CollectorManageView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { COLLECTORS_COPY } from '@/features/collectors/content/messages';
-import { useCollectorManage } from '@/features/collectors/hooks/use-collector-manage';
+import { useCollectorManage, type CollectorManage } from '@/features/collectors/hooks/use-collector-manage';
 
 const copyOf = COLLECTORS_COPY.manage;
 
@@ -26,6 +26,23 @@ const CONFIRMATIONS: Record<Confirmation, ConfirmationCopy> = {
 
 const isConfirmation = (dialog: string): dialog is Confirmation => dialog in CONFIRMATIONS;
 
+/** El diálogo de confirmación abierto (o uno invisible), con el texto de la baja según sus préstamos. */
+function confirmDialog(manage: CollectorManage, name: string): ComponentProps<typeof CollectorManageView>['dialog'] {
+  const dialog = isConfirmation(manage.dialog) ? manage.dialog : null;
+  const loans = manage.activeLoanCount ?? 0;
+  const copy = dialog === null ? null : CONFIRMATIONS[dialog];
+  return {
+    visible: copy !== null,
+    title: copy?.title ?? '',
+    message: dialog === 'deactivate' && loans > 0 ? copyOf.handoverMessage(name, loans) : (copy?.message(name) ?? ''),
+    cancelLabel: copyOf.cancel,
+    confirmLabel: copy?.confirm ?? '',
+    onCancel: manage.closeDialog,
+    onConfirm: { reset: manage.confirmReset, deactivate: manage.confirmDeactivate, reactivate: manage.confirmReactivate, remove: manage.confirmRemove }[dialog ?? 'reset'],
+    destructive: dialog === 'deactivate' || dialog === 'remove',
+  };
+}
+
 /** Ruta `/admin/collectors/[id]`: gestionar un cobrador (desempeño, cartera, contraseña temporal, desactivar, reactivar, borrar). */
 export default function ManageCollectorScreen() {
   const router = useRouter();
@@ -42,9 +59,6 @@ export default function ManageCollectorScreen() {
     body = <EmptyState icon="person-remove-outline" title={copy.notFoundTitle} message={copy.notFoundMessage} />;
   } else if (manage.person) {
     const person = manage.person;
-    const dialog = isConfirmation(manage.dialog) ? manage.dialog : null;
-    const loans = manage.activeLoanCount ?? 0;
-    const message = dialog === 'deactivate' && loans > 0 ? copy.handoverMessage(person.name, loans) : dialog && CONFIRMATIONS[dialog].message(person.name);
     body = (
       <CollectorManageView
         person={person}
@@ -85,16 +99,7 @@ export default function ManageCollectorScreen() {
         onRemove={() => {
           manage.openDialog('remove');
         }}
-        dialog={{
-          visible: dialog !== null,
-          title: dialog ? CONFIRMATIONS[dialog].title : '',
-          message: message || '',
-          cancelLabel: copy.cancel,
-          confirmLabel: dialog ? CONFIRMATIONS[dialog].confirm : '',
-          onCancel: manage.closeDialog,
-          onConfirm: { reset: manage.confirmReset, deactivate: manage.confirmDeactivate, reactivate: manage.confirmReactivate, remove: manage.confirmRemove }[dialog ?? 'reset'],
-          destructive: dialog === 'deactivate' || dialog === 'remove',
-        }}
+        dialog={confirmDialog(manage, person.name)}
         destinationSheet={{
           visible: manage.dialog === 'destination',
           title: copy.handoverTitle,
