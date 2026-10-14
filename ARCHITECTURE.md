@@ -417,6 +417,20 @@ El PIN ya no protege solo el arranque en frío: `useInactivityLock` (en `AppShel
 (`LOCK_AFTER_MS`), llama `lock()` del store de sesión y `resolveAccess` devuelve `locked` (pantalla de PIN). Solo actúa con sesión lista y **PIN activado** (`lock` no hace nada sin PIN).
 Un minuto deja contestar un mensaje sin fricción y es poco para un teléfono perdido o prestado.
 
+## 5r. Verificación contra robots en el registro (Cloudflare Turnstile)
+
+`POST /register` exige un token de Cloudflare Turnstile cuando el API tiene `CLOUDFLARE_TURNSTILE_SECRET_KEY` (obligatoria en producción). La web y la app usan
+el **mismo widget** (misma site key), en modo gestionado: casi siempre pasa solo y a veces pide marcar una casilla.
+
+- **Nativo (`TurnstileWidget.tsx`):** Cloudflare no tiene SDK para React Native, así que el widget corre en un `react-native-webview` con una página mínima que
+  devuelve el token con `postMessage`. La página se carga con `baseUrl = EXPO_PUBLIC_TURNSTILE_ORIGIN`: Cloudflare solo emite tokens para los dominios
+  autorizados del widget y el API compara el `hostname` del token con `CLOUDFLARE_TURNSTILE_HOSTNAMES`. En producción ese origen es el dominio de la web.
+- **Web (`TurnstileWidget.web.tsx`):** sin WebView; el script se carga una vez y el widget se dibuja en la página.
+- **Lógica (`useRegisterForm`):** guarda el token, no deja enviar sin él (si hay site key) y, si el API rechaza el registro, pide un desafío nuevo
+  (`turnstileResetKey`): cada token sirve una sola vez. `RegisterView` solo recibe el widget por la prop `verification` (los componentes no importan `features/`).
+- **Sin `EXPO_PUBLIC_TURNSTILE_SITE_KEY`** no se muestra nada ni se exige token (desarrollo con el API sin llave secreta). Llaves de prueba en `.env.example`.
+- `react-native-webview` viene en Expo Go; en un development build hay que recompilar (`npx expo run:ios|android`) porque es código nativo.
+
 ## 6. Diferencias deliberadas entre el diseño (Penpot) y el API
 
 Cuando chocan, manda el API y el mock se corrige (instrucción del equipo). Estado de cada caso:

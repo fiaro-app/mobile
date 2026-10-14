@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Button } from '@/components/atoms/Button';
 import { TextField } from '@/components/atoms/TextField';
@@ -26,6 +27,8 @@ export interface RegisterViewProps {
   readonly onSubmit: () => void;
   readonly onToLogin: () => void;
   readonly onCancel: () => void;
+  /** Verificación contra robots (Turnstile), encima del botón de enviar del paso 2. */
+  readonly verification?: ReactNode;
 }
 
 /** Registro de un negocio en dos pasos (cuenta y empresa) y la pantalla final. Solo dibuja. */
@@ -65,6 +68,7 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
         ) : (
           <>
             {text('businessName', texts.business, texts.businessPlaceholder)}
+            {props.verification}
             <Button label={texts.submit} onPress={props.onSubmit} loading={props.busy} />
             <View className="items-center">
               <TextLink label={texts.back} onPress={props.onBack} />

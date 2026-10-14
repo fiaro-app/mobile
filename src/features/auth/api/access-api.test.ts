@@ -30,4 +30,12 @@ describe('access-api', () => {
     expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga', nationalId: '1020304050', businessName: 'El Águila' });
     expect(post.mock.calls[1]?.[1]).toMatchObject({ contactEmail: 'd@correo.com' });
   });
+
+  it('envía el token de Turnstile solo cuando lo hay', async () => {
+    const base = { phone: '3001234567', fullName: 'Daniel Rojas', password: 'clave-larga', nationalId: '1020304050', businessName: 'El Águila', contactEmail: '' };
+    await registerOwner({ ...base, turnstileToken: 'tok' });
+    await registerOwner({ ...base, turnstileToken: undefined });
+    expect(post.mock.calls[0]?.[1]).toMatchObject({ turnstileToken: 'tok' });
+    expect(post.mock.calls[1]?.[1]).not.toHaveProperty('turnstileToken');
+  });
 });

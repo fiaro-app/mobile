@@ -77,7 +77,15 @@ export function accessFailureMessage(failure: ApiFailure): string {
       return 'La contraseña debe tener entre 8 y 128 caracteres.';
     case 'RATE_LIMITED':
       return 'Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.';
+    case 'TURNSTILE_FAILED':
+      return 'No pudimos verificar que eres una persona. Completa la verificación de nuevo.';
     default:
       return failure.status === 429 ? 'Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.' : 'No pudimos completar la acción. Intenta de nuevo.';
   }
 }
+
+/** El widget de seguridad no cargó (sin internet o bloqueado). */
+export const TURNSTILE_LOAD_ERROR = 'No pudimos cargar la verificación de seguridad. Revisa tu internet e inténtalo de nuevo.';
+
+/** Se pulsó enviar antes de que la verificación de seguridad terminara. */
+export const TURNSTILE_PENDING = 'Completa la verificación de seguridad para continuar.';

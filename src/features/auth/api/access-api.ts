@@ -21,6 +21,8 @@ export interface RegisterInput {
   readonly nationalId: string;
   readonly businessName: string;
   readonly contactEmail: string;
+  /** Token de Cloudflare Turnstile; sin él (Turnstile apagado) no se envía. */
+  readonly turnstileToken?: string;
 }
 
 /** `POST /register`: registra a un dueño y su negocio. NO abre sesión: después hay que iniciarla. El correo vacío no se envía. */
@@ -34,6 +36,7 @@ export function registerOwner(input: RegisterInput): Promise<Result<unknown, Api
       nationalId: input.nationalId.replaceAll(/[\s.,-]/g, ''),
       businessName: input.businessName,
       ...(input.contactEmail === '' ? {} : { contactEmail: input.contactEmail }),
+      ...(input.turnstileToken ? { turnstileToken: input.turnstileToken } : {}),
     },
     (body) => body,
   );
