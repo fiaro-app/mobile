@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { TextField } from '@/components/atoms/TextField';
@@ -10,6 +10,7 @@ import { EntityList } from '@/components/organisms/EntityList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanHistory } from '@/features/loans/hooks/use-loan-history';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 function detailOf(row: { reversiblePaymentId: string | null; detail: string }, reverseLabel: string): string | undefined {
   if (row.reversiblePaymentId) return reverseLabel;
@@ -18,7 +19,7 @@ function detailOf(row: { reversiblePaymentId: string | null; detail: string }, r
 
 /** Ruta `/admin/loans/[id]/history`: historial de cobros del préstamo; tocar un pago permite revertirlo con un motivo. */
 export default function LoanHistoryScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const history = useLoanHistory(id);
   const copy = LOANS_COPY.history;
@@ -33,7 +34,7 @@ export default function LoanHistoryScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
