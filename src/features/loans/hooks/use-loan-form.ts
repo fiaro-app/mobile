@@ -6,7 +6,7 @@ import { assignCollector, createLoan } from '@/features/loans/api/loans-api';
 import { loanFailureMessage } from '@/features/loans/content/messages';
 import { FREQUENCY_OPTIONS } from '@/features/loans/lib/frequency-options';
 import { suggestTotal, validateLoanForm, type LoanField, type LoanFormValues } from '@/features/loans/lib/loan-form';
-import { startDateOptions } from '@/features/loans/lib/start-dates';
+import { describeStartDate } from '@/features/loans/lib/start-dates';
 import { useMembers } from '@/features/team/hooks/use-members';
 import { formatAmountInput, parseAmountInput } from '@/features/visit/lib/amount';
 import { businessDateOf } from '@/lib/business-date';
@@ -24,7 +24,8 @@ export interface LoanForm {
   readonly collectorLabel: string;
   readonly totalSuggested: boolean;
   readonly frequencyOptions: typeof FREQUENCY_OPTIONS;
-  readonly startDateOptions: readonly { value: string; label: string }[];
+  /** Hoy en Colombia: el día que marca el calendario de la fecha de inicio. */
+  readonly today: string;
   readonly collectorOptions: readonly { value: string; label: string }[];
   readonly sheet: LoanSheet;
   readonly submitting: boolean;
@@ -66,7 +67,7 @@ export function useLoanForm(initialClientId: string, onCreated: (loanId: string)
   const [createdLoanId, setCreatedLoanId] = useState<string | null>(null);
   const members = useMembers();
   const names = useClientNames(useMemo(() => (values.clientId === '' ? [] : [values.clientId]), [values.clientId]));
-  const dates = useMemo(() => startDateOptions(businessDateOf()), []);
+  const today = businessDateOf();
   const collectors = useMemo(
     () => (members.data ?? []).filter((member) => member.status === 'ACTIVE' && member.roles.includes('COLLECTOR')).map((member) => ({ value: member.id, label: member.fullName })),
     [members.data],
@@ -96,11 +97,11 @@ export function useLoanForm(initialClientId: string, onCreated: (loanId: string)
     errors,
     clientLabel: values.clientId === '' ? 'Elige un cliente' : (names.get(values.clientId) ?? 'Cliente'),
     frequencyLabel: FREQUENCY_OPTIONS.find((option) => option.value === values.frequency)?.label ?? 'Elige la frecuencia',
-    startDateLabel: dates.find((option) => option.value === values.startDate)?.label ?? values.startDate,
+    startDateLabel: describeStartDate(values.startDate, today),
     collectorLabel: collectors.find((option) => option.value === values.collectorId)?.label ?? 'Sin asignar por ahora',
     totalSuggested: !totalTouched && values.total !== '',
     frequencyOptions: FREQUENCY_OPTIONS,
-    startDateOptions: dates,
+    today,
     collectorOptions: collectors,
     sheet,
     submitting,

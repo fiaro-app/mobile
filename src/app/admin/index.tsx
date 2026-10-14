@@ -1,5 +1,8 @@
 import { useRouter } from 'expo-router';
+import { View } from 'react-native';
+import { DateRangeFields } from '@/components/molecules/DateRangeFields';
 import { EmptyState } from '@/components/molecules/EmptyState';
+import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { DashboardView } from '@/components/organisms/DashboardView';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
@@ -29,12 +32,24 @@ export default function AdminSummaryScreen() {
         pending={model.pending.map((row) => ({ id: row.id, name: row.collectorName, detail: row.expected, amount: row.difference, tone: row.differenceTone, onPress: () => { router.push({ pathname: '/admin/settlements/[id]', params: { id: row.id } }); } }))}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
+        period={<DateRangeFields range={screen.dates.range} onOpen={screen.dates.open} onClear={screen.dates.clear} emptyHint={DASHBOARD_COPY.periodHint} />}
       />
     );
   }
   return (
     <AdminTemplate title={DASHBOARD_COPY.title} initials={menu.initials} drawer={menu.drawer} onMenu={menu.open} onAvatar={menu.goToAccount}>
-      {body}
+      <View className="flex-1">
+        {body}
+        <DatePickerSheet
+          visible={screen.dates.editing !== null}
+          title={screen.dates.editing === 'to' ? 'Hasta' : 'Desde'}
+          value={screen.dates.editingValue}
+          today={screen.dates.today}
+          max={screen.dates.today}
+          onSelect={screen.dates.pick}
+          onClose={screen.dates.close}
+        />
+      </View>
     </AdminTemplate>
   );
 }

@@ -1,5 +1,6 @@
 import { ReviewSettlementSchema, ReviewSettlementsPageSchema, type ReviewSettlement } from '@/features/settlement-review/lib/review-schemas';
 import type { SettlementStatus } from '@/features/settlement/lib/settlement-schemas';
+import type { DateRangeValue } from '@/lib/date-range';
 import { authedRequest } from '@/lib/http/authed-request';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { Result } from '@/lib/result';
@@ -15,15 +16,31 @@ export interface SettlementsPage {
   readonly total: number;
 }
 
-/** `QUERY /daily-settlements`: cuadres del negocio, filtrados por estado en el API. */
-export function fetchSettlements(page: number, status: SettlementStatus): Response<SettlementsPage> {
+/** Filtros de la lista de cuadres; `null` es «todos». */
+export interface SettlementsQuery {
+  readonly status: SettlementStatus | null;
+  readonly range: DateRangeValue | null;
+  readonly collectorId: string | null;
+}
+
+/** `QUERY /daily-settlements`: cuadres del negocio, filtrados en el API por estado, fechas (hasta 366 días) y cobrador. */
+export function fetchSettlements(page: number, query: SettlementsQuery): Response<SettlementsPage> {
   return authedRequest(
     '/daily-settlements',
     (body) => {
       const parsed = ReviewSettlementsPageSchema.parse(body);
       return { items: parsed.data, total: parsed.meta.total };
     },
-    { method: 'QUERY', body: { page, pageSize: SETTLEMENTS_PAGE_SIZE, status } },
+    {
+      method: 'QUERY',
+      body: {
+        page,
+        pageSize: SETTLEMENTS_PAGE_SIZE,
+        ...(query.status ? { status: query.status } : {}),
+        ...(query.range ? { dateRange: query.range } : {}),
+        ...(query.collectorId ? { collectorMembershipId: query.collectorId } : {}),
+      },
+    },
   );
 }
 

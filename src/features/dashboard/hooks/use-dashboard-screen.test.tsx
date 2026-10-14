@@ -41,6 +41,23 @@ describe('useDashboardScreen', () => {
     });
   });
 
+  it('con fechas pide el resumen de ese período', async () => {
+    const { result } = await renderHook(() => useDashboardScreen(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.model).not.toBeNull();
+    });
+    expect(jest.mocked(api).fetchDashboard).toHaveBeenCalledWith(null);
+    await act(async () => {
+      result.current.dates.open('from');
+    });
+    await act(async () => {
+      result.current.dates.pick('2026-10-01');
+    });
+    await waitFor(() => {
+      expect(jest.mocked(api).fetchDashboard).toHaveBeenLastCalledWith({ from: '2026-10-01', to: '2026-10-01' });
+    });
+  });
+
   it('muestra el resumen aunque los colaboradores fallen', async () => {
     jest.mocked(team).fetchMembers.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
     const { result } = await renderHook(() => useDashboardScreen(), { wrapper });

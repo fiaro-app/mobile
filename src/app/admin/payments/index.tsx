@@ -1,17 +1,17 @@
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
-import { SelectButton } from '@/components/atoms/SelectButton';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ListHeader } from '@/components/molecules/ListHeader';
 import { EntityList } from '@/components/organisms/EntityList';
-import { OptionSheet } from '@/components/organisms/OptionSheet';
+import { PeriodCollectorFilters } from '@/components/molecules/PeriodCollectorFilters';
+import { PeriodCollectorSheets } from '@/components/organisms/PeriodCollectorSheets';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { useReportScreen } from '@/features/collections-report/hooks/use-report-screen';
 import { REPORT_COPY } from '@/features/collections-report/content/messages';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 
-/** Ruta `/admin/payments`: "Cobros del día", las visitas de todo el negocio en un día; tocar una abre su préstamo. */
+/** Ruta `/admin/payments`: "Cobros del día", las visitas de todo el negocio (hoy o un rango de fechas); tocar una abre su préstamo. */
 export default function PaymentsScreen() {
   const router = useRouter();
   const menu = useAdminMenu('payments');
@@ -45,16 +45,23 @@ export default function PaymentsScreen() {
         header={
           <View>
             <ListHeader filters={{ options: copy.filters, value: screen.filter, onChange: screen.setFilter }} />
-            <View className="gap-2 bg-surface px-5 pb-4">
-              <SelectButton label={screen.dateLabel} active onPress={screen.openSheet} />
-              <AppText variant="caption" tone="muted">
-                {screen.summary}
-              </AppText>
-            </View>
+            <PeriodCollectorFilters
+              dates={screen.dates}
+              periodHint={copy.periodHint}
+              collectorLabel={screen.collector.label}
+              collectorActive={screen.collector.applied !== null}
+              onOpenCollector={screen.collector.openSheet}
+            />
+            <AppText variant="caption" tone="muted" className="bg-surface px-5 pb-4">
+              {screen.summary}
+            </AppText>
           </View>
         }
       />
-      <OptionSheet visible={screen.sheetOpen} title={copy.dateTitle} options={screen.dateOptions} selected={screen.date} onSelect={screen.setDate} onClose={screen.closeSheet} />
+      <PeriodCollectorSheets
+        dates={screen.dates}
+        collector={{ open: screen.collector.open, options: screen.collector.options, selected: screen.collector.id, onSelect: screen.collector.select, onClose: screen.collector.closeSheet }}
+      />
     </AdminTemplate>
   );
 }
