@@ -31,18 +31,18 @@ describe('useChangePasswordForm', () => {
       result.current.submit();
     });
     expect(change).not.toHaveBeenCalled();
-    expect(result.current.newPassword.error).toBe('La contraseña debe tener mínimo 8 caracteres.');
+    expect(result.current.newPassword.error).toBe('La contraseña debe tener mínimo 15 caracteres.');
     expect(result.current.confirmPassword.error).toBe('Las contraseñas no coinciden.');
   });
 
   it('actualiza la persona al cambiarla bien', async () => {
     change.mockResolvedValue({ ok: true, value: { ...temp, mustChangePassword: false } });
     const { result } = await renderHook(() => useChangePasswordForm());
-    await fill(result, 'nueva-clave-1');
+    await fill(result, 'nueva-clave-segura-1');
     await act(async () => {
       result.current.submit();
     });
-    expect(change).toHaveBeenCalledWith('temporal', 'nueva-clave-1');
+    expect(change).toHaveBeenCalledWith('temporal', 'nueva-clave-segura-1');
     expect(useSessionStore.getState().user?.mustChangePassword).toBe(false);
   });
 
@@ -52,7 +52,7 @@ describe('useChangePasswordForm', () => {
       failure: { kind: 'http', status: 400, code: 'PASSWORD_TOO_WEAK', retryAfterSeconds: null },
     });
     const { result } = await renderHook(() => useChangePasswordForm());
-    await fill(result, '12345678');
+    await fill(result, 'tequieromucho12');
     await act(async () => {
       result.current.submit();
     });
@@ -66,7 +66,7 @@ describe('useChangePasswordForm', () => {
       failure: { kind: 'http', status: 401, code: 'UNAUTHORIZED', retryAfterSeconds: null },
     });
     const { result } = await renderHook(() => useChangePasswordForm());
-    await fill(result, 'nueva-clave-1');
+    await fill(result, 'nueva-clave-segura-1');
     await act(async () => {
       result.current.submit();
     });

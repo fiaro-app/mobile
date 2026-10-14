@@ -14,7 +14,7 @@ describe('loginSchema', () => {
 });
 
 describe('changePasswordSchema', () => {
-  const valid = { currentPassword: 'temporal', newPassword: 'nueva-clave-1', confirmPassword: 'nueva-clave-1' };
+  const valid = { currentPassword: 'temporal', newPassword: 'nueva-clave-segura-1', confirmPassword: 'nueva-clave-segura-1' };
 
   it('acepta una contraseña válida', () => {
     expect(changePasswordSchema.safeParse(valid).success).toBe(true);

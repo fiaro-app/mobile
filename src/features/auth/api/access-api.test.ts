@@ -23,21 +23,21 @@ describe('access-api', () => {
   });
 
   it('canjea el código', async () => {
-    await resetPassword({ phone: '3001234567', code: '123456', newPassword: 'nueva-clave' });
-    expect(post.mock.calls[0]).toMatchObject(['/auth/reset-password', { phoneNumber: '+573001234567', code: '123456', newPassword: 'nueva-clave' }, expect.any(Function)]);
+    await resetPassword({ phone: '3001234567', code: '123456', newPassword: 'nueva-clave-de-prueba' });
+    expect(post.mock.calls[0]).toMatchObject(['/auth/reset-password', { phoneNumber: '+573001234567', code: '123456', newPassword: 'nueva-clave-de-prueba' }, expect.any(Function)]);
     expect((post.mock.calls[0]?.[2] as (b: unknown) => unknown)({ a: 1 })).toEqual({ a: 1 });
   });
 
   it('registra normalizando cédula y celular, sin correo vacío', async () => {
-    const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: '' };
+    const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: '' };
     await registerOwner(base);
     await registerOwner({ ...base, contactEmail: 'd@correo.com' });
-    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga', nationalId: '1020304050', businessName: 'El Águila' });
+    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila' });
     expect(post.mock.calls[1]?.[1]).toMatchObject({ contactEmail: 'd@correo.com' });
   });
 
   it('envía el token de Turnstile solo cuando lo hay', async () => {
-    const base = { phone: '3001234567', fullName: 'Daniel Rojas', password: 'clave-larga', nationalId: '1020304050', businessName: 'El Águila', contactEmail: '' };
+    const base = { phone: '3001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: '' };
     await registerOwner({ ...base, turnstileToken: 'tok' });
     await registerOwner({ ...base, turnstileToken: undefined });
     expect(post.mock.calls[0]?.[1]).toMatchObject({ turnstileToken: 'tok' });

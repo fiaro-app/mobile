@@ -11,7 +11,7 @@ const TEXTS = {
   currentLabel: 'Contraseña actual',
   newLabel: 'Nueva contraseña',
   confirmLabel: 'Confirmar contraseña',
-  hint: 'Mínimo 8 caracteres.',
+  hint: 'Mínimo 15 caracteres. Sirve una frase fácil de recordar, como «la tienda abre a las seis».',
   submit: 'Cambiar contraseña',
 } as const;
 

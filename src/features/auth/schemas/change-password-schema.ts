@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AUTH_COPY } from '@/features/auth/content/messages';
 
 /** Longitud de contraseña que acepta el API (`PASSWORD_MIN_LENGTH` / `PASSWORD_MAX_LENGTH`). */
-export const PASSWORD_MIN = 8;
+export const PASSWORD_MIN = 15;
 export const PASSWORD_MAX = 128;
 
 /**
