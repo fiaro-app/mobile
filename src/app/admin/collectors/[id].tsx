@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, type ComponentProps } from 'react';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
@@ -7,6 +7,7 @@ import { CollectorManageView } from '@/components/organisms/CollectorManageView'
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { COLLECTORS_COPY } from '@/features/collectors/content/messages';
 import { useCollectorManage, type CollectorManage } from '@/features/collectors/hooks/use-collector-manage';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 const copyOf = COLLECTORS_COPY.manage;
 
@@ -45,14 +46,14 @@ function confirmDialog(manage: CollectorManage, name: string): ComponentProps<ty
 
 /** Ruta `/admin/collectors/[id]`: gestionar un cobrador (desempeño, cartera, contraseña temporal, desactivar, reactivar, borrar). */
 export default function ManageCollectorScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const manage = useCollectorManage(id);
   const copy = COLLECTORS_COPY.manage;
 
   useEffect(() => {
-    if (manage.removed) router.back();
-  }, [manage.removed, router]);
+    if (manage.removed) goBack();
+  }, [manage.removed, goBack]);
 
   let body = <ClientDetailSkeleton />;
   if (manage.notFound) {
@@ -125,7 +126,7 @@ export default function ManageCollectorScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

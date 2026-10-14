@@ -8,10 +8,12 @@ import { TopBar } from '@/components/molecules/TopBar';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ACCOUNT_COPY } from '@/features/account/content/messages';
 import { useProfileScreen } from '@/features/auth/hooks/use-profile-screen';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/profile`: la persona, sus accesos según el modo (cobrador o administrador) y cerrar sesión. */
 export default function ProfileScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const profile = useProfileScreen();
   const collector = profile.mode === 'collector';
   return (
@@ -20,7 +22,7 @@ export default function ProfileScreen() {
         <TopBar
           title={ACCOUNT_COPY.profileTitle}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

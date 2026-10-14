@@ -4,16 +4,18 @@ import { ClientFormView } from '@/components/organisms/ClientFormView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
 import { useClientForm } from '@/features/clients/hooks/use-client-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/clients/new`: registrar un cliente; al terminar abre su ficha (reemplaza esta pantalla). */
 export default function NewClientScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const form = useClientForm(undefined, (client) => {
     router.replace({ pathname: '/admin/clients/[id]', params: { id: client.id } });
   });
   const copy = CLIENTS_COPY.form;
   const back = () => {
-    router.back();
+    goBack();
   };
   return (
     <ScreenTemplate topBar={<TopBar title={CLIENTS_COPY.register} onBack={back} />}>

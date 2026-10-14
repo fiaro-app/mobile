@@ -1,14 +1,14 @@
-import { useRouter } from 'expo-router';
 import { TopBar } from '@/components/molecules/TopBar';
 import { EditProfileForm } from '@/components/organisms/EditProfileForm';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ACCOUNT_COPY } from '@/features/account/content/messages';
 import { useEditProfile } from '@/features/account/hooks/use-edit-profile';
 import { useEmailVerification } from '@/features/account/hooks/use-email-verification';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/profile-edit`: cambiar el nombre y el correo de contacto, y verificar el correo. */
 export default function EditProfileScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const form = useEditProfile();
   const email = useEmailVerification();
   return (
@@ -17,7 +17,7 @@ export default function EditProfileScreen() {
         <TopBar
           title={ACCOUNT_COPY.editTitle}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

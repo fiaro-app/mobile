@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -6,15 +6,16 @@ import { ClientFormView } from '@/components/organisms/ClientFormView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
 import { useClientForm } from '@/features/clients/hooks/use-client-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/clients/[id]/edit`: editar los datos de un cliente (solo se envía lo que cambió). */
 export default function EditClientScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const form = useClientForm(id, () => undefined);
   const copy = CLIENTS_COPY.form;
   const back = () => {
-    router.back();
+    goBack();
   };
 
   let body = <ClientDetailSkeleton />;

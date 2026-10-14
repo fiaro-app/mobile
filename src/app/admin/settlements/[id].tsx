@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -6,10 +6,11 @@ import { ReviewDetailView } from '@/components/organisms/ReviewDetailView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { REVIEW_COPY } from '@/features/settlement-review/content/messages';
 import { useReviewDetail } from '@/features/settlement-review/hooks/use-review-detail';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/settlements/[id]`: detalle del cuadre y su revisión (aprobar o rechazar con comentario). */
 export default function ReviewDetailScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const detail = useReviewDetail(id);
   const copy = REVIEW_COPY.detail;
@@ -67,7 +68,7 @@ export default function ReviewDetailScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
