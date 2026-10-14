@@ -11,6 +11,13 @@ import { OptionSheet } from '@/components/organisms/OptionSheet';
 
 type Tone = 'neutral' | 'good' | 'warning' | 'bad';
 
+/** Botón para ver más filas de una lista larga. */
+interface MoreButton {
+  readonly label: string;
+  readonly busy: boolean;
+  readonly onPress: () => void;
+}
+
 export interface LenderStatsViewProps {
   readonly periods: readonly FilterOption<string>[];
   readonly period: string;
@@ -24,6 +31,9 @@ export interface LenderStatsViewProps {
   readonly top: readonly { readonly id: string; readonly name: string; readonly days: string; readonly amount: string }[];
   readonly collectorsTitle: string;
   readonly collectors: readonly { readonly id: string; readonly name: string; readonly effectiveness: string; readonly tone: Tone; readonly overdue: string }[];
+  /** Botón bajo cada lista larga («Ver todos» / «Ver más»); `null` o ausente lo oculta. */
+  readonly topMore?: MoreButton | null;
+  readonly collectorsMore?: MoreButton | null;
   readonly empty: string | null;
   readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void };
   readonly refreshing: boolean;
@@ -95,6 +105,7 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
                 </View>
               ))}
             </View>
+            {props.topMore ? <Button label={props.topMore.label} variant="outline" loading={props.topMore.busy} onPress={props.topMore.onPress} /> : null}
           </View>
         ) : null}
         {props.collectors.length > 0 ? (
@@ -118,6 +129,9 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
                 </View>
               ))}
             </View>
+            {props.collectorsMore ? (
+              <Button label={props.collectorsMore.label} variant="outline" loading={props.collectorsMore.busy} onPress={props.collectorsMore.onPress} />
+            ) : null}
           </View>
         ) : null}
       </ScrollView>

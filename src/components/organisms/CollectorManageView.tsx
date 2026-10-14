@@ -27,15 +27,22 @@ export interface CollectorManageViewProps {
   readonly onSavePortfolio: () => void;
   readonly resetLabel: string;
   readonly deactivateLabel: string;
+  /** Botón de reactivar (solo inactivos) y de borrar (nunca para el dueño): `null` lo oculta. */
+  readonly reactivateLabel?: string | null;
+  readonly onReactivate?: () => void;
+  readonly removeLabel?: string | null;
+  readonly onRemove?: () => void;
   readonly onReset: () => void;
   readonly onDeactivate: () => void;
   readonly busy: boolean;
   readonly secret: SecretCardProps | null;
   readonly dialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
   readonly portfolioSheet: { readonly visible: boolean; readonly title: string; readonly options: readonly { value: string; label: string }[]; readonly selected: string; readonly onSelect: (value: string) => void; readonly onClose: () => void };
+  /** A qué cobrador pasar sus préstamos al darlo de baja; misma forma que la hoja de cartera. */
+  readonly destinationSheet?: CollectorManageViewProps['portfolioSheet'];
 }
 
-/** Pantalla "Gestionar cobrador": datos, desempeño del mes, cartera y las acciones (restablecer contraseña, desactivar). Solo dibuja. */
+/** Pantalla "Gestionar cobrador": datos, desempeño del mes, cartera y las acciones (restablecer contraseña, desactivar, reactivar, borrar). Solo dibuja. */
 export function CollectorManageView(props: Readonly<CollectorManageViewProps>) {
   const { person } = props;
   return (
@@ -87,9 +94,14 @@ export function CollectorManageView(props: Readonly<CollectorManageViewProps>) {
             <Button label={props.deactivateLabel} variant="danger-outline" onPress={props.onDeactivate} disabled={props.busy} />
           </View>
         ) : null}
+        {!person.active && props.reactivateLabel && props.onReactivate ? (
+          <Button label={props.reactivateLabel} onPress={props.onReactivate} disabled={props.busy} />
+        ) : null}
+        {props.removeLabel && props.onRemove ? <Button label={props.removeLabel} variant="danger-outline" onPress={props.onRemove} disabled={props.busy} /> : null}
       </ScrollView>
       <ConfirmDialog {...props.dialog} busy={props.busy} />
       <OptionSheet {...props.portfolioSheet} />
+      {props.destinationSheet ? <OptionSheet {...props.destinationSheet} /> : null}
     </View>
   );
 }

@@ -49,12 +49,12 @@ describe('lógica del reporte', () => {
     request.mockResolvedValue({ ok: true, value: {} });
     await fetchReport(1, '2026-10-09', true);
     await fetchReport(2, '2026-10-09', false);
-    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 30, dateRange: { from: '2026-10-09', to: '2026-10-09' }, outcome: 'PAID' } });
-    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 30, dateRange: { from: '2026-10-09', to: '2026-10-09' } } });
+    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10, dateRange: { from: '2026-10-09', to: '2026-10-09' }, outcome: 'PAID' } });
+    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 10, dateRange: { from: '2026-10-09', to: '2026-10-09' } } });
     const parse = request.mock.calls[0]?.[1] as (body: unknown) => unknown;
     expect(parse({ data: [entry('1')], meta: { total: 3 }, range: { from: 'a', to: 'b' } })).toEqual({ items: [entry('1')], total: 3 });
     expect(() => ReportPageSchema.parse({})).toThrow();
-    expect(apiModule.REPORT_PAGE_SIZE).toBe(30);
+    expect(apiModule.REPORT_PAGE_SIZE).toBe(10);
   });
 });
 

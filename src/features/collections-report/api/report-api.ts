@@ -4,7 +4,7 @@ import type { ApiFailure } from '@/lib/http/failure';
 import type { Result } from '@/lib/result';
 
 /** Visitas por página. */
-export const REPORT_PAGE_SIZE = 30;
+export const REPORT_PAGE_SIZE = 10;
 
 /** Una página del reporte. */
 export interface ReportPage {

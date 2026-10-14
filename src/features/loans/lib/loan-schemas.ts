@@ -30,6 +30,8 @@ export const LoanListItemSchema = LoanSchema.extend({
   overdueDays: z.int(),
   nextDueDate: z.string().nullable(),
   collector: z.object({ membershipId: z.string(), fullName: z.string() }).nullable().optional(),
+  /** Nombre del cliente (API D-117); ausente en una API anterior, y entonces se busca aparte. */
+  clientFullName: z.string().optional(),
 });
 export type LoanListItem = z.infer<typeof LoanListItemSchema>;
 

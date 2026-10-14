@@ -14,7 +14,7 @@ describe('fetchOwnRoles', () => {
   it('busca la membresía propia entre las activas', async () => {
     request.mockResolvedValue({ ok: true, value: { data: [{ userId: 'u2', roles: ['COLLECTOR'] }, { userId: 'u1', roles: ['OWNER'] }] } });
     expect(await fetchOwnRoles('u1')).toEqual({ ok: true, value: ['OWNER'] });
-    expect(request.mock.calls[0]).toMatchObject(['/memberships', expect.any(Function), { method: 'QUERY', body: { page: 1, pageSize: 100, status: 'ACTIVE' } }]);
+    expect(request.mock.calls[0]).toMatchObject(['/memberships', expect.any(Function), { method: 'QUERY', body: { page: 1, pageSize: 50, status: 'ACTIVE' } }]);
   });
 
   it('sin membresía propia devuelve una lista vacía', async () => {

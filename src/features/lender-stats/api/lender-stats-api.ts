@@ -1,4 +1,12 @@
-import { LenderStatsSchema, type LenderStats } from '@/features/lender-stats/lib/lender-stats-schemas';
+import {
+  CollectorPerformanceSchema,
+  LenderStatsSchema,
+  TopArrearsEntrySchema,
+  statsPageSchema,
+  type CollectorPerformance,
+  type LenderStats,
+  type TopArrearsEntry,
+} from '@/features/lender-stats/lib/lender-stats-schemas';
 import { authedDownload, type DownloadedFile } from '@/lib/files/download';
 import type { DateRange } from '@/features/stats/lib/stats-schemas';
 import { authedRequest } from '@/lib/http/authed-request';
@@ -14,6 +22,39 @@ export function fetchLenderStats(range: DateRange, collectorMembershipId?: strin
     method: 'QUERY',
     body: { dateRange: range, includePrevious: true, ...(collectorMembershipId ? { collectorMembershipId } : {}) },
   });
+}
+
+/** Filas por página de las listas largas de las estadísticas (10, lo que la API usa por defecto). */
+export const STATS_LIST_PAGE_SIZE = 10;
+
+/** Una página de una lista larga. */
+export interface StatsListPage<T> {
+  readonly items: T[];
+  readonly total: number;
+}
+
+/** `QUERY /lenders/me/stats/top-arrears`: el ranking completo de mayor mora (la mora es la de hoy: no lleva período). */
+export function fetchTopArrears(page: number, collectorMembershipId?: string): Promise<Result<StatsListPage<TopArrearsEntry>, ApiFailure>> {
+  return authedRequest(
+    '/lenders/me/stats/top-arrears',
+    (body) => {
+      const parsed = statsPageSchema(TopArrearsEntrySchema).parse(body);
+      return { items: parsed.data, total: parsed.meta.total };
+    },
+    { method: 'QUERY', body: { page, pageSize: STATS_LIST_PAGE_SIZE, ...(collectorMembershipId ? { collectorMembershipId } : {}) } },
+  );
+}
+
+/** `QUERY /lenders/me/stats/collector-performance`: el desempeño de todos los cobradores en el período. */
+export function fetchCollectorPerformance(page: number, range: DateRange): Promise<Result<StatsListPage<CollectorPerformance>, ApiFailure>> {
+  return authedRequest(
+    '/lenders/me/stats/collector-performance',
+    (body) => {
+      const parsed = statsPageSchema(CollectorPerformanceSchema).parse(body);
+      return { items: parsed.data, total: parsed.meta.total };
+    },
+    { method: 'QUERY', body: { page, pageSize: STATS_LIST_PAGE_SIZE, dateRange: range } },
+  );
 }
 
 /** Nombre del PDF si el API no sugiere uno. */

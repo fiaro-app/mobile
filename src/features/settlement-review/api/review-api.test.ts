@@ -15,7 +15,7 @@ beforeEach(() => {
 describe('review-api', () => {
   it('lista por estado y devuelve items y total', async () => {
     await fetchSettlements(2, 'PENDING');
-    expect(request.mock.calls[0]).toMatchObject(['/daily-settlements', expect.any(Function), { method: 'QUERY', body: { page: 2, pageSize: 30, status: 'PENDING' } }]);
+    expect(request.mock.calls[0]).toMatchObject(['/daily-settlements', expect.any(Function), { method: 'QUERY', body: { page: 2, pageSize: 10, status: 'PENDING' } }]);
     expect(parserOf(0)({ data: [settlement], meta: { total: 7 } })).toMatchObject({ total: 7 });
   });
 

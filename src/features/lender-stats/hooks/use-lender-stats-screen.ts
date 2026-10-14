@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useStatsExport, type StatsExport } from '@/features/lender-stats/hooks/use-stats-export';
-import { fetchLenderStats } from '@/features/lender-stats/api/lender-stats-api';
-import { buildLenderStatsModel, type LenderStatsModel } from '@/features/lender-stats/lib/lender-stats-view';
+import { fetchCollectorPerformance, fetchLenderStats, fetchTopArrears } from '@/features/lender-stats/api/lender-stats-api';
+import { useStatsList, type StatsList } from '@/features/lender-stats/hooks/use-stats-list';
+import { buildLenderStatsModel, toCollectorRow, toTopArrearsRow, type LenderStatsModel } from '@/features/lender-stats/lib/lender-stats-view';
 import { currentRange, type Period } from '@/features/stats/lib/period-range';
 import { useMembers } from '@/features/team/hooks/use-members';
 import { businessDateOf } from '@/lib/business-date';
@@ -23,6 +24,10 @@ export interface LenderStatsScreen {
   readonly openSheet: () => void;
   readonly closeSheet: () => void;
   readonly pdf: StatsExport;
+  /** Mayor mora: los 5 primeros o, al expandir, la lista completa por páginas. */
+  readonly topArrears: StatsList<LenderStatsModel['topArrears'][number]>;
+  /** Desempeño por cobrador: los 5 primeros o, al expandir, todos por páginas. */
+  readonly collectors: StatsList<LenderStatsModel['collectors'][number]>;
   readonly refresh: () => void;
 }
 
@@ -46,7 +51,12 @@ export function useLenderStatsScreen(): LenderStatsScreen {
   );
   const pdf = useStatsExport(range, collectorId);
   const model = useMemo(() => (query.data ? buildLenderStatsModel(query.data) : null), [query.data]);
+  const collector = collectorId === ALL_COLLECTORS ? undefined : collectorId;
+  const topArrears = useStatsList(['top-arrears', collectorId], model?.topArrears ?? [], (page) => fetchTopArrears(page, collector), toTopArrearsRow);
+  const collectors = useStatsList(['collectors', range.from, range.to], model?.collectors ?? [], (page) => fetchCollectorPerformance(page, range), toCollectorRow);
   return {
+    topArrears,
+    collectors,
     period,
     collectorId,
     collectorLabel: options.find((option) => option.value === collectorId)?.label ?? 'Todos los cobradores',
