@@ -55,7 +55,7 @@ abre la app. Para la vista web, el API debe tener `http://localhost:8081` en `CO
 | `pnpm build` | Comprueba que la app compila (`expo export` de Android) |
 | `pnpm docs` | Genera documentación (TypeDoc) de `src/lib` y `src/features` en `docs/` |
 
-El pipeline de CI (`.github/workflows/ci.yml`) corre lint → typecheck → tests con cobertura → bundle check → docs → análisis de Sonar en cada PR y en cada push a `dev`.
+El pipeline de CI (`.github/workflows/ci.yml`) corre lint → typecheck → tests con cobertura → bundle check → docs → análisis de Sonar en cada PR a `dev` o `main` (no en el push al fusionar, ni si el PR solo cambia `.md` o `docs/`; un push nuevo cancela la corrida anterior). La documentación solo se genera en los PRs de release a `main`.
 
 ## Estructura
 
