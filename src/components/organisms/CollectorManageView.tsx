@@ -83,28 +83,39 @@ export function CollectorManageView(props: Readonly<CollectorManageViewProps>) {
             ))}
           </View>
         </View>
-        {person.isSelf && props.selfNote ? <AppText variant="small">{props.selfNote}</AppText> : null}
-        {person.active && !person.isSelf ? (
-          <View className="gap-3">
-            <AppText variant="label">{props.portfolioLabel}</AppText>
-            <SelectButton label={props.portfolioValue} active onPress={props.onOpenPortfolio} />
-            {props.portfolioChanged ? <Button label={props.savePortfolioLabel} loading={props.busy} onPress={props.onSavePortfolio} /> : null}
-          </View>
-        ) : null}
-        {person.active && !person.isSelf ? (
-          <View className="gap-3">
-            <Button label={props.resetLabel} variant="outline" onPress={props.onReset} disabled={props.busy} />
-            <Button label={props.deactivateLabel} variant="danger-outline" onPress={props.onDeactivate} disabled={props.busy} />
-          </View>
-        ) : null}
-        {!person.active && props.reactivateLabel && props.onReactivate ? (
-          <Button label={props.reactivateLabel} onPress={props.onReactivate} disabled={props.busy} />
-        ) : null}
-        {props.removeLabel && props.onRemove && !person.isSelf ? <Button label={props.removeLabel} variant="danger-outline" onPress={props.onRemove} disabled={props.busy} /> : null}
+        <ManageActions {...props} />
       </ScrollView>
       <ConfirmDialog {...props.dialog} busy={props.busy} />
       <OptionSheet {...props.portfolioSheet} />
       {props.destinationSheet ? <OptionSheet {...props.destinationSheet} /> : null}
     </View>
+  );
+}
+
+/** Las acciones sobre el cobrador según su estado; a uno mismo no se le ofrecen (la API no lo deja), solo la nota. */
+function ManageActions(props: Readonly<CollectorManageViewProps>) {
+  const { person } = props;
+  if (person.isSelf) return props.selfNote ? <AppText variant="small">{props.selfNote}</AppText> : null;
+  if (!person.active) {
+    return (
+      <>
+        {props.reactivateLabel && props.onReactivate ? <Button label={props.reactivateLabel} onPress={props.onReactivate} disabled={props.busy} /> : null}
+        {props.removeLabel && props.onRemove ? <Button label={props.removeLabel} variant="danger-outline" onPress={props.onRemove} disabled={props.busy} /> : null}
+      </>
+    );
+  }
+  return (
+    <>
+      <View className="gap-3">
+        <AppText variant="label">{props.portfolioLabel}</AppText>
+        <SelectButton label={props.portfolioValue} active onPress={props.onOpenPortfolio} />
+        {props.portfolioChanged ? <Button label={props.savePortfolioLabel} loading={props.busy} onPress={props.onSavePortfolio} /> : null}
+      </View>
+      <View className="gap-3">
+        <Button label={props.resetLabel} variant="outline" onPress={props.onReset} disabled={props.busy} />
+        <Button label={props.deactivateLabel} variant="danger-outline" onPress={props.onDeactivate} disabled={props.busy} />
+      </View>
+      {props.removeLabel && props.onRemove ? <Button label={props.removeLabel} variant="danger-outline" onPress={props.onRemove} disabled={props.busy} /> : null}
+    </>
   );
 }
