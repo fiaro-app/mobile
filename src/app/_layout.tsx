@@ -1,18 +1,28 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import '@/global.css';
+
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppShell } from '@/providers/AppShell';
+import { queryClient } from '@/providers/query-client';
+import { FONT_SOURCES } from '@/lib/theme/fonts';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+void SplashScreen.preventAutoHideAsync();
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+/** Raíz de la app: proveedores globales y la puerta de entrada (`AppShell`). No decide pantallas. */
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts(FONT_SOURCES);
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <AppShell fontsLoaded={fontsLoaded || fontError !== null} />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

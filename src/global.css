@@ -1,9 +1,57 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@import 'tailwindcss';
+@import 'uniwind';
+
+/*
+ * Tokens del sistema de diseño (Penpot › "1 · Fundamentos"), con los mismos nombres que usa la web.
+ * Solo hay tema claro: el diseño no define uno oscuro.
+ *
+ * Todo vive en `@theme` (compartido) y no en `@variant light`, porque Uniwind solo deja cambiar en
+ * ejecución las variables que están ahí (`Uniwind.updateCSSVariables`): así el color de marca de
+ * cada Lender (`--color-primary`) se puede reemplazar sin recompilar. Ver `src/lib/theme/brand.ts`.
+ */
+@theme {
+  --color-background: #f6f5fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f0f8;
+  --color-surface-3: #e9e7f2;
+  --color-foreground: #1c1b2e;
+  --color-skeleton: #d9d6e4;
+
+  --color-primary: #3b3382;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #8f461f;
+  --color-accent-foreground: #ffffff;
+
+  --color-success: #106b32;
+  --color-warning: #7a5106;
+  --color-destructive: #ae3730;
+  --color-destructive-foreground: #ffffff;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /*
+   * React Native no deriva el peso de una familia: cada peso es una fuente distinta registrada con
+   * su propio nombre en `useFonts` (ver `src/lib/theme/fonts.ts`). Por eso hay una clase por peso.
+   */
+  --font-display: Fraunces_700Bold;
+  --font-display-semibold: Fraunces_600SemiBold;
+  --font-sans: IBMPlexSans_400Regular;
+  --font-sans-medium: IBMPlexSans_500Medium;
+  --font-sans-semibold: IBMPlexSans_600SemiBold;
+  --font-mono: IBMPlexMono_400Regular;
+
+  --text-brand: 28px;
+  --text-brand--line-height: 34px;
+  --text-h3: 20px;
+  --text-h3--line-height: 24px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-label: 14px;
+  --text-label--line-height: 20px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-pin: 28px;
+  --text-pin--line-height: 32px;
 }

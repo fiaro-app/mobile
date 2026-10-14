@@ -1,6 +1,13 @@
 {
-  "entryPoints": ["src/lib"],
+  "entryPoints": [
+    "src/lib",
+    "src/features"
+  ],
   "entryPointStrategy": "expand",
   "out": "docs",
-  "skipErrorChecking": true
+  "skipErrorChecking": true,
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }
