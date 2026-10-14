@@ -26,7 +26,7 @@ export type Lender = z.infer<typeof LenderSchema>;
 export async function fetchOwnRoles(userId: string): Promise<Result<Role[], ApiFailure>> {
   const result = await authedRequest('/memberships', (body) => MembershipsPageSchema.parse(body), {
     method: 'QUERY',
-    body: { page: 1, pageSize: 100, status: 'ACTIVE' },
+    body: { page: 1, pageSize: 50, status: 'ACTIVE' },
   });
   if (result.ok) return ok(result.value.data.find((membership) => membership.userId === userId)?.roles ?? []);
   if (result.failure.kind === 'http' && result.failure.status === 403) return ok<Role[]>(["COLLECTOR"]);

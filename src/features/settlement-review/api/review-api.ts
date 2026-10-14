@@ -7,7 +7,7 @@ import type { Result } from '@/lib/result';
 type Response<T> = Promise<Result<T, ApiFailure>>;
 
 /** Cuadres por página. */
-export const SETTLEMENTS_PAGE_SIZE = 30;
+export const SETTLEMENTS_PAGE_SIZE = 10;
 
 /** Una página de cuadres con su total. */
 export interface SettlementsPage {

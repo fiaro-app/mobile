@@ -32,9 +32,11 @@ export default function AdminStatsScreen() {
         bucketsTitle={copy.buckets}
         buckets={model.buckets}
         topTitle={copy.top}
-        top={model.topArrears}
+        top={screen.topArrears.rows}
+        topMore={screen.topArrears.more}
         collectorsTitle={copy.collectors}
-        collectors={model.collectors}
+        collectors={screen.collectors.rows}
+        collectorsMore={screen.collectors.more}
         empty={model.isEmpty ? copy.empty : null}
         exportPdf={{ label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start }}
         refreshing={screen.refreshing}

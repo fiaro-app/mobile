@@ -63,6 +63,22 @@ export const COLLECTORS_COPY = {
     deactivateMessage: (name: string) => `${name} perderá el acceso de inmediato. Su historial se conserva.`,
     deactivateConfirm: 'Desactivar',
     deactivated: 'Cobrador desactivado.',
+    handoverTitle: 'Pasar sus préstamos a',
+    handoverMessage: (name: string, count: number) =>
+      count === 1
+        ? `${name} tiene 1 préstamo activo. Elige a qué cobrador pasarlo: ningún préstamo puede quedar sin cobrador.`
+        : `${name} tiene ${String(count)} préstamos activos. Elige a qué cobrador pasarlos: ningún préstamo puede quedar sin cobrador.`,
+    noDestinations: 'No hay otro cobrador activo que pueda recibir sus préstamos. Registra o reactiva uno antes de darlo de baja.',
+    handoverFailed: 'No pudimos revisar sus préstamos. Intenta de nuevo.',
+    reactivate: 'Reactivar cobrador',
+    reactivateTitle: '¿Reactivar al cobrador?',
+    reactivateMessage: (name: string) => `${name} vuelve a ingresar con su misma cartera y ocupa un cupo de tu plan. Sus préstamos se asignan aparte.`,
+    reactivateConfirm: 'Reactivar',
+    reactivated: 'Cobrador reactivado.',
+    remove: 'Borrar cobrador',
+    removeTitle: '¿Borrar al cobrador?',
+    removeMessage: (name: string) => `Solo se puede si ${name} nunca tuvo préstamos asignados, cobros ni cuadres (un registro por error). No se puede deshacer.`,
+    removeConfirm: 'Borrar',
     inactiveNote: 'Este cobrador está desactivado y no puede iniciar sesión.',
     cancel: 'Cancelar',
     notFoundTitle: 'Cobrador no encontrado',
@@ -83,6 +99,12 @@ export function collectorFailureMessage(failure: ApiFailure): string {
       return 'Ese cobrador ya no existe. Actualiza la lista.';
     case 'CONFLICT':
       return 'Esa persona ya trabaja con tu negocio.';
+    case 'COLLABORATOR_NATIONAL_ID_TAKEN':
+      return 'Ya hay un colaborador con esa cédula en tu negocio.';
+    case 'PLAN_LIMIT_REACHED':
+      return 'Tu plan ya no tiene cupos de cobrador. Da de baja a uno o mejora tu plan.';
+    case 'COLLECTOR_HAS_HISTORY':
+      return 'Este cobrador ya tiene historial: dalo de baja en lugar de borrarlo.';
     default:
       return failure.status === 429 ? 'Demasiados intentos. Espera un momento.' : 'No pudimos completar la acción. Intenta de nuevo.';
   }

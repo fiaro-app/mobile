@@ -10,7 +10,15 @@ import * as team from '@/features/team/api/team-api';
 import * as share from '@/lib/share-text';
 
 jest.mock('@/features/collectors/api/collectors-api', () => ({
-  inviteCollector: jest.fn(), deactivateCollector: jest.fn(), resetCollectorPassword: jest.fn(), changeCollectorPortfolio: jest.fn(), fetchPortfolios: jest.fn(), fetchCollectorStats: jest.fn(),
+  inviteCollector: jest.fn(),
+  deactivateCollector: jest.fn(),
+  resetCollectorPassword: jest.fn(),
+  changeCollectorPortfolio: jest.fn(),
+  fetchPortfolios: jest.fn(),
+  fetchCollectorStats: jest.fn(),
+  fetchCollectorActiveLoanIds: jest.fn(),
+  reactivateCollector: jest.fn(),
+  deleteCollector: jest.fn(),
 }));
 jest.mock('@/features/team/api/team-api', () => ({ fetchMembers: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
@@ -36,6 +44,7 @@ beforeEach(() => {
   t.fetchMembers.mockResolvedValue({ ok: true, value: members });
   a.fetchPortfolios.mockResolvedValue({ ok: true, value: portfolios });
   a.fetchCollectorStats.mockResolvedValue({ ok: true, value: stats });
+  a.fetchCollectorActiveLoanIds.mockResolvedValue({ ok: true, value: [] });
 });
 
 describe('useCollectorsScreen', () => {
@@ -241,6 +250,9 @@ describe('useCollectorManage', () => {
   it('desactiva y explica los fallos', async () => {
     a.deactivateCollector.mockResolvedValueOnce({ ok: true, value: {} });
     const { result } = await ready();
+    await waitFor(() => {
+      expect(result.current.activeLoanCount).toBe(0);
+    });
     await act(async () => {
       result.current.confirmDeactivate();
     });
