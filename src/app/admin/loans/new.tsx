@@ -6,10 +6,12 @@ import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { useClientPicker } from '@/features/clients/hooks/use-client-picker';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanForm } from '@/features/loans/hooks/use-loan-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/loans/new?clientId=...`: crear un préstamo (el cliente puede venir precargado desde su ficha). */
 export default function NewLoanScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { clientId } = useLocalSearchParams<{ clientId?: string }>();
   const openLoan = (id: string) => {
     router.replace({ pathname: '/admin/loans/[id]', params: { id } });
@@ -23,7 +25,7 @@ export default function NewLoanScreen() {
         <TopBar
           title={LOANS_COPY.newLoan}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
@@ -46,7 +48,7 @@ export default function NewLoanScreen() {
         onCollector={form.setCollector}
         onSubmit={form.submit}
         onCancel={() => {
-          router.back();
+          goBack();
         }}
         onSeeLoan={() => {
           if (form.createdLoanId) openLoan(form.createdLoanId);

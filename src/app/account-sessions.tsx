@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Button } from '@/components/atoms/Button';
@@ -9,10 +8,11 @@ import { TopBar } from '@/components/molecules/TopBar';
 import { EntityList } from '@/components/organisms/EntityList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { useSessions } from '@/features/account/hooks/use-sessions';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/account-sessions`: sesiones abiertas de la cuenta; cerrar una o todas las demás. */
 export default function AccountSessionsScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const sessions = useSessions();
   const one = sessions.dialog.kind === 'one' ? sessions.dialog : null;
   const empty = sessions.loadFailed ? (
@@ -26,7 +26,7 @@ export default function AccountSessionsScreen() {
         <TopBar
           title="Sesiones abiertas"
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

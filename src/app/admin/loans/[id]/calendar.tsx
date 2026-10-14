@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { EmptyState } from '@/components/molecules/EmptyState';
@@ -7,10 +7,11 @@ import { EntityList } from '@/components/organisms/EntityList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanCalendar } from '@/features/loans/hooks/use-loan-calendar';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/loans/[id]/calendar`: calendario de cuotas con lo pagado y el estado de cada una. */
 export default function LoanCalendarScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const calendar = useLoanCalendar(id);
   const copy = LOANS_COPY.calendar;
@@ -25,7 +26,7 @@ export default function LoanCalendarScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

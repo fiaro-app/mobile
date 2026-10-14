@@ -4,10 +4,12 @@ import { RecoveryView } from '@/components/organisms/RecoveryView';
 import { AuthTemplate } from '@/components/templates/AuthTemplate';
 import { ACCESS_COPY } from '@/features/auth/content/access-messages';
 import { usePasswordRecovery } from '@/features/auth/hooks/use-password-recovery';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/forgot-password`: recuperar la contraseña con un código que llega al correo de contacto de la cuenta. */
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const recovery = usePasswordRecovery();
   const toLogin = () => {
     router.replace('/login');
@@ -29,7 +31,7 @@ export default function ForgotPasswordScreen() {
         onToLogin={toLogin}
         verification={<TurnstileWidget action="password-reset" resetKey={recovery.turnstileResetKey} onToken={recovery.setTurnstileToken} onError={recovery.turnstileError} />}
         onBack={() => {
-          router.back();
+          goBack();
         }}
       />
     </AuthTemplate>

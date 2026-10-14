@@ -1,9 +1,9 @@
-import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ChangePasswordForm } from '@/components/organisms/ChangePasswordForm';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { useAccountPassword } from '@/features/account/hooks/use-account-password';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 const TEXTS = {
   title: 'Cambia tu contraseña',
@@ -17,9 +17,9 @@ const TEXTS = {
 
 /** Ruta `/account-password`: cambiar la contraseña desde el Perfil; al terminar vuelve atrás. */
 export default function AccountPasswordScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const form = useAccountPassword(() => {
-    router.back();
+    goBack();
   });
   return (
     <ScreenTemplate
@@ -27,7 +27,7 @@ export default function AccountPasswordScreen() {
         <TopBar
           title="Cambiar contraseña"
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -6,12 +5,13 @@ import { SettlementView } from '@/components/organisms/SettlementView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
 import { useSettlementScreen } from '@/features/settlement/hooks/use-settlement-screen';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 const REVIEW_KIND = { PENDING: 'pending', APPROVED: 'approved', REJECTED: 'rejected' } as const;
 
 /** Ruta `/settlement`: el cobrador declara lo cobrado del día y lo envía a su prestamista. */
 export default function SettlementScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const screen = useSettlementScreen();
   const { form } = screen;
 
@@ -74,7 +74,7 @@ export default function SettlementScreen() {
         <TopBar
           title={SETTLEMENT_COPY.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

@@ -6,10 +6,12 @@ import { ClientProfileView } from '@/components/organisms/ClientProfileView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
 import { useClientProfile } from '@/features/clients/hooks/use-client-profile';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/clients/[id]`: ficha del cliente con sus datos, sus préstamos y los accesos para llamar o editar. */
 export default function ClientProfileScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const profile = useClientProfile(id);
   const copy = CLIENTS_COPY.profile;
@@ -53,7 +55,7 @@ export default function ClientProfileScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

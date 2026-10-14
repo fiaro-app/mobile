@@ -6,10 +6,12 @@ import { NotificationList } from '@/components/organisms/NotificationList';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { NOTIFICATIONS_COPY } from '@/features/notifications/content/messages';
 import { useNotificationsScreen } from '@/features/notifications/hooks/use-notifications-screen';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/notifications`: la bandeja de avisos; tocar uno lo marca como leído y, si aplica, lleva a su pantalla. */
 export default function NotificationsScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const screen = useNotificationsScreen();
   const empty = screen.loadFailed ? (
     <EmptyState
@@ -28,7 +30,7 @@ export default function NotificationsScreen() {
         <TopBar
           title={NOTIFICATIONS_COPY.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
           right={screen.hasUnread ? <TextLink label={NOTIFICATIONS_COPY.markAll} onPress={screen.markAll} /> : undefined}
         />

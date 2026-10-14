@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Button } from '@/components/atoms/Button';
@@ -9,14 +8,15 @@ import { CollectorFormView } from '@/components/organisms/CollectorFormView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { COLLECTORS_COPY } from '@/features/collectors/content/messages';
 import { useCollectorForm } from '@/features/collectors/hooks/use-collector-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/collectors/new`: registrar un cobrador; al terminar muestra su contraseña temporal para compartirla. */
 export default function NewCollectorScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const form = useCollectorForm();
   const copy = COLLECTORS_COPY;
   const back = () => {
-    router.back();
+    goBack();
   };
 
   if (form.registered) {

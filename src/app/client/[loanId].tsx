@@ -6,10 +6,12 @@ import { ClientDetailView } from '@/components/organisms/ClientDetailView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { DETAIL_COPY } from '@/features/client-detail/content/messages';
 import { useClientDetailScreen } from '@/features/client-detail/hooks/use-client-detail-screen';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/client/[loanId]?clientId=...`: detalle de un cliente y su préstamo. */
 export default function ClientDetailScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { loanId, clientId } = useLocalSearchParams<{ loanId: string; clientId: string }>();
   const screen = useClientDetailScreen(clientId, loanId);
   const model = screen.model;
@@ -49,7 +51,7 @@ export default function ClientDetailScreen() {
         <TopBar
           title={screen.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
