@@ -92,6 +92,7 @@ describe('useCollectorForm', () => {
       result.current.fullName.onChangeText('Carlos Ramírez');
       result.current.nationalId.onChangeText('1020304050');
       result.current.phone.onChangeText('3001234567');
+      result.current.contactEmail.onChangeText('carlos@correo.com');
     });
   };
 
