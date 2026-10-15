@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
 import { postSettlement } from '@/features/settlement/api/settlement-api';
@@ -68,6 +68,8 @@ export function useSettlementScreen(): SettlementScreen {
   const [noteError, setNoteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // `submitting` es estado y no se actualiza hasta el próximo render: un doble toque entra dos veces.
+  const inFlight = useRef(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const data = summary.data;
@@ -86,9 +88,11 @@ export function useSettlementScreen(): SettlementScreen {
 
   const submit = async () => {
     const submission = buildSubmission(expected, form);
-    if (!submission.ok) return;
+    if (!submission.ok || inFlight.current) return;
+    inFlight.current = true;
     setSubmitting(true);
     const result = await postSettlement(submission.request);
+    inFlight.current = false;
     setSubmitting(false);
     if (!result.ok) {
       signOutIfSessionExpired(result.failure);
