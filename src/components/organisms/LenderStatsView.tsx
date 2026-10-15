@@ -9,6 +9,7 @@ import { SelectButton } from '@/components/atoms/SelectButton';
 import type { FilterOption } from '@/components/molecules/FilterBar';
 import { DateRangeFields } from '@/components/molecules/DateRangeFields';
 import { StatCard } from '@/components/molecules/StatCard';
+import { InsightsSection, type InsightsSectionProps } from '@/components/organisms/InsightsSection';
 import type { DateRangeValue, RangeEdge } from '@/lib/date-range';
 
 type Tone = 'neutral' | 'good' | 'warning' | 'bad';
@@ -43,6 +44,8 @@ export interface LenderStatsViewProps {
   readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void };
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
+  /** «Cómo va tu negocio»; `null` si no cargó (la pantalla se muestra igual). */
+  readonly insights?: InsightsSectionProps | null;
   /** Hojas de los filtros (cobrador, cartera, calendario): van encima de todo. */
   readonly sheets: ReactNode;
 }
@@ -68,6 +71,7 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
         <Button label={props.exportPdf.label} variant="outline" loading={props.exportPdf.busy} onPress={props.exportPdf.onPress} />
         {props.exportPdf.error ? <Alert message={props.exportPdf.error} /> : null}
         {props.empty ? <AppText variant="small">{props.empty}</AppText> : null}
+        {props.insights ? <InsightsSection {...props.insights} /> : null}
         <View className="flex-row flex-wrap gap-3">
           {props.kpis.map((kpi) => (
             <StatCard key={kpi.key} label={kpi.label} value={kpi.value} tone={kpi.tone} trend={kpi.trend} className="min-w-[45%] flex-1" />

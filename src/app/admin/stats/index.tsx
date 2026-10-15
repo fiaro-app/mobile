@@ -5,6 +5,7 @@ import { LenderStatsView } from '@/components/organisms/LenderStatsView';
 import { OptionSheet } from '@/components/organisms/OptionSheet';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { LENDER_STATS_COPY } from '@/features/lender-stats/content/messages';
+import { useInsights } from '@/features/insights/hooks/use-insights';
 import { useLenderStatsScreen } from '@/features/lender-stats/hooks/use-lender-stats-screen';
 import { STATS_COPY } from '@/features/stats/content/messages';
 import type { Period } from '@/features/stats/lib/period-range';
@@ -14,6 +15,7 @@ import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 export default function AdminStatsScreen() {
   const menu = useAdminMenu('stats');
   const screen = useLenderStatsScreen();
+  const insights = useInsights(screen.range);
   const copy = LENDER_STATS_COPY;
   const model = screen.model;
 
@@ -43,8 +45,12 @@ export default function AdminStatsScreen() {
         collectorsMore={screen.collectors.more}
         empty={model.isEmpty ? copy.empty : null}
         exportPdf={{ label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start }}
+        insights={insights.model}
         refreshing={screen.refreshing}
-        onRefresh={screen.refresh}
+        onRefresh={() => {
+          screen.refresh();
+          insights.refresh();
+        }}
         sheets={
           <>
             <OptionSheet visible={screen.sheetOpen} title={copy.collectorSheet} options={screen.collectorOptions} selected={screen.collectorId} onSelect={screen.setCollector} onClose={screen.closeSheet} />

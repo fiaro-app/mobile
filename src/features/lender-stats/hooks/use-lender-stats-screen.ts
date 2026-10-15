@@ -9,12 +9,15 @@ import { useMembers } from '@/features/team/hooks/use-members';
 import { businessDateOf } from '@/lib/business-date';
 import { DATE_RANGE_LIMITS } from '@/lib/date-range';
 import { useApiQuery } from '@/lib/hooks/use-api-query';
+import type { DateRange } from '@/features/stats/lib/stats-schemas';
 import { useDateRange, type DateRangeFilter } from '@/lib/hooks/use-date-range';
 
 /** Todo lo que las estadísticas del administrador dibujan y pueden hacer. */
 export interface LenderStatsScreen {
   /** El período rápido elegido, o `null` si manda un rango de fechas. */
   readonly period: Period | null;
+  /** El rango que se está mostrando (el elegido o el del período rápido): lo comparten las demás secciones. */
+  readonly range: DateRange;
   readonly dates: DateRangeFilter;
   readonly portfolio: {
     readonly id: string;
@@ -87,6 +90,7 @@ export function useLenderStatsScreen(): LenderStatsScreen {
     topArrears,
     collectors,
     period: dates.applied ? null : preset,
+    range,
     dates,
     portfolio: {
       id: portfolioId,
