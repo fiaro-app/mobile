@@ -25,7 +25,7 @@ describe('requestLogoUploadUrl', () => {
 describe('readImageBlob', () => {
   it('lee la imagen como Blob, o devuelve null si no se puede leer', async () => {
     const blob = { size: 12 } as Blob;
-    global.fetch = jest.fn().mockResolvedValueOnce({ blob: () => Promise.resolve(blob) }).mockRejectedValueOnce(new Error('sin archivo'));
+    globalThis.fetch = jest.fn().mockResolvedValueOnce({ blob: () => Promise.resolve(blob) }).mockRejectedValueOnce(new Error('sin archivo'));
 
     await expect(readImageBlob('file:///logo.png')).resolves.toBe(blob);
     await expect(readImageBlob('file:///falta.png')).resolves.toBeNull();
@@ -36,7 +36,7 @@ describe('uploadToStorage', () => {
   it('sube el mismo Blob con su tipo y dice si el almacenamiento lo aceptó', async () => {
     const blob = { size: 12 } as Blob;
     const put = jest.fn().mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ ok: false }).mockRejectedValueOnce(new Error('red'));
-    global.fetch = put;
+    globalThis.fetch = put;
 
     await expect(uploadToStorage('https://s/put', blob, 'image/png')).resolves.toBe(true);
     expect(put).toHaveBeenCalledWith('https://s/put', { method: 'PUT', headers: { 'content-type': 'image/png' }, body: blob });
