@@ -4,7 +4,7 @@ import { RouteSchema, type RouteEntry } from '@/features/route/lib/route-entry';
 import { resolveRouteView } from '@/features/route/lib/route-view';
 
 const entry = (over: Partial<RouteEntry>): RouteEntry => ({
-  loanId: 'l', clientId: 'c', clientFullName: 'Marta Gómez', balance: 420000, overdueAmount: 0, overdueDays: 0, nextDueDate: null, ...over,
+  loanId: 'l', clientId: 'c', clientFullName: 'Marta Gómez', balance: 420000, overdueAmount: 0, overdueDays: 0, nextDueDate: null, collectedToday: 0, ...over,
 });
 
 const MORA = entry({ clientFullName: 'Marta Gómez', overdueAmount: 90000, overdueDays: 12 });
