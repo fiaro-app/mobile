@@ -1,7 +1,7 @@
-import { patchLender, requestLogoUploadUrl, uploadToStorage } from '@/features/settings/api/settings-api';
+import { patchLender, readImageBlob, requestLogoUploadUrl, uploadToStorage } from '@/features/settings/api/settings-api';
 import { settingsFailureMessage } from '@/features/settings/content/messages';
 import { SETTINGS_KEY } from '@/features/settings/hooks/use-settings-data';
-import { logoContentType, validateLogo } from '@/features/settings/lib/logo-file';
+import { logoContentType, LOGO_MAX_BYTES, validateLogo } from '@/features/settings/lib/logo-file';
 import type { LenderSettings } from '@/features/settings/lib/settings-schemas';
 import { pickImage } from '@/lib/files/pick-image';
 import { useSaveAction } from '@/lib/hooks/use-save-action';
@@ -48,11 +48,16 @@ export function useLogoSettings(settings: LenderSettings | undefined): LogoSetti
           return;
         }
         const type = logoContentType(image.mimeType);
+        const blob = await readImageBlob(image.uri);
+        if (!blob || blob.size < 1 || blob.size > LOGO_MAX_BYTES) {
+          setUploadError(blob ? validateLogo({ ...image, size: blob.size }) ?? 'No pudimos leer la imagen.' : 'No pudimos leer la imagen.');
+          return;
+        }
         await action.run(
           async () => {
-            const url = await requestLogoUploadUrl(type);
+            const url = await requestLogoUploadUrl(type, blob.size);
             if (!url.ok) return url;
-            if (!(await uploadToStorage(url.value.uploadUrl, image.uri, type))) {
+            if (!(await uploadToStorage(url.value.uploadUrl, blob, type))) {
               setUploadError('No pudimos subir el logo. Inténtalo de nuevo.');
               return { ok: false as const, failure: { kind: 'offline' as const } };
             }

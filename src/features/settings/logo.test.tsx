@@ -6,7 +6,7 @@ import * as api from '@/features/settings/api/settings-api';
 import { useSettingsScreen } from '@/features/settings/hooks/use-settings-screen';
 
 jest.mock('@/features/settings/api/settings-api', () => ({
-  fetchLenderSettings: jest.fn(), patchLender: jest.fn(), requestLogoUploadUrl: jest.fn(), uploadToStorage: jest.fn(), fetchSubscription: jest.fn(),
+  fetchLenderSettings: jest.fn(), patchLender: jest.fn(), requestLogoUploadUrl: jest.fn(), readImageBlob: jest.fn(), uploadToStorage: jest.fn(), fetchSubscription: jest.fn(),
 }));
 jest.mock('@/features/collectors/api/collectors-api', () => ({ fetchPortfolios: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
@@ -33,8 +33,11 @@ beforeEach(() => {
 describe('logo', () => {
   const pick = jest.requireMock<{ pickImage: jest.Mock }>('@/lib/files/pick-image');
 
+  const BLOB = { size: 1000 } as Blob;
+
   beforeEach(() => {
     pick.pickImage.mockReset();
+    a.readImageBlob.mockResolvedValue(BLOB);
   });
 
   const ready = async () => {
@@ -56,7 +59,8 @@ describe('logo', () => {
     await waitFor(() => {
       expect(result.current.logo.notice).toBe('Logo actualizado.');
     });
-    expect(a.uploadToStorage).toHaveBeenCalledWith('https://storage/put', 'file:///logo.png', 'image/png');
+    expect(a.requestLogoUploadUrl).toHaveBeenCalledWith('image/png', 1000);
+    expect(a.uploadToStorage).toHaveBeenCalledWith('https://storage/put', BLOB, 'image/png');
     expect(a.patchLender).toHaveBeenCalledWith({ logoUrl: 'https://cdn/logo.png' });
   });
 
@@ -72,6 +76,26 @@ describe('logo', () => {
     pick.pickImage.mockResolvedValueOnce(null);
     await act(async () => {
       result.current.logo.choose();
+    });
+    expect(a.requestLogoUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it('firma el peso real de la imagen leída, y no sube nada si pesa más de 2 MB o no se puede leer', async () => {
+    pick.pickImage.mockResolvedValue({ uri: 'file:///logo.png', mimeType: 'image/png', size: 0 });
+    a.readImageBlob.mockResolvedValueOnce({ size: 3 * 1024 * 1024 } as Blob);
+    const { result } = await ready();
+    await act(async () => {
+      result.current.logo.choose();
+    });
+    await waitFor(() => {
+      expect(result.current.logo.error).toMatch(/2 MB/);
+    });
+    a.readImageBlob.mockResolvedValueOnce(null);
+    await act(async () => {
+      result.current.logo.choose();
+    });
+    await waitFor(() => {
+      expect(result.current.logo.error).toMatch(/No pudimos leer/);
     });
     expect(a.requestLogoUploadUrl).not.toHaveBeenCalled();
   });
