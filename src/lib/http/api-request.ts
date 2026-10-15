@@ -1,6 +1,6 @@
 import { API_URL, REQUEST_TIMEOUT_MS } from '@/lib/config';
 import { classifyHttpFailure, OFFLINE_FAILURE, type ApiFailure } from '@/lib/http/failure';
-import { readErrorBody } from '@/lib/http/read-error';
+import { failureOf } from '@/lib/http/read-error';
 import { traceHeaders } from '@/lib/http/trace-headers';
 import { fail, ok, type Result } from '@/lib/result';
 
@@ -21,8 +21,7 @@ export async function apiGet<T>(path: string, parse: (body: unknown) => T): Prom
   try {
     const response = await fetch(`${API_URL}${path}`, { headers: traceHeaders(), signal: controller.signal });
     if (!response.ok) {
-      const { code, errorCode } = await readErrorBody(response);
-      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
+      return fail(await failureOf(response));
     }
     try {
       return ok(parse(await response.json()));
@@ -48,8 +47,7 @@ export async function apiPost<T>(path: string, body: unknown, parse: (body: unkn
   try {
     const response = await fetch(`${API_URL}${path}`, { method: 'POST', headers: { ...traceHeaders(), 'content-type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
     if (!response.ok) {
-      const { code, errorCode } = await readErrorBody(response);
-      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
+      return fail(await failureOf(response));
     }
     try {
       return ok(parse(response.status === 204 ? null : await response.json()));

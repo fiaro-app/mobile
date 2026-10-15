@@ -1,3 +1,5 @@
+import { classifyHttpFailure, type ApiFailure } from '@/lib/http/failure';
+
 export interface ErrorBody {
   readonly code: string | null;
   readonly errorCode: string | null;
@@ -17,4 +19,10 @@ export async function readErrorBody(response: Response): Promise<ErrorBody> {
     return { code: null, errorCode: null };
   }
   return { code: null, errorCode: null };
+}
+
+/** El fallo clasificado de una respuesta de error del API: estado, `code`, `errorCode` y `Retry-After`. */
+export async function failureOf(response: Response): Promise<ApiFailure> {
+  const { code, errorCode } = await readErrorBody(response);
+  return classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode);
 }

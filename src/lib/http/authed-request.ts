@@ -1,7 +1,7 @@
 import { authClient } from '@/features/auth/api/auth-client';
 import { API_URL, APP_SCHEME, REQUEST_TIMEOUT_MS } from '@/lib/config';
 import { classifyHttpFailure, OFFLINE_FAILURE, type ApiFailure } from '@/lib/http/failure';
-import { readErrorBody } from '@/lib/http/read-error';
+import { failureOf } from '@/lib/http/read-error';
 import { fail, ok, type Result } from '@/lib/result';
 import { traceHeaders } from '@/lib/http/trace-headers';
 import { Platform } from 'react-native';
@@ -57,8 +57,7 @@ export async function authedRequest<T>(
       signal: controller.signal,
     });
     if (!response.ok) {
-      const { code, errorCode } = await readErrorBody(response);
-      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
+      return fail(await failureOf(response));
     }
     try {
       return ok(parse(response.status === 204 ? null : await response.json()));
