@@ -58,7 +58,7 @@ export default function SettlementScreen() {
         confirm={{
           visible: screen.confirmOpen,
           title: SETTLEMENT_COPY.confirmTitle,
-          message: `${screen.collectedLabel} de ${screen.expectedLabel} esperados. ${screen.differenceText}.`,
+          message: `${screen.collectedLabel} de ${screen.expectedLabel} esperados. ${screen.differenceText}. ${SETTLEMENT_COPY.confirmWarning}`,
           cancelLabel: SETTLEMENT_COPY.confirmCancel,
           confirmLabel: SETTLEMENT_COPY.confirmAccept,
           onCancel: screen.cancelConfirm,

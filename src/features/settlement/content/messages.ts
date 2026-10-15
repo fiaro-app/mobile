@@ -15,6 +15,7 @@ export const SETTLEMENT_COPY = {
   submit: 'Enviar cuadre',
   resubmit: 'Reenviar cuadre',
   confirmTitle: '¿Enviar el cuadre?',
+  confirmWarning: 'Tu prestamista lo revisará y no podrás cambiarlo hasta que lo apruebe o lo rechace. Revisa que ya visitaste a todos tus clientes.',
   confirmCancel: 'Revisar',
   confirmAccept: 'Enviar',
   loadFailedTitle: 'No pudimos cargar tu cuadre',
