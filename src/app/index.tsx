@@ -8,6 +8,8 @@ import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { SyncBanner } from '@/components/molecules/SyncBanner';
 import { ClientList } from '@/components/organisms/ClientList';
+import { OptionSheet } from '@/components/organisms/OptionSheet';
+import { RouteFilterBar } from '@/components/molecules/RouteFilterBar';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { bellLabel } from '@/features/notifications/content/messages';
 import { useUnreadCount } from '@/features/notifications/hooks/use-notifications';
@@ -88,7 +90,25 @@ export default function RouteScreen() {
         loading={screen.loading}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
+        header={
+          <RouteFilterBar
+            filters={screen.filters}
+            filter={screen.filter}
+            onFilter={screen.setFilter}
+            sortLabel={screen.sortLabel}
+            sortActive={screen.sort !== 'urgent'}
+            onOpenSort={screen.openSortSheet}
+          />
+        }
         empty={<EmptyState {...screen.empty} onAction={screen.refresh} />}
+      />
+      <OptionSheet
+        visible={screen.sortSheetOpen}
+        title={ROUTE_COPY.sortTitle}
+        options={ROUTE_COPY.sortOptions}
+        selected={screen.sort}
+        onSelect={screen.setSort}
+        onClose={screen.closeSortSheet}
       />
       <View className="border-t border-surface-2 bg-surface px-4 py-3">
         <Button
