@@ -7,6 +7,7 @@ import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleto
 import { DashboardView } from '@/components/organisms/DashboardView';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { DASHBOARD_COPY } from '@/features/dashboard/content/messages';
+import { useCollectorsToday } from '@/features/collectors-today/hooks/use-collectors-today';
 import { useDashboardScreen } from '@/features/dashboard/hooks/use-dashboard-screen';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 
@@ -15,6 +16,7 @@ export default function AdminSummaryScreen() {
   const router = useRouter();
   const menu = useAdminMenu('summary');
   const screen = useDashboardScreen();
+  const routes = useCollectorsToday();
   const model = screen.model;
 
   let body = <ClientDetailSkeleton />;
@@ -30,8 +32,12 @@ export default function AdminSummaryScreen() {
         pendingTitle={DASHBOARD_COPY.pending}
         pendingEmpty={DASHBOARD_COPY.pendingEmpty}
         pending={model.pending.map((row) => ({ id: row.id, name: row.collectorName, detail: row.expected, amount: row.difference, tone: row.differenceTone, onPress: () => { router.push({ pathname: '/admin/settlements/[id]', params: { id: row.id } }); } }))}
+        routes={routes.model ? { title: DASHBOARD_COPY.routes, summary: routes.model.summary, rows: routes.model.rows } : null}
         refreshing={screen.refreshing}
-        onRefresh={screen.refresh}
+        onRefresh={() => {
+          screen.refresh();
+          routes.refresh();
+        }}
         period={<DateRangeFields range={screen.dates.range} onOpen={screen.dates.open} onClear={screen.dates.clear} emptyHint={DASHBOARD_COPY.periodHint} />}
       />
     );

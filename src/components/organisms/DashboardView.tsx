@@ -13,6 +13,8 @@ export interface DashboardViewProps {
   readonly pendingTitle: string;
   readonly pendingEmpty: string;
   readonly pending: readonly (SettlementRowProps & { readonly id: string })[];
+  /** «Rutas de hoy»: cómo va la ruta de cada cobrador; `null` si no cargó (el Resumen se dibuja igual). */
+  readonly routes: { readonly title: string; readonly summary: string; readonly rows: readonly (SettlementRowProps & { readonly id: string })[] } | null;
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
   /** Filtro de período de lo cobrado (va sobre los indicadores). */
@@ -30,6 +32,20 @@ export function DashboardView(props: Readonly<DashboardViewProps>) {
           <StatCard key={kpi.key} label={kpi.label} value={kpi.value} tone={kpi.tone} className="min-w-[45%] flex-1" />
         ))}
       </View>
+      {props.routes ? (
+        <View className="gap-3">
+          <AppText variant="title">{props.routes.title}</AppText>
+          <AppText variant="small">{props.routes.summary}</AppText>
+          <View className="overflow-hidden rounded-lg">
+            {props.routes.rows.map((row, index) => (
+              <View key={row.id}>
+                {index > 0 ? <View className="h-px bg-surface-2" /> : null}
+                <SettlementRow {...row} />
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
       {props.alerts.length > 0 ? (
         <View className="gap-3">
           <AppText variant="title">{props.alertsTitle}</AppText>
