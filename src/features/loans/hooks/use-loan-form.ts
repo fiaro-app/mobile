@@ -1,3 +1,5 @@
+import { RISK_COPY } from '@/features/risk/content/messages';
+import { useClientsRisk } from '@/features/risk/hooks/use-clients-risk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
@@ -16,6 +18,8 @@ export type LoanSheet = 'none' | 'client' | 'frequency' | 'startDate' | 'collect
 
 /** Todo lo que "Nuevo préstamo" dibuja y puede hacer. */
 export interface LoanForm {
+  /** Aviso (sin bloquear) cuando el cliente elegido tiene riesgo muy alto; `null` si no aplica. */
+  readonly riskWarning: string | null;
   readonly values: LoanFormValues;
   readonly errors: Partial<Record<LoanField, string>>;
   readonly clientLabel: string;
@@ -67,6 +71,7 @@ export function useLoanForm(initialClientId: string, onCreated: (loanId: string)
   const [createdLoanId, setCreatedLoanId] = useState<string | null>(null);
   const members = useMembers();
   const names = useClientNames(useMemo(() => (values.clientId === '' ? [] : [values.clientId]), [values.clientId]));
+  const risk = useClientsRisk(useMemo(() => (values.clientId === '' ? [] : [values.clientId]), [values.clientId])).get(values.clientId);
   const today = businessDateOf();
   const collectors = useMemo(
     () => (members.data ?? []).filter((member) => member.status === 'ACTIVE' && member.roles.includes('COLLECTOR')).map((member) => ({ value: member.id, label: member.fullName })),
@@ -93,6 +98,7 @@ export function useLoanForm(initialClientId: string, onCreated: (loanId: string)
   };
 
   return {
+    riskWarning: risk?.level === 'VERY_HIGH' ? RISK_COPY.loanWarning : null,
     values,
     errors,
     clientLabel: values.clientId === '' ? 'Elige un cliente' : (names.get(values.clientId) ?? 'Cliente'),

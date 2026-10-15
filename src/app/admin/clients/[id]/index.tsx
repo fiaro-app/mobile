@@ -5,6 +5,7 @@ import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleto
 import { ClientProfileView } from '@/components/organisms/ClientProfileView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
+import { RISK_COPY } from '@/features/risk/content/messages';
 import { useClientProfile } from '@/features/clients/hooks/use-client-profile';
 import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
@@ -38,6 +39,18 @@ export default function ClientProfileScreen() {
           router.push({ pathname: '/admin/clients/[id]/edit', params: { id } });
         }}
         notice={profile.notice}
+        risk={
+          profile.risk
+            ? {
+                title: RISK_COPY.title,
+                levelLabel: profile.risk.levelLabel,
+                gauge: { score: profile.risk.score, tone: profile.risk.tone, label: profile.risk.ariaLabel },
+                factors: profile.risk.factors,
+                noFactors: RISK_COPY.noFactors,
+                noHistory: profile.risk.hasHistory ? null : RISK_COPY.noHistory,
+              }
+            : null
+        }
         loansTitle={copy.loans}
         loansEmpty={copy.noLoans}
         loans={profile.loans}

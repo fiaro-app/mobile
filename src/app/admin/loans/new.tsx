@@ -36,6 +36,7 @@ export default function NewLoanScreen() {
         labels={{ client: form.clientLabel, frequency: form.frequencyLabel, startDate: form.startDateLabel, collector: form.collectorLabel }}
         texts={copy}
         totalSuggested={form.totalSuggested}
+        riskWarning={form.riskWarning}
         submitting={form.submitting}
         formError={form.formError}
         createdLoanId={form.createdLoanId}

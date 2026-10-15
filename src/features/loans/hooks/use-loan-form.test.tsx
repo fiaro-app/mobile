@@ -5,7 +5,9 @@ import * as clientsApi from '@/features/clients/api/clients-api';
 import * as api from '@/features/loans/api/loans-api';
 import { useLoanForm } from '@/features/loans/hooks/use-loan-form';
 import * as team from '@/features/team/api/team-api';
+import * as riskApi from '@/features/risk/api/risk-api';
 
+jest.mock('@/features/risk/api/risk-api', () => ({ fetchClientsRisk: jest.fn() }));
 jest.mock('@/features/loans/api/loans-api', () => ({ createLoan: jest.fn(), assignCollector: jest.fn() }));
 jest.mock('@/features/clients/api/clients-api', () => ({ fetchClientById: jest.fn() }));
 jest.mock('@/features/team/api/team-api', () => ({ fetchMembers: jest.fn() }));
@@ -22,6 +24,7 @@ function wrapper({ children }: Readonly<{ children: ReactNode }>) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(riskApi).fetchClientsRisk.mockResolvedValue({ ok: true, value: [] });
   jest.mocked(team).fetchMembers.mockResolvedValue({ ok: true, value: [{ id: 'm1', userId: 'u', fullName: 'Ana Gómez', phone: '+573001234567', roles: ['COLLECTOR'], status: 'ACTIVE', portfolioId: null }] });
   jest.mocked(clientsApi).fetchClientById.mockResolvedValue({ ok: true, value: { id: 'c1', nationalId: '1020304050', fullName: 'Marta Gómez', occupation: 'x', phone: '+573001112233', address: 'y' } });
 });
@@ -134,5 +137,19 @@ describe('useLoanForm', () => {
       expect(result.current.formError).toMatch(/solo lectura/);
     });
     expect(result.current.submitting).toBe(false);
+  });
+
+  it('avisa, sin bloquear, cuando el cliente elegido tiene riesgo muy alto', async () => {
+    jest.mocked(riskApi).fetchClientsRisk.mockResolvedValue({ ok: true, value: [{ clientId: 'c1', score: 90, level: 'VERY_HIGH', loansCount: 2, factors: [] }] });
+    const { result } = await renderHook(() => useLoanForm('c1', jest.fn()), { wrapper });
+
+    await waitFor(() => { expect(result.current.riskWarning).toMatch(/riesgo muy alto/i); });
+  });
+
+  it('sin riesgo muy alto no hay aviso', async () => {
+    const { result } = await renderHook(() => useLoanForm('c1', jest.fn()), { wrapper });
+
+    await waitFor(() => { expect(jest.mocked(riskApi).fetchClientsRisk).toHaveBeenCalled(); });
+    expect(result.current.riskWarning).toBeNull();
   });
 });

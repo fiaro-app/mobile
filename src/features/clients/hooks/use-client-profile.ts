@@ -6,6 +6,8 @@ import { clientBadge } from '@/features/clients/lib/client-view-model';
 import { displayPhone } from '@/features/collectors/lib/collector-view-model';
 import { initials } from '@/features/auth/lib/names';
 import { toLoanRow, type LoanRowModel } from '@/features/loans/lib/loan-view-model';
+import { useClientsRisk } from '@/features/risk/hooks/use-clients-risk';
+import type { RiskView } from '@/features/risk/lib/risk-view';
 import { classifyEntry } from '@/lib/loan-status';
 import { failureOf } from '@/lib/http/api-failure-error';
 import type { BadgeKind } from '@/components/atoms/Badge';
@@ -29,6 +31,8 @@ export interface ClientProfile {
   readonly loansLoading: boolean;
   /** Aviso bajo los datos (por ejemplo, que el dispositivo no puede llamar). */
   readonly notice: string | null;
+  /** El riesgo del cliente en el negocio; `null` si no se pudo consultar. */
+  readonly risk: RiskView | null;
   readonly call: () => void;
   readonly refresh: () => void;
 }
@@ -41,6 +45,7 @@ export function useClientProfile(id: string): ClientProfile {
   const client = useClientQuery(id);
   const loans = useClientLoansQuery(id);
   const rows = useMemo(() => (loans.data ?? []).map((loan) => toLoanRow(loan, null)), [loans.data]);
+  const risk = useClientsRisk(useMemo(() => [id], [id])).get(id) ?? null;
   const [notice, setNotice] = useState<string | null>(null);
   const failure = failureOf(client.error);
   const data = client.data;
@@ -62,6 +67,7 @@ export function useClientProfile(id: string): ClientProfile {
     loans: rows,
     loansLoading: loans.isPending,
     notice,
+    risk,
     call: () => {
       if (!data) return;
       void callClient(data.phone).then((opened) => {
