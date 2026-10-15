@@ -32,8 +32,8 @@ describe('formulario de cobrador', () => {
   });
 
   it('valida la respuesta de invitar', () => {
-    expect(InvitedSchema.parse({ id: 'm', tempPassword: null }).tempPassword).toBeNull();
-    expect(() => InvitedSchema.parse({ id: 1 })).toThrow();
+    expect(InvitedSchema.parse({ membership: { id: 'm' }, tempPassword: null }).tempPassword).toBeNull();
+    expect(() => InvitedSchema.parse({ id: 'm', tempPassword: null })).toThrow();
   });
 });
 

@@ -45,7 +45,7 @@ export function toInviteBody(values: CollectorFormValues) {
 }
 
 /** Respuesta de invitar: la contraseña temporal viene en claro SOLO la primera vez (si la persona no tenía cuenta). */
-export const InvitedSchema = z.object({ id: z.string(), tempPassword: z.string().nullable() });
+export const InvitedSchema = z.object({ membership: z.object({ id: z.string() }), tempPassword: z.string().nullable() });
 export type Invited = z.infer<typeof InvitedSchema>;
 
 /** Respuesta de restablecer la contraseña. */
