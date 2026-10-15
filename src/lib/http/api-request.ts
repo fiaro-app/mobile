@@ -1,18 +1,8 @@
 import { API_URL, REQUEST_TIMEOUT_MS } from '@/lib/config';
 import { classifyHttpFailure, OFFLINE_FAILURE, type ApiFailure } from '@/lib/http/failure';
+import { readErrorBody } from '@/lib/http/read-error';
+import { traceHeaders } from '@/lib/http/trace-headers';
 import { fail, ok, type Result } from '@/lib/result';
-
-async function readErrorCode(response: Response): Promise<string | null> {
-  try {
-    const body: unknown = await response.json();
-    if (typeof body === 'object' && body !== null && 'code' in body && typeof body.code === 'string') {
-      return body.code;
-    }
-  } catch {
-    return null;
-  }
-  return null;
-}
 
 /**
  * GET sin sesión al API (las rutas de infraestructura: `/mobile/version`, `/health`). Las rutas con
@@ -29,10 +19,10 @@ export async function apiGet<T>(path: string, parse: (body: unknown) => T): Prom
     controller.abort();
   }, REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(`${API_URL}${path}`, { signal: controller.signal });
+    const response = await fetch(`${API_URL}${path}`, { headers: traceHeaders(), signal: controller.signal });
     if (!response.ok) {
-      const code = await readErrorCode(response);
-      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after')));
+      const { code, errorCode } = await readErrorBody(response);
+      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
     }
     try {
       return ok(parse(await response.json()));
@@ -56,10 +46,10 @@ export async function apiPost<T>(path: string, body: unknown, parse: (body: unkn
     controller.abort();
   }, REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(`${API_URL}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
+    const response = await fetch(`${API_URL}${path}`, { method: 'POST', headers: { ...traceHeaders(), 'content-type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
     if (!response.ok) {
-      const code = await readErrorCode(response);
-      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after')));
+      const { code, errorCode } = await readErrorBody(response);
+      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
     }
     try {
       return ok(parse(response.status === 204 ? null : await response.json()));

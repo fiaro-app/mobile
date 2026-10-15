@@ -1,3 +1,4 @@
+jest.mock('expo-crypto', () => ({ randomUUID: () => '11111111-2222-4333-8444-555555555555' }));
 import { authedRequest } from '@/lib/http/authed-request';
 
 const mockGetCookie = jest.fn();

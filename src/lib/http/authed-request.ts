@@ -1,7 +1,9 @@
 import { authClient } from '@/features/auth/api/auth-client';
 import { API_URL, APP_SCHEME, REQUEST_TIMEOUT_MS } from '@/lib/config';
 import { classifyHttpFailure, OFFLINE_FAILURE, type ApiFailure } from '@/lib/http/failure';
+import { readErrorBody } from '@/lib/http/read-error';
 import { fail, ok, type Result } from '@/lib/result';
+import { traceHeaders } from '@/lib/http/trace-headers';
 import { Platform } from 'react-native';
 
 /** Métodos que usa el API; `QUERY` es el de las búsquedas con cuerpo (ver `authedRequest`). */
@@ -17,16 +19,6 @@ export async function sessionHeaders(): Promise<Record<string, string>> {
   if (Platform.OS === 'web') return {};
   const cookie = await authClient.getCookie();
   return { 'expo-origin': `${APP_SCHEME}://`, ...(cookie ? { cookie } : {}) };
-}
-
-async function readErrorCode(response: Response): Promise<string | null> {
-  try {
-    const body: unknown = await response.json();
-    if (typeof body === 'object' && body !== null && 'code' in body && typeof body.code === 'string') return body.code;
-  } catch {
-    return null;
-  }
-  return null;
 }
 
 /**
@@ -59,13 +51,14 @@ export async function authedRequest<T>(
     const hasBody = options.body !== undefined;
     const response = await fetch(`${API_URL}${path}`, {
       method: options.method ?? 'GET',
-      headers: { ...(await sessionHeaders()), ...(hasBody ? { 'content-type': 'application/json' } : {}) },
+      headers: { ...(await sessionHeaders()), ...traceHeaders(), ...(hasBody ? { 'content-type': 'application/json' } : {}) },
       body: hasBody ? JSON.stringify(options.body) : undefined,
       credentials: Platform.OS === 'web' ? 'include' : 'omit',
       signal: controller.signal,
     });
     if (!response.ok) {
-      return fail(classifyHttpFailure(response.status, await readErrorCode(response), response.headers.get('retry-after')));
+      const { code, errorCode } = await readErrorBody(response);
+      return fail(classifyHttpFailure(response.status, code, response.headers.get('retry-after'), errorCode));
     }
     try {
       return ok(parse(response.status === 204 ? null : await response.json()));

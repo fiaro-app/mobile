@@ -13,6 +13,8 @@ export type ApiFailure =
       readonly kind: 'http';
       readonly status: number;
       readonly code: string | null;
+      /** Código único del error (`L003A`, ver `ERROR-CODES.md` del API); lo que se usa para decidir qué mostrar. */
+      readonly errorCode?: string;
       readonly retryAfterSeconds: number | null;
     };
 
@@ -32,12 +34,14 @@ export function parseRetryAfter(header: string | null | undefined): number | nul
  * @param status - Código HTTP.
  * @param code - `code` del cuerpo de error, si lo había.
  * @param retryAfter - Valor de la cabecera `Retry-After`, si venía.
+ * @param errorCode - `errorCode` único del cuerpo de error, si venía.
  */
 export function classifyHttpFailure(
   status: number,
   code: string | null | undefined,
   retryAfter?: string | null,
+  errorCode?: string | null,
 ): ApiFailure {
   if (status === 503 && code === 'MAINTENANCE') return { kind: 'maintenance' };
-  return { kind: 'http', status, code: code ?? null, retryAfterSeconds: parseRetryAfter(retryAfter) };
+  return { kind: 'http', status, code: code ?? null, errorCode: errorCode ?? undefined, retryAfterSeconds: parseRetryAfter(retryAfter) };
 }
