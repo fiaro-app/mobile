@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Pressable, View, type PressableProps } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { LoadingDots } from '@/components/atoms/LoadingDots';
@@ -13,6 +14,9 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 };
 
 const TEXT_TONES = { primary: 'inverse', outline: 'primary', danger: 'inverse', 'danger-outline': 'destructive' } as const;
+
+/** Dos toques seguidos más cerca que esto cuentan como uno: evita cobrar, anular o enviar dos veces. */
+export const DOUBLE_TAP_WINDOW_MS = 700;
 
 export interface ButtonProps extends Omit<PressableProps, 'children'> {
   readonly label: string;
@@ -33,15 +37,24 @@ export function Button({
   loading = false,
   disabled,
   className,
+  onPress,
   ...props
 }: Readonly<ButtonProps>) {
   const inactive = disabled === true || loading;
+  const lastPress = useRef(0);
+  const handlePress: PressableProps['onPress'] = (event) => {
+    const now = Date.now();
+    if (now - lastPress.current < DOUBLE_TAP_WINDOW_MS) return;
+    lastPress.current = now;
+    onPress?.(event);
+  };
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
+      onPress={handlePress}
       className={cn(
         'h-12 items-center justify-center rounded-md px-6 active:opacity-70',
         VARIANT_CLASSES[variant],
