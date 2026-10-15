@@ -37,3 +37,9 @@ describe('classifyHttpFailure', () => {
     });
   });
 });
+
+describe('errorCode', () => {
+  it('se conserva en el fallo http', () => {
+    expect(classifyHttpFailure(404, 'NOT_FOUND', null, 'L003A')).toMatchObject({ kind: 'http', errorCode: 'L003A' });
+  });
+});

@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { BlockedView } from '@/components/organisms/BlockedView';
@@ -9,6 +9,7 @@ import { LoadingScreen } from '@/components/templates/LoadingScreen';
 import { useWorkspace } from '@/features/workspace/hooks/use-workspace';
 import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import { usePushRegistration } from '@/features/notifications/hooks/use-push-registration';
+import { setCurrentScreen } from '@/lib/http/trace-headers';
 import { useVisitQueueSync } from '@/features/visit/hooks/use-visit-queue-sync';
 
 /**
@@ -20,6 +21,8 @@ import { useVisitQueueSync } from '@/features/visit/hooks/use-visit-queue-sync';
  *    inicio) sin que ninguna pantalla navegue a mano.
  */
 export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
+  const segments = useSegments();
+  setCurrentScreen(segments);
   const boot = useBootstrap();
   const access = useAccess();
   const userId = useSessionStore((state) => state.user?.id ?? null);
