@@ -115,7 +115,7 @@ describe('useCollectorForm', () => {
   });
 
   it('registra, muestra la contraseña temporal y la comparte', async () => {
-    a.inviteCollector.mockResolvedValue({ ok: true, value: { id: 'm9', tempPassword: 'Kf7-29' } });
+    a.inviteCollector.mockResolvedValue({ ok: true, value: { membership: { id: 'm9' }, tempPassword: 'Kf7-29' } });
     const { result } = await renderHook(() => useCollectorForm(), { wrapper });
     await waitFor(() => {
       expect(result.current.portfolio.value).toBe('p1');

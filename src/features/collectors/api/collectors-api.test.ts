@@ -25,7 +25,7 @@ describe('collectors-api', () => {
   it('invita con POST y valida la respuesta', async () => {
     await inviteCollector({ fullName: 'Carlos Ramírez', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: 'c@correo.com', portfolioId: 'p1' });
     expect(request.mock.calls[0]).toMatchObject(['/memberships', expect.any(Function), { method: 'POST', body: { phone: '+573001234567', roles: ['COLLECTOR'], portfolioId: 'p1' } }]);
-    expect(parserOf(0)({ id: 'm', tempPassword: 'abc' })).toEqual({ id: 'm', tempPassword: 'abc' });
+    expect(parserOf(0)({ membership: { id: 'm', roles: ['COLLECTOR'] }, tempPassword: 'abc' })).toEqual({ membership: { id: 'm' }, tempPassword: 'abc' });
   });
 
   it('desactiva, restablece y cambia de cartera', async () => {
