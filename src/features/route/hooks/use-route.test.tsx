@@ -9,7 +9,7 @@ jest.mock('@/features/route/api/route-api', () => ({ fetchRoute: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
 const fetchRoute = jest.mocked(api.fetchRoute);
-const row = { loanId: 'l', clientId: 'c', clientFullName: 'Marta Gómez', balance: 1, overdueAmount: 0, overdueDays: 0, nextDueDate: null };
+const row = { loanId: 'l', clientId: 'c', clientFullName: 'Marta Gómez', balance: 1, overdueAmount: 0, overdueDays: 0, nextDueDate: null, collectedToday: 0 };
 
 function wrapper({ children }: Readonly<{ children: ReactNode }>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });

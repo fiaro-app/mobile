@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { Avatar } from '@/components/atoms/Avatar';
 import { IconButton } from '@/components/atoms/IconButton';
 import { BellButton } from '@/components/molecules/BellButton';
@@ -20,6 +20,21 @@ export default function RouteScreen() {
   const router = useRouter();
   const openClient = (row: { id: string; clientId: string }) => {
     router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
+  };
+  const pressRow = (row: { id: string; clientId: string; name: string; collectedLabel: string | null }) => {
+    if (!row.collectedLabel) {
+      openClient(row);
+      return;
+    }
+    Alert.alert('Ya se le cobró hoy', `${row.name}: ${row.collectedLabel.toLowerCase()}. ¿Abrirlo de todos modos?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Abrir',
+        onPress: () => {
+          openClient(row);
+        },
+      },
+    ]);
   };
   const screen = useRouteScreen();
   const unread = useUnreadCount().data ?? 0;
@@ -65,7 +80,9 @@ export default function RouteScreen() {
     >
       {banner ? <SyncBanner message={banner} /> : null}
       <ClientList
-        items={screen.rows.map((row) => ({ ...row, onPress: () => openClient(row) }))}
+        items={screen.rows.map((row) => ({ ...row, onPress: () => {
+            pressRow(row);
+          } }))}
         loading={screen.loading}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
