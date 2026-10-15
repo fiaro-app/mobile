@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Alert, Pressable, View } from 'react-native';
 import { Avatar } from '@/components/atoms/Avatar';
 import { Button } from '@/components/atoms/Button';
+import { ConfirmSlider } from '@/components/molecules/ConfirmSlider';
 import { IconButton } from '@/components/atoms/IconButton';
 import { BellButton } from '@/components/molecules/BellButton';
 import { EmptyState } from '@/components/molecules/EmptyState';
@@ -16,6 +17,7 @@ import { useUnreadCount } from '@/features/notifications/hooks/use-notifications
 import { ROUTE_COPY } from '@/features/route/content/messages';
 import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
 import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
+import { useDayPhase } from '@/features/settlement/hooks/use-settlement-data';
 import { syncBannerMessage } from '@/features/visit/content/sync-message';
 import { useSyncStore } from '@/features/visit/queue/sync-store';
 
@@ -41,6 +43,7 @@ export default function RouteScreen() {
     ]);
   };
   const screen = useRouteScreen();
+  const dayPhase = useDayPhase();
   const unread = useUnreadCount().data ?? 0;
   const pending = useSyncStore((state) => state.pending);
   const rejected = useSyncStore((state) => state.rejected);
@@ -111,13 +114,22 @@ export default function RouteScreen() {
         onClose={screen.closeSortSheet}
       />
       <View className="border-t border-surface-2 bg-surface px-4 py-3">
-        <Button
-          label={SETTLEMENT_COPY.title}
-          variant="outline"
-          onPress={() => {
-            router.push('/settlement');
-          }}
-        />
+        {dayPhase === 'open' ? (
+          <ConfirmSlider
+            label={SETTLEMENT_COPY.slide}
+            onConfirm={() => {
+              router.push('/settlement');
+            }}
+          />
+        ) : (
+          <Button
+            label={dayPhase === 'approved' ? SETTLEMENT_COPY.approved : SETTLEMENT_COPY.inReview}
+            variant="outline"
+            onPress={() => {
+              router.push('/settlement');
+            }}
+          />
+        )}
       </View>
     </ScreenTemplate>
   );

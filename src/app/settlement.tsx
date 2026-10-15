@@ -4,6 +4,7 @@ import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleto
 import { SettlementView } from '@/components/organisms/SettlementView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
+import { useCancelSettlement } from '@/features/settlement/hooks/use-cancel-settlement';
 import { useSettlementScreen } from '@/features/settlement/hooks/use-settlement-screen';
 import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
@@ -13,6 +14,7 @@ const REVIEW_KIND = { PENDING: 'pending', APPROVED: 'approved', REJECTED: 'rejec
 export default function SettlementScreen() {
   const goBack = useGoBack();
   const screen = useSettlementScreen();
+  const cancel = useCancelSettlement();
   const { form } = screen;
 
   let body = <ClientDetailSkeleton />;
@@ -55,6 +57,25 @@ export default function SettlementScreen() {
         submitLabel={screen.submitLabel}
         submitting={screen.submitting}
         onSubmit={screen.requestSubmit}
+        cancel={
+          cancel.canCancel
+            ? {
+                label: SETTLEMENT_COPY.cancel,
+                error: cancel.error,
+                onPress: cancel.request,
+                dialog: {
+                  visible: cancel.dialogOpen,
+                  title: SETTLEMENT_COPY.cancelTitle,
+                  message: SETTLEMENT_COPY.cancelMessage,
+                  cancelLabel: SETTLEMENT_COPY.cancelKeep,
+                  confirmLabel: SETTLEMENT_COPY.cancel,
+                  onCancel: cancel.dismiss,
+                  onConfirm: cancel.confirm,
+                  busy: cancel.busy,
+                },
+              }
+            : null
+        }
         confirm={{
           visible: screen.confirmOpen,
           title: SETTLEMENT_COPY.confirmTitle,

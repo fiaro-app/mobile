@@ -28,6 +28,13 @@ export interface SettlementViewProps {
   readonly submitLabel: string;
   readonly submitting: boolean;
   readonly onSubmit: () => void;
+  /** «Cancelar cuadre» mientras está en revisión; `null` si no aplica. */
+  readonly cancel: {
+    readonly label: string;
+    readonly error: string | null;
+    readonly onPress: () => void;
+    readonly dialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'busy'>;
+  } | null;
   readonly confirm: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm'>;
 }
 
@@ -69,9 +76,12 @@ export function SettlementView(props: Readonly<SettlementViewProps>) {
           )}
         </FormField>
         {props.formError ? <Alert message={props.formError} /> : null}
+        {props.cancel?.error ? <Alert message={props.cancel.error} /> : null}
         {props.locked ? null : <Button label={props.submitLabel} loading={props.submitting} onPress={props.onSubmit} />}
+        {props.cancel ? <Button label={props.cancel.label} variant="danger-outline" onPress={props.cancel.onPress} /> : null}
       </ScrollView>
       <ConfirmDialog {...props.confirm} />
+      {props.cancel ? <ConfirmDialog {...props.cancel.dialog} destructive /> : null}
     </View>
   );
 }
