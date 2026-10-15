@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { signOutIfSessionExpired } from '@/features/auth/store/session-actions';
 import { fetchClients, type ClientsPage } from '@/features/clients/api/clients-api';
 import { matchesFilter, toClientRow, type ClientFilter, type ClientRowModel } from '@/features/clients/lib/client-view-model';
+import { useClientsRisk } from '@/features/risk/hooks/use-clients-risk';
 import { useDebouncedValue } from '@/lib/hooks/use-debounced-value';
 import { failureOf, unwrapOrThrow } from '@/lib/http/api-failure-error';
 
@@ -45,7 +46,18 @@ export function useClientsScreen(): ClientsScreen {
     staleTime: 30_000,
   });
   const loaded = useMemo(() => (query.data?.pages ?? []).flatMap((page) => page.items), [query.data]);
-  const rows = useMemo(() => loaded.filter((client) => matchesFilter(client, filter)).map(toClientRow), [loaded, filter]);
+  const risks = useClientsRisk(loaded.map((client) => client.id));
+  const rows = useMemo(
+    () =>
+      loaded
+        .filter((client) => matchesFilter(client, filter))
+        .map((client) => {
+          const row = toClientRow(client);
+          const risk = risks.get(client.id);
+          return risk && risk.level !== 'LOW' && risk.hasHistory ? { ...row, detail: `${row.detail} · Riesgo ${risk.levelLabel}` } : row;
+        }),
+    [loaded, filter, risks],
+  );
 
   let empty: ClientsEmpty = 'none';
   if (query.data === undefined && failureOf(query.error)) empty = 'error';

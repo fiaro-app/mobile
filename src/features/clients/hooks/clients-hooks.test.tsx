@@ -7,7 +7,9 @@ import { useClientForm } from '@/features/clients/hooks/use-client-form';
 import { useClientProfile } from '@/features/clients/hooks/use-client-profile';
 import { useClientsScreen } from '@/features/clients/hooks/use-clients-screen';
 import * as actions from '@/features/auth/store/session-actions';
+import * as riskApi from '@/features/risk/api/risk-api';
 
+jest.mock('@/features/risk/api/risk-api', () => ({ fetchClientsRisk: jest.fn() }));
 jest.mock('@/features/clients/api/clients-api', () => ({ fetchClients: jest.fn(), fetchClientById: jest.fn(), createClient: jest.fn(), updateClient: jest.fn(), fetchClientLoans: jest.fn(), CLIENTS_PAGE_SIZE: 30 }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 jest.mock('@/features/client-detail/lib/call', () => ({ callClient: jest.fn() }));
@@ -25,6 +27,7 @@ function wrapper({ children }: Readonly<{ children: ReactNode }>) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(riskApi).fetchClientsRisk.mockResolvedValue({ ok: true, value: [] });
   a.fetchClients.mockResolvedValue({ ok: true, value: { items: [row('1'), row('2', { overdueDays: 20, overdueAmount: 5 })], total: 2 } });
   a.fetchClientById.mockResolvedValue({ ok: true, value: client });
   a.fetchClientLoans.mockResolvedValue({ ok: true, value: [loan] });
@@ -83,6 +86,25 @@ describe('useClientsScreen', () => {
     await act(async () => {
       failed.result.current.refresh();
     });
+  });
+});
+
+describe('riesgo en clientes', () => {
+  const risk = (clientId: string, level: 'LOW' | 'HIGH') => ({ clientId, score: 60, level, loansCount: 1, factors: [] });
+
+  it('la lista agrega el nivel de riesgo medio o más a quien tiene historial', async () => {
+    jest.mocked(riskApi).fetchClientsRisk.mockResolvedValue({ ok: true, value: [risk('1', 'HIGH'), risk('2', 'LOW')] });
+    const { result } = await renderHook(() => useClientsScreen(), { wrapper });
+
+    await waitFor(() => { expect(result.current.rows[0]?.detail).toContain('Riesgo alto'); });
+    expect(result.current.rows[1]?.detail).not.toContain('Riesgo');
+  });
+
+  it('la ficha trae el riesgo del cliente', async () => {
+    jest.mocked(riskApi).fetchClientsRisk.mockResolvedValue({ ok: true, value: [risk('c1', 'HIGH')] });
+    const { result } = await renderHook(() => useClientProfile('c1'), { wrapper });
+
+    await waitFor(() => { expect(result.current.risk?.levelLabel).toBe('alto'); });
   });
 });
 

@@ -16,6 +16,8 @@ export interface LoanFormViewProps {
   readonly labels: { readonly client: string; readonly frequency: string; readonly startDate: string; readonly collector: string };
   readonly texts: { readonly clientField: string; readonly principal: string; readonly count: string; readonly installment: string; readonly total: string; readonly totalHint: string; readonly frequency: string; readonly startDate: string; readonly collector: string; readonly submit: string; readonly cancel: string; readonly seeLoan: string };
   readonly totalSuggested: boolean;
+  /** Aviso de riesgo muy alto del cliente elegido; no bloquea el envío. */
+  readonly riskWarning?: string | null;
   readonly submitting: boolean;
   readonly formError: string | null;
   readonly createdLoanId: string | null;
@@ -48,6 +50,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
           <FormField label={texts.clientField} error={errors.clientId}>
             {() => <SelectButton label={labels.client} active={!errors.clientId} onPress={() => { props.onOpen('client'); }} />}
           </FormField>
+          {props.riskWarning ? <Alert message={props.riskWarning} /> : null}
           {money('principal', texts.principal)}
           <FormField label={texts.count} error={errors.count}>
             {(a11y) => <TextField {...a11y} value={values.count} onChangeText={props.onCount} invalid={Boolean(errors.count)} keyboardType="number-pad" placeholder="30" editable={editable} />}
