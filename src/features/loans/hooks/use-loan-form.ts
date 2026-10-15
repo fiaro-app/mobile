@@ -71,7 +71,7 @@ export function useLoanForm(initialClientId: string, onCreated: (loanId: string)
   const [createdLoanId, setCreatedLoanId] = useState<string | null>(null);
   const members = useMembers();
   const names = useClientNames(useMemo(() => (values.clientId === '' ? [] : [values.clientId]), [values.clientId]));
-  const risk = useClientsRisk(useMemo(() => (values.clientId === '' ? [] : [values.clientId]), [values.clientId])).get(values.clientId);
+  const risk = useClientsRisk(values.clientId === '' ? [] : [values.clientId]).get(values.clientId);
   const today = businessDateOf();
   const collectors = useMemo(
     () => (members.data ?? []).filter((member) => member.status === 'ACTIVE' && member.roles.includes('COLLECTOR')).map((member) => ({ value: member.id, label: member.fullName })),

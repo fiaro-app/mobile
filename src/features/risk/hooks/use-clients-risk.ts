@@ -16,7 +16,8 @@ const CHUNK_SIZE = 50;
  * @param enabled - `false` para no pedir todavía.
  */
 export function useClientsRisk(ids: readonly string[], enabled = true): ReadonlyMap<string, RiskView> {
-  const unique = useMemo(() => [...new Set(ids)], [ids]);
+  const key = ids.join(',');
+  const unique = useMemo(() => (key === '' ? [] : [...new Set(key.split(','))]), [key]);
   const chunks = useMemo(() => Array.from({ length: Math.ceil(unique.length / CHUNK_SIZE) }, (_, index) => unique.slice(index * CHUNK_SIZE, (index + 1) * CHUNK_SIZE)), [unique]);
   const results = useQueries({
     queries: chunks.map((chunk) => ({

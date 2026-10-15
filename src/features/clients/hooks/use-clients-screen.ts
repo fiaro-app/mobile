@@ -46,7 +46,7 @@ export function useClientsScreen(): ClientsScreen {
     staleTime: 30_000,
   });
   const loaded = useMemo(() => (query.data?.pages ?? []).flatMap((page) => page.items), [query.data]);
-  const risks = useClientsRisk(useMemo(() => loaded.map((client) => client.id), [loaded]));
+  const risks = useClientsRisk(loaded.map((client) => client.id));
   const rows = useMemo(
     () =>
       loaded

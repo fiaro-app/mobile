@@ -45,7 +45,7 @@ export function useClientProfile(id: string): ClientProfile {
   const client = useClientQuery(id);
   const loans = useClientLoansQuery(id);
   const rows = useMemo(() => (loans.data ?? []).map((loan) => toLoanRow(loan, null)), [loans.data]);
-  const risk = useClientsRisk(useMemo(() => [id], [id])).get(id) ?? null;
+  const risk = useClientsRisk([id]).get(id) ?? null;
   const [notice, setNotice] = useState<string | null>(null);
   const failure = failureOf(client.error);
   const data = client.data;
