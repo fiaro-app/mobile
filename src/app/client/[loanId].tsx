@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Alert } from 'react-native';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -6,6 +7,8 @@ import { ClientDetailView } from '@/components/organisms/ClientDetailView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { DETAIL_COPY } from '@/features/client-detail/content/messages';
 import { useClientDetailScreen } from '@/features/client-detail/hooks/use-client-detail-screen';
+import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
+import { useDayPhase } from '@/features/settlement/hooks/use-settlement-data';
 import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/client/[loanId]?clientId=...`: detalle de un cliente y su préstamo. */
@@ -15,6 +18,7 @@ export default function ClientDetailScreen() {
   const { loanId, clientId } = useLocalSearchParams<{ loanId: string; clientId: string }>();
   const screen = useClientDetailScreen(clientId, loanId);
   const model = screen.model;
+  const dayPhase = useDayPhase();
 
   let body = <ClientDetailSkeleton />;
   if (model) {
@@ -35,6 +39,10 @@ export default function ClientDetailScreen() {
         onRegister={
           model.canRegisterVisit
             ? () => {
+                if (dayPhase !== 'open') {
+                  Alert.alert(SETTLEMENT_COPY.dayClosedTitle, dayPhase === 'approved' ? SETTLEMENT_COPY.dayClosedApproved : SETTLEMENT_COPY.dayClosedInReview);
+                  return;
+                }
                 router.push({ pathname: '/visit/[loanId]', params: { loanId, clientId } });
               }
             : undefined

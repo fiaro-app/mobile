@@ -11,6 +11,11 @@ export async function rememberSettlement(userId: string, date: string, settlemen
   await AsyncStorage.setItem(keyOf(userId, date), settlementId);
 }
 
+/** Olvida el cuadre de ese día (cuando el cobrador lo cancela). */
+export async function forgetSettlement(userId: string, date: string): Promise<void> {
+  await AsyncStorage.removeItem(keyOf(userId, date));
+}
+
 /** El `id` del cuadre de ese día, o `null` si no se envió desde este teléfono. */
 export async function recallSettlement(userId: string, date: string): Promise<string | null> {
   try {
