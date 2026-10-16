@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { useRouter } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
@@ -13,6 +16,7 @@ export default function RequestLoanScreen() {
   const router = useRouter();
   const goBack = useGoBack();
   const form = useRequestForm();
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.request);
   const copy = REQUEST_COPY.form;
   const loanCopy = LOANS_COPY.form;
   const back = () => {
@@ -59,10 +63,11 @@ export default function RequestLoanScreen() {
           onOpen={form.openSheet}
           onFrequency={form.setFrequency}
           onStartDate={form.setStartDate}
-          onSubmit={form.submit}
+          onSubmit={confirm.ask}
           onCancel={back}
         />
       )}
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }

@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { TopBar } from '@/components/molecules/TopBar';
 import { EditProfileForm } from '@/components/organisms/EditProfileForm';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
@@ -10,6 +13,7 @@ import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 export default function EditProfileScreen() {
   const goBack = useGoBack();
   const form = useEditProfile();
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.save);
   const email = useEmailVerification();
   return (
     <ScreenTemplate
@@ -32,7 +36,7 @@ export default function EditProfileScreen() {
         submitting={form.submitting}
         formError={form.formError}
         notice={form.notice}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         verification={
           email.visible
             ? {
@@ -53,6 +57,7 @@ export default function EditProfileScreen() {
             : null
         }
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }

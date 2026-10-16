@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { useRouter } from 'expo-router';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientFormView } from '@/components/organisms/ClientFormView';
@@ -13,6 +16,7 @@ export default function NewClientScreen() {
   const form = useClientForm(undefined, (client) => {
     router.replace({ pathname: '/admin/clients/[id]', params: { id: client.id } });
   });
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.create);
   const copy = CLIENTS_COPY.form;
   const back = () => {
     goBack();
@@ -31,9 +35,10 @@ export default function NewClientScreen() {
         submitting={form.submitting}
         formError={form.formError}
         notice={form.notice}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={back}
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }

@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Button } from '@/components/atoms/Button';
@@ -14,6 +17,7 @@ import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 export default function NewCollectorScreen() {
   const goBack = useGoBack();
   const form = useCollectorForm();
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.create);
   const copy = COLLECTORS_COPY;
   const back = () => {
     goBack();
@@ -57,9 +61,10 @@ export default function NewCollectorScreen() {
         onCloseSheet={form.closeSheet}
         submitting={form.submitting}
         formError={form.formError}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={back}
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }
