@@ -144,6 +144,7 @@ describe('useLoanForm', () => {
     const { result } = await renderHook(() => useLoanForm('c1', jest.fn()), { wrapper });
 
     await waitFor(() => { expect(result.current.riskWarning).toMatch(/riesgo muy alto/i); });
+    expect(result.current.risk).toMatchObject({ score: 90, level: 'VERY_HIGH' });
   });
 
   it('sin riesgo muy alto no hay aviso', async () => {
@@ -151,5 +152,6 @@ describe('useLoanForm', () => {
 
     await waitFor(() => { expect(jest.mocked(riskApi).fetchClientsRisk).toHaveBeenCalled(); });
     expect(result.current.riskWarning).toBeNull();
+    expect(result.current.risk).toBeNull();
   });
 });
