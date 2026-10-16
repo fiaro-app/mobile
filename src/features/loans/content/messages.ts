@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { LoanFilter } from '@/features/loans/lib/loan-list';
 
@@ -87,6 +88,8 @@ export function loanFailureMessage(failure: ApiFailure): string {
       return 'Este préstamo ya no se puede anular porque dejó de estar activo.';
     case 'FORBIDDEN':
       return 'No tienes permiso para administrar préstamos.';
+    case 'PLAN_LIMIT_REACHED':
+      return planLimitMessage(failure, 'L004A');
     case 'SUBSCRIPTION_READ_ONLY':
       return 'Tu suscripción está en modo de solo lectura. Renuévala para hacer cambios.';
     case 'NOT_FOUND':

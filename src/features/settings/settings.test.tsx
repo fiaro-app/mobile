@@ -7,7 +7,6 @@ import * as api from '@/features/settings/api/settings-api';
 import { portfolioDeleteFailureMessage, SETTINGS_COPY, settingsFailureMessage } from '@/features/settings/content/messages';
 import { useSettingsScreen } from '@/features/settings/hooks/use-settings-screen';
 import { BRAND_PALETTE, brandColorError, swatchesFor } from '@/features/settings/lib/brand-palette';
-import { MAX_PORTFOLIOS } from '@/features/settings/lib/portfolio-limit';
 import { contrastWithWhite, MIN_BRAND_CONTRAST } from '@/features/settings/lib/color';
 import { LenderSettingsSchema, sameWeekdays, SubscriptionSchema, toggleWeekday } from '@/features/settings/lib/settings-schemas';
 import { subscriptionNotice, toSubscriptionView } from '@/features/settings/lib/subscription-view';
@@ -23,7 +22,7 @@ jest.mock('@/lib/business-date', () => ({ ...jest.requireActual('@/lib/business-
 
 const a = jest.mocked(api);
 const settings = (over = {}) => ({ id: 'l1', name: 'El Águila', logoUrl: null, brandColor: null, nonWorkingWeekdays: ['SUNDAY' as const], skipNationalHolidays: false, ...over });
-const sub = (over = {}) => ({ planCode: 'TRIAL', status: 'ACTIVE' as const, currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 20, graceDaysRemaining: 7, isReadOnly: false, limits: { maxCollectors: 5 }, usage: { activeCollectors: 2 }, ...over });
+const sub = (over: Record<string, unknown> = {}) => ({ planCode: 'TRIAL' as const, status: 'ACTIVE' as const, currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 20, graceDaysRemaining: 7, isReadOnly: false, limits: { maxCollectors: 5, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 7 }, ...over });
 const portfolios = [{ id: 'p1', name: 'General', isDefault: true }, { id: 'p2', name: 'Norte', isDefault: false }];
 const http = (status: number, code: string | null = null) => ({ ok: false, failure: { kind: 'http', status, code, retryAfterSeconds: null } }) as const;
 
@@ -72,10 +71,39 @@ describe('lógica de configuración', () => {
 
   it('arma el bloque del plan', () => {
     const view = toSubscriptionView(sub());
-    expect(view.rows).toEqual([{ label: 'Plan', value: 'Prueba gratis' }, { label: 'Estado', value: 'Activo' }, { label: 'Vence el', value: '1 nov 2026' }, { label: 'Días restantes', value: '20' }, { label: 'Cobradores activos', value: '2 de 5' }]);
-    expect(view.collectorsPercent).toBe(40);
-    expect(toSubscriptionView(sub({ limits: { maxCollectors: 0 }, planCode: 'PRO' })).collectorsPercent).toBe(0);
-    expect(toSubscriptionView(sub({ usage: { activeCollectors: 9 } })).collectorsPercent).toBe(100);
+    expect(view.rows).toEqual([
+      { label: 'Plan', value: 'Prueba gratis' },
+      { label: 'Estado', value: 'Activo' },
+      { label: 'Vence el', value: '1 nov 2026' },
+      { label: 'Días restantes', value: '20' },
+      { label: 'Préstamos activos', value: '7 (sin tope)' },
+      { label: 'Carteras', value: 'Hasta 4' },
+    ]);
+    expect(view.bars).toEqual([
+      { label: 'Cobradores activos', value: '2 de 5', percent: 40 },
+      { label: 'Administradores', value: '1 de 3', percent: 33 },
+    ]);
+    expect(view.maxPortfolios).toBe(4);
+  });
+
+  it('con tope de préstamos pinta su barra y nombra el plan de pago', () => {
+    const view = toSubscriptionView(sub({ planCode: 'INDIVIDUAL', limits: { maxCollectors: 2, maxAdmins: 1, maxPortfolios: 2, maxActiveLoans: 20 }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 15 } }));
+    expect(view.rows[0]).toEqual({ label: 'Plan', value: 'Individual' });
+    expect(view.rows.some((row) => row.label === 'Préstamos activos')).toBe(false);
+    expect(view.bars.at(-1)).toEqual({ label: 'Préstamos activos', value: '15 de 20', percent: 75 });
+    expect(view.maxPortfolios).toBe(2);
+  });
+
+  it('topa la barra en 100 % y tolera un tope de cero', () => {
+    const percent = (over: Record<string, unknown>) => toSubscriptionView(sub(over)).bars[0]?.percent;
+    expect(percent({ usage: { activeCollectors: 9, activeAdmins: 1, activeLoans: 0 } })).toBe(100);
+    expect(percent({ limits: { maxCollectors: 0, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null } })).toBe(0);
+  });
+
+  it('un plan de pago habla del plan, no de la prueba', () => {
+    expect(subscriptionNotice(sub({ planCode: 'PRO', daysRemaining: 3 }))?.message).toBe('Tu plan vence en 3 días.');
+    expect(subscriptionNotice(sub({ planCode: 'PRO', daysRemaining: 0 }))?.message).toBe('Tu plan vence hoy.');
+    expect(subscriptionNotice(sub({ planCode: 'PRO', status: 'GRACE_PERIOD', graceDaysRemaining: 1 }))?.message).toBe('Tu plan venció. Tienes 1 día para renovarlo antes de pasar a solo lectura.');
   });
 
   it('valida las respuestas y traduce los fallos', () => {
@@ -88,7 +116,7 @@ describe('lógica de configuración', () => {
     expect(settingsFailureMessage({ kind: 'http', status: 403, code: 'FORBIDDEN', retryAfterSeconds: null })).toMatch(/permiso/);
     expect(settingsFailureMessage({ kind: 'http', status: 403, code: 'SUBSCRIPTION_READ_ONLY', retryAfterSeconds: null })).toMatch(/solo lectura/);
     expect(settingsFailureMessage({ kind: 'http', status: 403, code: 'PLAN_LIMIT_REACHED', retryAfterSeconds: null })).toMatch(/máximo de carteras/);
-    expect(SETTINGS_COPY.portfolios.limit(MAX_PORTFOLIOS)).toMatch(/máximo de 4 carteras/);
+    expect(SETTINGS_COPY.portfolios.limit(4)).toMatch(/máximo de 4 carteras/);
     expect(settingsFailureMessage({ kind: 'http', status: 429, code: null, retryAfterSeconds: null })).toMatch(/Demasiados/);
     expect(settingsFailureMessage({ kind: 'http', status: 500, code: null, retryAfterSeconds: null })).toMatch(/No pudimos/);
     expect(portfolioDeleteFailureMessage({ kind: 'http', status: 409, code: 'CONFLICT', retryAfterSeconds: null })).toMatch(/por defecto/);
@@ -110,7 +138,7 @@ describe('useSettingsScreen', () => {
   it('carga todo y distingue el fallo', async () => {
     const { result } = await ready();
     expect(result.current.business.name).toBe('El Águila');
-    expect(result.current.plan?.rows).toHaveLength(5);
+    expect(result.current.plan?.rows).toHaveLength(6);
     expect(result.current.brand.color).toBe('#3B3382');
     a.fetchLenderSettings.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
     const failed = await renderHook(() => useSettingsScreen(), { wrapper });

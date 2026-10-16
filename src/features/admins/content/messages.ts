@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 
 /** Textos de la gestión de administradores. */
@@ -57,6 +58,8 @@ export function adminFailureMessage(failure: ApiFailure): string {
   switch (failure.code) {
     case 'FORBIDDEN':
       return 'No tienes permiso para administrar administradores, o intentaste cambiar tu propio acceso.';
+    case 'PLAN_LIMIT_REACHED':
+      return planLimitMessage(failure, 'M007A');
     case 'SUBSCRIPTION_READ_ONLY':
       return 'Tu suscripción está en modo de solo lectura. Renuévala para hacer cambios.';
     case 'NOT_FOUND':
