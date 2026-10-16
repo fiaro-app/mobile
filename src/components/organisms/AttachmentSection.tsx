@@ -43,6 +43,13 @@ export interface AttachmentSectionProps {
  */
 export function AttachmentSection(props: Readonly<AttachmentSectionProps>) {
   const { title, description, alt, none, canEdit, labels: copy } = props;
+  const image = props.url ? (
+    <Image accessibilityLabel={alt} source={{ uri: props.url }} resizeMode="contain" className="h-56 w-full rounded-md bg-surface-2" />
+  ) : (
+    <AppText variant="small" tone="muted">
+      {none}
+    </AppText>
+  );
   const attachment = { url: props.url, loading: props.loading, loadFailed: props.loadFailed, busy: props.busy, error: props.error, notice: props.notice, confirmingRemove: props.confirmingRemove };
   return (
     <View className="gap-3 rounded-lg bg-surface p-5">
@@ -61,15 +68,7 @@ export function AttachmentSection(props: Readonly<AttachmentSectionProps>) {
           <Button label={copy.retry} variant="outline" onPress={props.onReload} />
         </View>
       ) : null}
-      {!attachment.loading && !attachment.loadFailed ? (
-        attachment.url ? (
-          <Image accessibilityLabel={alt} source={{ uri: attachment.url }} resizeMode="contain" className="h-56 w-full rounded-md bg-surface-2" />
-        ) : (
-          <AppText variant="small" tone="muted">
-            {none}
-          </AppText>
-        )
-      ) : null}
+      {!attachment.loading && !attachment.loadFailed ? image : null}
       {attachment.error ? <Alert message={attachment.error} /> : null}
       {attachment.notice ? (
         <AppText variant="small" tone="primary">
