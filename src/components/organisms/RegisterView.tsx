@@ -6,7 +6,10 @@ import { TextLink } from '@/components/atoms/TextLink';
 import { Alert } from '@/components/molecules/Alert';
 import { AuthHeader } from '@/components/molecules/AuthHeader';
 import { FormField } from '@/components/molecules/FormField';
+import { ToggleRow } from '@/components/molecules/ToggleRow';
+import { AppText } from '@/components/atoms/AppText';
 
+type ConsentKey = 'terms' | 'privacy' | 'responsibility' | 'marketing';
 type Field = 'fullName' | 'nationalId' | 'phone' | 'contactEmail' | 'password' | 'businessName';
 
 export interface RegisterViewProps {
@@ -15,12 +18,19 @@ export interface RegisterViewProps {
     readonly accountTitle: string; readonly companyTitle: string; readonly accountSubtitle: string; readonly companySubtitle: string; readonly fullName: string; readonly fullNamePlaceholder: string;
     readonly nationalId: string; readonly nationalIdPlaceholder: string; readonly phone: string; readonly phonePlaceholder: string; readonly email: string; readonly emailPlaceholder: string;
     readonly secretLabel: string; readonly hint: string; readonly business: string; readonly businessPlaceholder: string; readonly next: string; readonly submit: string; readonly back: string;
+    readonly consentsTitle: string; readonly termsLabel: string; readonly privacyLabel: string; readonly responsibilityLabel: string; readonly marketingLabel: string;
+    readonly consentRequired: string; readonly readTerms: string; readonly readPrivacy: string;
     readonly doneTitle: string; readonly doneSubtitle: string; readonly toLogin: string;
   };
   readonly values: Record<Field, string>;
   readonly errors: Partial<Record<Field, string>>;
   readonly formError: string | null;
   readonly busy: boolean;
+  readonly consents: { readonly terms: boolean; readonly privacy: boolean; readonly responsibility: boolean; readonly marketing: boolean };
+  readonly consentErrors: readonly ConsentKey[];
+  readonly onConsent: (key: ConsentKey, value: boolean) => void;
+  /** Abre el texto legal completo (en la web). */
+  readonly onOpenLegal: (document: 'terms' | 'privacy') => void;
   readonly onField: (field: Field, text: string) => void;
   readonly onNext: () => void;
   readonly onBack: () => void;
@@ -38,6 +48,16 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
     <FormField label={label} error={errors[field]} hint={hint}>
       {(a11y) => <TextField {...a11y} value={values[field]} onChangeText={(value) => { props.onField(field, value); }} invalid={Boolean(errors[field])} placeholder={placeholder} editable={!props.busy} {...extra} />}
     </FormField>
+  );
+  const consentRow = (key: ConsentKey, label: string) => (
+    <View>
+      <ToggleRow label={label} value={props.consents[key]} onChange={(value) => { props.onConsent(key, value); }} disabled={props.busy} />
+      {props.consentErrors.includes(key) ? (
+        <AppText variant="caption" tone="destructive" accessibilityRole="alert">
+          {texts.consentRequired}
+        </AppText>
+      ) : null}
+    </View>
   );
   if (props.step === 'done') {
     return (
@@ -68,6 +88,15 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
         ) : (
           <>
             {text('businessName', texts.business, texts.businessPlaceholder)}
+            <View className="gap-1">
+              <AppText variant="label">{texts.consentsTitle}</AppText>
+              {consentRow('terms', texts.termsLabel)}
+              <TextLink label={texts.readTerms} onPress={() => { props.onOpenLegal('terms'); }} />
+              {consentRow('privacy', texts.privacyLabel)}
+              <TextLink label={texts.readPrivacy} onPress={() => { props.onOpenLegal('privacy'); }} />
+              {consentRow('responsibility', texts.responsibilityLabel)}
+              {consentRow('marketing', texts.marketingLabel)}
+            </View>
             {props.verification}
             <Button label={texts.submit} onPress={props.onSubmit} loading={props.busy} />
             <View className="items-center">

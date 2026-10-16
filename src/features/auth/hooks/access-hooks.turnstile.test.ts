@@ -64,6 +64,11 @@ describe('con Turnstile activo', () => {
       result.current.next();
     });
     await act(async () => {
+      result.current.setConsent('terms', true);
+      result.current.setConsent('privacy', true);
+      result.current.setConsent('responsibility', true);
+    });
+    await act(async () => {
       result.current.submit();
     });
     expect(result.current.formError).toBe(TURNSTILE_PENDING);

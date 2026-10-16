@@ -1,3 +1,4 @@
+import { LEGAL_VERSION } from '@/features/auth/lib/consents';
 import { toMobileE164 } from '@/features/auth/lib/phone';
 import { apiPost } from '@/lib/http/api-request';
 import type { ApiFailure } from '@/lib/http/failure';
@@ -21,6 +22,8 @@ export interface RegisterInput {
   readonly nationalId: string;
   readonly businessName: string;
   readonly contactEmail: string;
+  /** Si aceptó recibir novedades (opcional); los tres consentimientos obligatorios se envían siempre en `true`. */
+  readonly marketingConsent: boolean;
   /** Token de Cloudflare Turnstile; sin él (Turnstile apagado) no se envía. */
   readonly turnstileToken?: string;
 }
@@ -35,6 +38,11 @@ export function registerOwner(input: RegisterInput): Promise<Result<unknown, Api
       password: input.password,
       nationalId: input.nationalId.replaceAll(/[\s.,-]/g, ''),
       businessName: input.businessName,
+      acceptedTerms: true,
+      acceptedPrivacy: true,
+      acceptedDataResponsibility: true,
+      marketingConsent: input.marketingConsent,
+      legalVersion: LEGAL_VERSION,
       ...(input.contactEmail === '' ? {} : { contactEmail: input.contactEmail }),
       ...(input.turnstileToken ? { turnstileToken: input.turnstileToken } : {}),
     },
