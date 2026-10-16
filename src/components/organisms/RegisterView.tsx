@@ -9,6 +9,7 @@ import { FormField } from '@/components/molecules/FormField';
 import { ToggleRow } from '@/components/molecules/ToggleRow';
 import { AppText } from '@/components/atoms/AppText';
 
+type ConsentKey = 'terms' | 'privacy' | 'responsibility' | 'marketing';
 type Field = 'fullName' | 'nationalId' | 'phone' | 'contactEmail' | 'password' | 'businessName';
 
 export interface RegisterViewProps {
@@ -26,8 +27,8 @@ export interface RegisterViewProps {
   readonly formError: string | null;
   readonly busy: boolean;
   readonly consents: { readonly terms: boolean; readonly privacy: boolean; readonly responsibility: boolean; readonly marketing: boolean };
-  readonly consentErrors: readonly ('terms' | 'privacy' | 'responsibility' | 'marketing')[];
-  readonly onConsent: (key: 'terms' | 'privacy' | 'responsibility' | 'marketing', value: boolean) => void;
+  readonly consentErrors: readonly ConsentKey[];
+  readonly onConsent: (key: ConsentKey, value: boolean) => void;
   /** Abre el texto legal completo (en la web). */
   readonly onOpenLegal: (document: 'terms' | 'privacy') => void;
   readonly onField: (field: Field, text: string) => void;
@@ -48,7 +49,7 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
       {(a11y) => <TextField {...a11y} value={values[field]} onChangeText={(value) => { props.onField(field, value); }} invalid={Boolean(errors[field])} placeholder={placeholder} editable={!props.busy} {...extra} />}
     </FormField>
   );
-  const consentRow = (key: 'terms' | 'privacy' | 'responsibility' | 'marketing', label: string) => (
+  const consentRow = (key: ConsentKey, label: string) => (
     <View>
       <ToggleRow label={label} value={props.consents[key]} onChange={(value) => { props.onConsent(key, value); }} disabled={props.busy} />
       {props.consentErrors.includes(key) ? (
