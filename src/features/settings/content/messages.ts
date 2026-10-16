@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 
 /** Textos de Configuración. */
@@ -46,7 +47,7 @@ export function settingsFailureMessage(failure: ApiFailure): string {
     case 'CONFLICT':
       return 'Ya tienes una cartera con ese nombre.';
     case 'PLAN_LIMIT_REACHED':
-      return 'Tu negocio ya tiene el máximo de carteras. Borra una que no uses antes de crear otra.';
+      return planLimitMessage(failure, 'B007A');
     case 'FORBIDDEN':
       return 'No tienes permiso para cambiar la configuración del negocio.';
     case 'SUBSCRIPTION_READ_ONLY':

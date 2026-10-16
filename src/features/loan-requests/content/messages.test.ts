@@ -7,6 +7,7 @@ describe('requestFailureMessage', () => {
     [http(409, 'CONFLICT'), /ya fue resuelta/],
     [http(403, 'FORBIDDEN'), /No tienes permiso/],
     [http(403, 'SUBSCRIPTION_READ_ONLY'), /solo lectura/],
+    [http(403, 'PLAN_LIMIT_REACHED'), /préstamos activos/],
     [http(404, 'NOT_FOUND'), /ya no existe/],
     [http(400, 'VALIDATION_FAILED'), /Revisa los datos/],
     [http(429, null), /Demasiados intentos/],

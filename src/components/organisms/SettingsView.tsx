@@ -27,7 +27,7 @@ export interface SettingsViewProps {
   readonly logo: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & LogoSectionProps;
   readonly removeLogoDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
   readonly portfolios: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & PortfolioSectionProps;
-  readonly plan: { readonly title: string; readonly rows: readonly { label: string; value: string }[]; readonly percent: number; readonly notice: { readonly kind: 'warning' | 'error'; readonly message: string } | null } | null;
+  readonly plan: { readonly title: string; readonly rows: readonly { label: string; value: string }[]; readonly bars: readonly { label: string; value: string; percent: number }[]; readonly notice: { readonly kind: 'warning' | 'error'; readonly message: string } | null } | null;
   readonly deleteDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
 }
 
@@ -71,10 +71,14 @@ export function SettingsView(props: Readonly<SettingsViewProps>) {
                 <InfoRow key={row.label} label={row.label} value={row.value} />
               ))}
             </View>
-            <ProgressBar percent={plan.percent} label={plan.rows.at(-1)?.value ?? ''} />
-            <AppText variant="caption" tone="muted">
-              {plan.rows.at(-1)?.label}
-            </AppText>
+            {plan.bars.map((bar) => (
+              <View key={bar.label} className="gap-1">
+                <ProgressBar percent={bar.percent} label={`${bar.label}: ${bar.value}`} />
+                <AppText variant="caption" tone="muted">
+                  {`${bar.label}: ${bar.value}`}
+                </AppText>
+              </View>
+            ))}
           </SettingsSection>
         ) : null}
       </ScrollView>

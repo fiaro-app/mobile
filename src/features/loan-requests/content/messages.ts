@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { RequestStatus } from '@/features/loan-requests/lib/request-schemas';
 
@@ -75,6 +76,8 @@ export function requestFailureMessage(failure: ApiFailure): string {
       return 'Esta solicitud ya fue resuelta, o ya existe un cliente con esa cédula. Actualiza para ver su estado.';
     case 'FORBIDDEN':
       return 'No tienes permiso para hacer esto.';
+    case 'PLAN_LIMIT_REACHED':
+      return planLimitMessage(failure, 'L004A');
     case 'SUBSCRIPTION_READ_ONLY':
       return 'Tu suscripción está en modo de solo lectura. Renuévala para hacer cambios.';
     case 'NOT_FOUND':

@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { CollectorStatusFilter } from '@/features/collectors/lib/collector-view-model';
 
@@ -103,7 +104,7 @@ export function collectorFailureMessage(failure: ApiFailure): string {
     case 'COLLABORATOR_NATIONAL_ID_TAKEN':
       return 'Ya hay un colaborador con esa cédula en tu negocio.';
     case 'PLAN_LIMIT_REACHED':
-      return 'Tu plan ya no tiene cupos de cobrador. Da de baja a uno o mejora tu plan.';
+      return planLimitMessage(failure, 'M003A');
     case 'COLLECTOR_HAS_HISTORY':
       return 'Este cobrador ya tiene historial: dalo de baja en lugar de borrarlo.';
     default:

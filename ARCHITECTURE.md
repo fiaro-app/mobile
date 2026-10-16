@@ -384,8 +384,11 @@ cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone=
   de la web, cuyos colores ya pasan el contraste WCAG AA con texto blanco (4.5; `contrastWithWhite`). **Días sin cobro**: el calendario del API mueve las cuotas de esos días al
   siguiente día de cobro, así que guardar cambia saldos y mora de TODOS los préstamos: se invalidan préstamos, Resumen y la ruta del cobrador.
   **Carteras:** crear, renombrar y borrar (la por defecto no se borra; una con cobradores activos tampoco, ambos `CONFLICT` con su propio mensaje).
-- **Plan** (`GET /subscription`, solo informa): bloque "Tu plan" y un **aviso en el Resumen** (prueba por terminar ≤ 7 días, en gracia o solo lectura). Si el plan no carga
-  simplemente no se muestra.
+- **Plan** (`GET /subscription`): bloque "Tu plan" (plan, estado, vencimiento, carteras y préstamos activos "sin tope" si el plan no los limita) con una barra de uso por
+  cada tope (cobradores, administradores y préstamos activos) y un **aviso en el Resumen** (por vencer ≤ 7 días, en gracia o solo lectura). El aviso distingue la prueba de un
+  plan de pago ("Tu plan vence/venció…"). El tope de carteras sale del plan, ya no es fijo. Si el plan no carga simplemente no se muestra. El schema es propio (no usa
+  `@fiaro-app/contracts`, M-11): sigue la forma de contracts 0.12.0. **`PLAN_LIMIT_REACHED`** se explica según `errorCode` (`planLimitMessage`: `M003A` cobradores, `M007A`
+  administradores, `L004A` préstamos, `B007A` carteras) en cobradores, administradores, préstamos, solicitudes y configuración. En solo lectura el API deja registrar cobros y cuadres.
 - **Cambiar contraseña** (`account-password`): igual que el cambio obligatorio pero voluntario (sin "Cerrar sesión" como salida) y al terminar vuelve al Perfil.
 - **Sesiones abiertas** (`account-sessions`): `GET /account/sessions`; cerrar una (`DELETE`) o todas las demás (`POST /auth/revoke-other-sessions`). La de este
   teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".

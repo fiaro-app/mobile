@@ -6,7 +6,6 @@ import { SETTINGS_COPY } from '@/features/settings/content/messages';
 import { useSettingsScreen } from '@/features/settings/hooks/use-settings-screen';
 import { WEEKDAYS, type Weekday } from '@/features/settings/lib/settings-schemas';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
-import { MAX_PORTFOLIOS } from '@/features/settings/lib/portfolio-limit';
 
 /** Ruta `/admin/settings`: configuración del negocio (nombre, color de marca, días sin cobro, carteras y plan). */
 export default function SettingsScreen() {
@@ -20,6 +19,7 @@ export default function SettingsScreen() {
   } else if (!screen.loading) {
     const { business, brand, days, portfolios } = screen;
     const deleting = portfolios.deleting;
+    const maxPortfolios = screen.plan?.maxPortfolios ?? null;
     body = (
       <SettingsView
         business={{ ...business, title: copy.business.title, label: copy.business.name, save: copy.business.save, onName: business.setName, onSave: business.save }}
@@ -46,7 +46,7 @@ export default function SettingsScreen() {
           error: portfolios.error,
           notice: portfolios.notice,
           items: screen.portfolioItems,
-          limitMessage: screen.portfolioItems.length >= MAX_PORTFOLIOS ? copy.portfolios.limit(MAX_PORTFOLIOS) : null,
+          limitMessage: maxPortfolios !== null && screen.portfolioItems.length >= maxPortfolios ? copy.portfolios.limit(maxPortfolios) : null,
           texts: { ...copy.portfolios, save: 'Guardar' },
           editing: portfolios.mode,
           name: portfolios.name,
@@ -65,7 +65,7 @@ export default function SettingsScreen() {
             if (target) portfolios.startDelete(target);
           },
         }}
-        plan={screen.plan ? { title: copy.plan.title, rows: screen.plan.rows, percent: screen.plan.collectorsPercent, notice: screen.plan.notice } : null}
+        plan={screen.plan ? { title: copy.plan.title, rows: screen.plan.rows, bars: screen.plan.bars, notice: screen.plan.notice } : null}
         deleteDialog={{
           visible: deleting !== null,
           title: copy.portfolios.deleteTitle,

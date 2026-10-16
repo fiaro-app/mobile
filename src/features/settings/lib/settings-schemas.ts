@@ -28,16 +28,22 @@ export interface LenderPatch {
 export const PortfolioSchema = z.object({ id: z.string(), name: z.string(), isDefault: z.boolean() });
 export type Portfolio = z.infer<typeof PortfolioSchema>;
 
-/** Plan del negocio (`GET /subscription`): solo informa. */
+/** Plan del negocio (`GET /subscription`): topes y uso; el API los aplica al crear (`PLAN_LIMIT_REACHED`). */
 export const SubscriptionSchema = z.object({
-  planCode: z.string(),
+  planCode: z.enum(['TRIAL', 'INDIVIDUAL', 'PRO', 'TEAM']),
   status: z.enum(['ACTIVE', 'GRACE_PERIOD', 'READ_ONLY']),
   currentPeriodEndsAt: z.string(),
   daysRemaining: z.int(),
   graceDaysRemaining: z.int(),
   isReadOnly: z.boolean(),
-  limits: z.object({ maxCollectors: z.int() }),
-  usage: z.object({ activeCollectors: z.int() }),
+  limits: z.object({
+    maxCollectors: z.int(),
+    maxAdmins: z.int(),
+    maxPortfolios: z.int(),
+    /** `null` si el plan no limita los préstamos activos. */
+    maxActiveLoans: z.int().nullable(),
+  }),
+  usage: z.object({ activeCollectors: z.int(), activeAdmins: z.int(), activeLoans: z.int() }),
 });
 export type Subscription = z.infer<typeof SubscriptionSchema>;
 

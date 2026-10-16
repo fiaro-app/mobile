@@ -109,7 +109,7 @@ describe('mensajes', () => {
   const http = (status: number, code: string | null = null) => ({ kind: 'http', status, code, retryAfterSeconds: null }) as const;
   it.each([
     [{ kind: 'offline' }, /Sin conexión/], [{ kind: 'maintenance' }, /mantenimiento/], [http(409, 'LOAN_NOT_CANCELABLE'), /dejó de estar activo/], [http(403, 'FORBIDDEN'), /permiso/],
-    [http(403, 'SUBSCRIPTION_READ_ONLY'), /solo lectura/], [http(404, 'NOT_FOUND'), /ya no existe/], [http(409, 'CONFLICT'), /ya estaba revertido/], [http(429), /Demasiados/], [http(500), /No pudimos/],
+    [http(403, 'SUBSCRIPTION_READ_ONLY'), /solo lectura/], [http(403, 'PLAN_LIMIT_REACHED'), /préstamos activos/], [http(404, 'NOT_FOUND'), /ya no existe/], [http(409, 'CONFLICT'), /ya estaba revertido/], [http(429), /Demasiados/], [http(500), /No pudimos/],
   ] as const)('%j', (failure, expected) => {
     expect(loanFailureMessage(failure)).toMatch(expected);
   });
