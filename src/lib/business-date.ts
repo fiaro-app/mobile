@@ -1,3 +1,4 @@
+const WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'] as const;
 const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] as const;
 
 /** Zona horaria de negocio de Fiaro: el API calcula las fechas de cobro en hora de Colombia (sin horario de verano). */
@@ -23,4 +24,15 @@ export function formatShortDate(value: string): string {
   const [year, month, day] = date.split('-');
   const name = MONTHS[Number(month) - 1];
   return name ? `${String(Number(day))} ${name} ${year ?? ''}` : value;
+}
+
+/**
+ * Una fecha `AAAA-MM-DD` como `lun 12`: el día de la semana y el número, para leer una gráfica sin contar días. Se arma a
+ * mediodía UTC sobre el texto para que la zona horaria no corra el día; devuelve el texto tal cual si no es una fecha.
+ */
+export function formatWeekdayDay(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return value;
+  const weekday = new Date(`${value}T12:00:00Z`).getUTCDay();
+  return `${WEEKDAYS[weekday] ?? ''} ${String(Number(match[3]))}`;
 }

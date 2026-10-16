@@ -17,16 +17,17 @@ export interface DayBarsProps {
   readonly label: string;
   readonly legendCollected: string;
   readonly legendExpected: string;
-  /** `false` en la proyección: solo tiene «lo que vence». */
-  readonly showCollected?: boolean;
+  /** Leyenda del color de los días que llegaron a la meta. */
+  readonly legendReached: string;
 }
 
 /**
- * Columnas por día: la columna es lo cobrado y una raya ámbar marca lo que vencía según el calendario. Hechas con
- * vistas (sin librería de gráficas): la altura de cada una es proporcional al mayor valor del período. Con muchos días
- * se rotulan solo algunos para que las fechas no se encimen. Solo dibuja.
+ * Columnas por día: una barra ancha y clara con lo que tocaba cobrar (la meta del día según el calendario) y, encima, una
+ * angosta de color con lo que se cobró: verde si llegó a la meta, azul si se quedó corto. Hechas con vistas (sin librería
+ * de gráficas): la altura de cada una es proporcional al mayor valor del período. Con muchos días se rotulan solo algunos
+ * para que las fechas no se encimen. Solo dibuja.
  */
-export function DayBars({ bars, label, legendCollected, legendExpected, showCollected = true }: Readonly<DayBarsProps>) {
+export function DayBars({ bars, label, legendCollected, legendExpected, legendReached }: Readonly<DayBarsProps>) {
   const max = Math.max(1, ...bars.map((bar) => Math.max(bar.collected, bar.expected)));
   const every = Math.max(1, Math.ceil(bars.length / 6));
   const height = (value: number) => Math.round((value / max) * CHART_HEIGHT);
@@ -34,9 +35,9 @@ export function DayBars({ bars, label, legendCollected, legendExpected, showColl
     <View className="gap-2">
       <View accessibilityRole="image" accessibilityLabel={label} style={{ height: CHART_HEIGHT }} className="flex-row items-end gap-px border-b border-surface-3">
         {bars.map((bar) => (
-          <View key={bar.date} className="h-full flex-1 justify-end">
-            {showCollected && bar.collected > 0 ? <View className="w-full rounded-t-sm bg-primary" style={{ height: height(bar.collected) }} /> : null}
-            {bar.expected > 0 ? <View className="absolute h-[3px] w-full rounded-full bg-warning" style={{ bottom: height(bar.expected) }} /> : null}
+          <View key={bar.date} className="h-full flex-1 items-center justify-end">
+            {bar.expected > 0 ? <View className="absolute bottom-0 w-full rounded-t-sm bg-surface-3" style={{ height: height(bar.expected) }} /> : null}
+            {bar.collected > 0 ? <View className={bar.expected > 0 && bar.collected >= bar.expected ? 'w-1/2 rounded-t-sm bg-success' : 'w-1/2 rounded-t-sm bg-primary'} style={{ height: height(bar.collected) }} /> : null}
           </View>
         ))}
       </View>
@@ -52,18 +53,22 @@ export function DayBars({ bars, label, legendCollected, legendExpected, showColl
         ))}
       </View>
       <View className="flex-row flex-wrap gap-4">
-        {showCollected ? (
-          <View className="flex-row items-center gap-1.5">
-            <View className="size-2.5 rounded-sm bg-primary" />
-            <AppText variant="caption" tone="muted">
-              {legendCollected}
-            </AppText>
-          </View>
-        ) : null}
         <View className="flex-row items-center gap-1.5">
-          <View className="h-[3px] w-4 rounded-full bg-warning" />
+          <View className="size-2.5 rounded-sm bg-surface-3" />
           <AppText variant="caption" tone="muted">
             {legendExpected}
+          </AppText>
+        </View>
+        <View className="flex-row items-center gap-1.5">
+          <View className="size-2.5 rounded-sm bg-primary" />
+          <AppText variant="caption" tone="muted">
+            {legendCollected}
+          </AppText>
+        </View>
+        <View className="flex-row items-center gap-1.5">
+          <View className="size-2.5 rounded-sm bg-success" />
+          <AppText variant="caption" tone="muted">
+            {legendReached}
           </AppText>
         </View>
       </View>

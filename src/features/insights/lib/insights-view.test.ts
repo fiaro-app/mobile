@@ -40,8 +40,16 @@ describe('buildInsightsModel', () => {
   it('la gráfica diaria resume el período y rotula cada día con su fecha corta', () => {
     const daily = card(buildInsightsModel(DATA), 'daily');
 
-    expect(daily).toMatchObject({ kind: 'bars', note: 'En el período cobraste $80.000 de $200.000 que vencían según el calendario.' });
-    expect(daily?.kind === 'bars' && daily.bars.map((bar) => bar.label)).toEqual(['01/10', '02/10', '03/10']);
+    expect(daily).toMatchObject({ kind: 'bars', note: 'En el período cobraste $80.000 de $200.000 que tocaba cobrar (40 %).', progress: 0.4 });
+    expect(daily?.kind === 'bars' && daily.bars.map((bar) => bar.label)).toEqual(['jue 1', 'vie 2', 'sáb 3']);
+  });
+
+  it('el avance no pasa de 100 % si se cobra de más, y no hay avance si nada tocaba cobrar', () => {
+    const over = card(buildInsightsModel({ ...DATA, income: { ...DATA.income, collected: 500000 } }), 'daily');
+    expect(over).toMatchObject({ progress: 1 });
+
+    const nothingDue = card(buildInsightsModel({ ...DATA, daily: DATA.daily.map((day) => ({ ...day, expected: 0 })) }), 'daily');
+    expect(nothingDue).toMatchObject({ progress: null, note: 'En el período cobraste $80.000; según el calendario no había nada por cobrar.' });
   });
 
   it('parte lo cobrado en capital e interés y por medio de pago', () => {
@@ -60,8 +68,10 @@ describe('buildInsightsModel', () => {
     expect(card(model, 'visits')).toMatchObject({ kind: 'proportion', note: '10 visitas · encontraron al cliente en 80 % y terminaron en pago en 60 %.' });
     expect(card(model, 'settlements')).toMatchObject({ lines: ['3 cuadres enviados', '1 cuadraron exacto', '2 con diferencia: faltaron $40.000 y sobraron $5.000'] });
     const forecast = card(model, 'forecast');
-    expect(forecast).toMatchObject({ kind: 'bars', note: 'Total esperado: $70.000', showCollected: false });
-    expect(forecast?.kind === 'bars' && forecast.bars).toHaveLength(7);
+    expect(forecast).toMatchObject({ kind: 'upcoming', note: 'En total te toca cobrar $70.000.' });
+    expect(forecast?.kind === 'upcoming' && forecast.days).toHaveLength(7);
+    expect(forecast?.kind === 'upcoming' && forecast.days[0]).toMatchObject({ label: 'Mañana · dom 4', amount: '$70.000', ratio: 1 });
+    expect(forecast?.kind === 'upcoming' && forecast.days[1]).toMatchObject({ label: 'lun 5', amount: 'Nada por cobrar', ratio: 0 });
   });
 
   it('sin movimiento, cada tarjeta lo dice en vez de mostrar ceros', () => {
