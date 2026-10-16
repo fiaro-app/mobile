@@ -8,6 +8,7 @@ export const ADMIN_NAV = [
   { key: 'settlements', label: 'Cuadres', href: '/admin/settlements' },
   { key: 'payments', label: 'Cobros del día', href: '/admin/payments' },
   { key: 'stats', label: 'Estadísticas', href: '/admin/stats' },
+  { key: 'admins', label: 'Administradores', href: '/admin/admins' },
   { key: 'settings', label: 'Configuración', href: '/admin/settings' },
 ] as const;
 
