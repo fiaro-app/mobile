@@ -4,6 +4,7 @@ import type { InsightCard, InsightsSectionProps } from '@/components/organisms/I
 import { INSIGHTS_COPY as T } from '@/features/insights/content/messages';
 import type { Insights } from '@/features/insights/lib/insights-schemas';
 import { relativeTrend } from '@/features/lender-stats/lib/trend';
+import { formatWeekdayDay } from '@/lib/business-date';
 import { formatCop, formatCopCompact } from '@/lib/format-cop';
 
 type SegmentTone = 'primary' | 'success' | 'warning' | 'destructive';
@@ -17,8 +18,8 @@ export type InsightsModel = InsightsSectionProps;
 const money = (id: string, label: string, value: number, tone: SegmentTone): Segment => ({ id, label, value, amount: formatCop(value), tone });
 const count = (id: string, label: string, value: number, tone: SegmentTone): Segment => ({ id, label, value, amount: String(value), tone });
 const percent = (ratio: number | null) => (ratio === null ? '—' : `${String(Math.round(ratio * 100))} %`);
-/** `2026-10-15` → `15/10`, armado con el texto (sin `Date`, para que la zona horaria no corra el día). */
-const dayLabel = (date: string) => `${date.slice(8, 10)}/${date.slice(5, 7)}`;
+/** `2026-10-15` → `jue 15`. */
+const dayLabel = formatWeekdayDay;
 const bar = (day: { date: string; collected?: number; expected: number }): DayBar => ({ date: day.date, label: dayLabel(day.date), collected: day.collected ?? 0, expected: day.expected });
 
 function lendingCard(origination: Insights['origination']): InsightCard {
@@ -76,7 +77,9 @@ function incomeCards(data: Insights): InsightCard[] {
 export function buildInsightsModel(data: Insights): InsightsModel {
   const expectedTotal = data.daily.reduce((sum, day) => sum + day.expected, 0);
   const upcoming = data.forecast.reduce((sum, day) => sum + day.expected, 0);
-  const dailySummary = T.daily.summary(formatCop(data.income.collected), formatCop(expectedTotal));
+  const progress = expectedTotal === 0 ? null : Math.min(1, data.income.collected / expectedTotal);
+  const dailySummary = progress === null ? T.daily.summaryNothingDue(formatCop(data.income.collected)) : T.daily.summary(formatCop(data.income.collected), formatCop(expectedTotal), percent(progress));
+  const forecastMax = Math.max(1, ...data.forecast.map((day) => day.expected));
   const forecastTotal = T.forecast.total(formatCop(upcoming));
   return {
     title: T.title,
@@ -87,12 +90,24 @@ export function buildInsightsModel(data: Insights): InsightsModel {
       { key: 'contact', label: T.kpis.contact, value: percent(data.visits.contactRate), tone: 'neutral', trend: null },
     ],
     cards: [
-      { id: 'daily', title: T.daily.title, note: dailySummary, kind: 'bars', bars: data.daily.map(bar), label: dailySummary, legendCollected: T.daily.legendCollected, legendExpected: T.daily.legendExpected, showCollected: true },
+      { id: 'daily', title: T.daily.title, note: dailySummary, hint: T.daily.hint, kind: 'bars', bars: data.daily.map(bar), progress, label: dailySummary, legendCollected: T.daily.legendCollected, legendExpected: T.daily.legendExpected, legendReached: T.daily.reachedGoal },
       ...incomeCards(data),
       lendingCard(data.origination),
       visitsCard(data.visits),
       settlementsCard(data.settlements),
-      { id: 'forecast', title: T.forecast.title, note: forecastTotal, kind: 'bars', bars: data.forecast.map(bar), label: `${T.forecast.title}. ${forecastTotal}`, legendCollected: '', legendExpected: T.daily.legendExpected, showCollected: false },
+      {
+        id: 'forecast',
+        title: T.forecast.title,
+        note: forecastTotal,
+        kind: 'upcoming',
+        days: data.forecast.map((day, index) => ({
+          date: day.date,
+          label: index === 0 ? `${T.forecast.tomorrow} · ${dayLabel(day.date)}` : dayLabel(day.date),
+          amount: day.expected === 0 ? T.forecast.nothing : formatCop(day.expected),
+          ratio: day.expected / forecastMax,
+        })),
+        label: `${T.forecast.title}. ${forecastTotal}`,
+      },
     ],
   };
 }

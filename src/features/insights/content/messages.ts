@@ -4,9 +4,13 @@ export const INSIGHTS_COPY = {
   kpis: { collected: 'Cobrado', interest: 'Ganancia cobrada', lent: 'Prestado', contact: 'Clientes encontrados' },
   daily: {
     title: 'Cobro día a día',
-    legendCollected: 'Cobrado',
-    legendExpected: 'Lo que vencía',
-    summary: (collected: string, expected: string) => `En el período cobraste ${collected} de ${expected} que vencían según el calendario.`,
+    legendCollected: 'Lo que cobraste',
+    legendExpected: 'Lo que tocaba cobrar',
+    reachedGoal: 'Llegaste a la meta del día',
+    hint: 'Cada día: la barra clara es lo que tocaba cobrar según el calendario de cuotas y la de color, lo que de verdad cobraste.',
+    summary: (collected: string, expected: string, percent: string) => `En el período cobraste ${collected} de ${expected} que tocaba cobrar (${percent}).`,
+    summaryNothingDue: (collected: string) => `En el período cobraste ${collected}; según el calendario no había nada por cobrar.`,
+    dayLabel: (label: string, collected: string, expected: string) => `${label}: cobraste ${collected} de ${expected} que tocaba`,
   },
   income: { title: 'De lo cobrado, ¿cuánto es ganancia?', principal: 'Capital que regresa', interest: 'Interés (ganancia)', empty: 'Todavía no hay cobros en este período.' },
   methods: { title: 'Cómo te pagan', CASH: 'Efectivo', NEQUI: 'Nequi', TRANSFER: 'Transferencia', hint: 'Mucho efectivo significa más dinero que cuidar en la calle.' },
@@ -33,5 +37,5 @@ export const INSIGHTS_COPY = {
     difference: (count: number, short: string, surplus: string) => `${String(count)} con diferencia: faltaron ${short} y sobraron ${surplus}`,
     empty: 'No se enviaron cuadres en este período.',
   },
-  forecast: { title: 'Lo que vence en los próximos 7 días', total: (value: string) => `Total esperado: ${value}` },
+  forecast: { title: 'Lo que te toca cobrar en los próximos 7 días', total: (value: string) => `En total te toca cobrar ${value}.`, tomorrow: 'Mañana', nothing: 'Nada por cobrar' },
 } as const;

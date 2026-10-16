@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { DayBars, type DayBarData } from '@/components/molecules/DayBars';
+import { UpcomingDays, type UpcomingDay } from '@/components/molecules/UpcomingDays';
 import { ProportionBar, type BarSegment } from '@/components/molecules/ProportionBar';
 import { StatCard } from '@/components/molecules/StatCard';
 
@@ -9,7 +10,8 @@ type Tone = 'neutral' | 'good' | 'warning' | 'bad';
 
 /** Una tarjeta de «Cómo va tu negocio»: su título y una nota, y debajo una gráfica de barras, una de proporciones, líneas de texto o un aviso de que no hay datos. */
 export type InsightCard =
-  | { readonly id: string; readonly title: string; readonly note?: string; readonly kind: 'bars'; readonly bars: readonly DayBarData[]; readonly label: string; readonly legendCollected: string; readonly legendExpected: string; readonly showCollected: boolean }
+  | { readonly id: string; readonly title: string; readonly note?: string; readonly hint?: string; readonly kind: 'bars'; readonly bars: readonly DayBarData[]; readonly progress: number | null; readonly label: string; readonly legendCollected: string; readonly legendExpected: string; readonly legendReached: string }
+  | { readonly id: string; readonly title: string; readonly note?: string; readonly kind: 'upcoming'; readonly days: readonly UpcomingDay[]; readonly label: string }
   | { readonly id: string; readonly title: string; readonly note?: string; readonly kind: 'proportion'; readonly segments: readonly BarSegment[]; readonly label: string }
   | { readonly id: string; readonly title: string; readonly kind: 'lines'; readonly lines: readonly string[]; readonly note?: string }
   | { readonly id: string; readonly title: string; readonly kind: 'empty'; readonly note: string };
@@ -29,7 +31,19 @@ const Note = ({ children }: Readonly<{ children: ReactNode }>) => (
 function CardBody({ card }: Readonly<{ card: InsightCard }>) {
   switch (card.kind) {
     case 'bars':
-      return <DayBars bars={card.bars} label={card.label} legendCollected={card.legendCollected} legendExpected={card.legendExpected} showCollected={card.showCollected} />;
+      return (
+        <View className="gap-3">
+          {card.progress === null ? null : (
+            <View accessibilityRole="progressbar" accessibilityLabel={card.label} accessibilityValue={{ min: 0, max: 100, now: Math.round(card.progress * 100) }} className="h-2.5 overflow-hidden rounded-full bg-surface-3">
+              <View className={card.progress >= 1 ? 'h-2.5 rounded-full bg-success' : 'h-2.5 rounded-full bg-primary'} style={{ width: `${Math.round(card.progress * 100)}%` as `${number}%` }} />
+            </View>
+          )}
+          <DayBars bars={card.bars} label={card.label} legendCollected={card.legendCollected} legendExpected={card.legendExpected} legendReached={card.legendReached} />
+          {card.hint ? <Note>{card.hint}</Note> : null}
+        </View>
+      );
+    case 'upcoming':
+      return <UpcomingDays days={card.days} label={card.label} />;
     case 'proportion':
       return <ProportionBar segments={card.segments} label={card.label} />;
     case 'lines':
