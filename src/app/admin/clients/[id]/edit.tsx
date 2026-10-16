@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
@@ -13,6 +16,7 @@ export default function EditClientScreen() {
   const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const form = useClientForm(id, () => undefined);
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.save);
   const copy = CLIENTS_COPY.form;
   const back = () => {
     goBack();
@@ -35,10 +39,15 @@ export default function EditClientScreen() {
         submitting={form.submitting}
         formError={form.formError}
         notice={form.notice}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={back}
       />
     );
   }
-  return <ScreenTemplate topBar={<TopBar title={copy.editTitle} onBack={back} />}>{body}</ScreenTemplate>;
+  return (
+    <ScreenTemplate topBar={<TopBar title={copy.editTitle} onBack={back} />}>
+      {body}
+      <ConfirmDialog {...confirm.dialog} />
+    </ScreenTemplate>
+  );
 }

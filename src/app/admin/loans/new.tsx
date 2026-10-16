@@ -1,3 +1,6 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { toRiskCardProps } from '@/features/risk/lib/risk-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TopBar } from '@/components/molecules/TopBar';
@@ -18,6 +21,7 @@ export default function NewLoanScreen() {
     router.replace({ pathname: '/admin/loans/[id]', params: { id } });
   };
   const form = useLoanForm(clientId ?? '', openLoan);
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.loan);
   const picker = useClientPicker(form.sheet === 'client');
   const copy = LOANS_COPY.form;
   return (
@@ -49,7 +53,7 @@ export default function NewLoanScreen() {
         onFrequency={form.setFrequency}
         onStartDate={form.setStartDate}
         onCollector={form.setCollector}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={() => {
           goBack();
         }}
@@ -69,6 +73,7 @@ export default function NewLoanScreen() {
         onSelect={form.setClient}
         onClose={form.closeSheet}
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }
