@@ -19,18 +19,23 @@ export interface NotificationRowProps {
   readonly unread: boolean;
   readonly tone: NotificationRowTone;
   readonly onPress: () => void;
+  /** Mantener presionada la fila la borra (con confirmación, la pide quien la usa). */
+  readonly onLongPress?: () => void;
+  readonly longPressHint?: string;
 }
 
 /**
  * Fila de la bandeja: punto de color (solo si está sin leer), título, texto y hace cuánto llegó. Las leídas se
  * ven más suaves (sin punto y con el título en peso normal) para que lo pendiente destaque.
  */
-export function NotificationRow({ title, body, when, unread, tone, onPress }: Readonly<NotificationRowProps>) {
+export function NotificationRow({ title, body, when, unread, tone, onPress, onLongPress, longPressHint }: Readonly<NotificationRowProps>) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${unread ? 'Sin leer. ' : ''}${title}. ${body}. ${when}`}
+      accessibilityHint={onLongPress ? longPressHint : undefined}
       onPress={onPress}
+      onLongPress={onLongPress}
       className="flex-row gap-3 bg-surface px-5 py-4 active:bg-surface-3"
     >
       <View className="w-2.5 pt-1.5">{unread ? <View className={cn('size-2.5 rounded-full', DOT_CLASSES[tone])} /> : null}</View>

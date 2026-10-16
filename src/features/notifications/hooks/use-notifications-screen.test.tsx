@@ -6,7 +6,7 @@ import * as api from '@/features/notifications/api/notifications-api';
 import { useUnreadCount } from '@/features/notifications/hooks/use-notifications';
 import { useNotificationsScreen } from '@/features/notifications/hooks/use-notifications-screen';
 
-jest.mock('@/features/notifications/api/notifications-api', () => ({ fetchNotifications: jest.fn(), fetchUnreadCount: jest.fn(), markRead: jest.fn(), markAllRead: jest.fn() }));
+jest.mock('@/features/notifications/api/notifications-api', () => ({ fetchNotifications: jest.fn(), fetchUnreadCount: jest.fn(), markRead: jest.fn(), markAllRead: jest.fn(), deleteNotification: jest.fn(), clearNotifications: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
 const a = jest.mocked(api);
@@ -33,6 +33,8 @@ beforeEach(() => {
   a.markRead.mockResolvedValue({ ok: true, value: item('n1', 'x') });
   a.markAllRead.mockResolvedValue({ ok: true, value: {} });
   a.fetchUnreadCount.mockResolvedValue({ ok: true, value: 1 });
+  a.deleteNotification.mockResolvedValue({ ok: true, value: {} });
+  a.clearNotifications.mockResolvedValue({ ok: true, value: 1 });
 });
 
 describe('useNotificationsScreen', () => {
@@ -65,6 +67,29 @@ describe('useNotificationsScreen', () => {
     });
     await waitFor(() => {
       expect(a.markAllRead).toHaveBeenCalled();
+    });
+  });
+
+  it('sabe si hay leídas, borra una y borra las leídas o todas', async () => {
+    const { result } = await ready();
+    expect(result.current.hasRead).toBe(true);
+    await act(async () => {
+      result.current.remove(result.current.rows[1]!);
+    });
+    await waitFor(() => {
+      expect(a.deleteNotification).toHaveBeenCalledWith('n2');
+    });
+    await act(async () => {
+      result.current.clear(true);
+    });
+    await waitFor(() => {
+      expect(a.clearNotifications).toHaveBeenCalledWith(true);
+    });
+    await act(async () => {
+      result.current.clear(false);
+    });
+    await waitFor(() => {
+      expect(a.clearNotifications).toHaveBeenCalledWith(false);
     });
   });
 

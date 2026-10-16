@@ -2,6 +2,16 @@
 export const NOTIFICATIONS_COPY = {
   title: 'Notificaciones',
   markAll: 'Marcar todas como leídas',
+  delete: 'Borrar',
+  deleteOne: { title: '¿Borrar esta notificación?', confirm: 'Borrar', cancel: 'Cancelar' },
+  deleteMany: {
+    title: 'Borrar notificaciones',
+    message: 'Las de más de 90 días se borran solas. Esto no se puede deshacer.',
+    read: 'Borrar las leídas',
+    all: 'Borrar todas',
+    cancel: 'Cancelar',
+  },
+  deleteHint: 'Mantén presionado para borrarla',
   emptyTitle: 'Sin notificaciones',
   emptyMessage: 'Aquí verás los avisos de tu prestamista y de tus cuadres.',
   loadFailedTitle: 'No pudimos cargar tus notificaciones',

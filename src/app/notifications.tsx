@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { Alert, View } from 'react-native';
 import { TextLink } from '@/components/atoms/TextLink';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
@@ -13,6 +14,20 @@ export default function NotificationsScreen() {
   const router = useRouter();
   const goBack = useGoBack();
   const screen = useNotificationsScreen();
+  const copy = NOTIFICATIONS_COPY;
+  const askRemove = (row: (typeof screen.rows)[number]) => {
+    Alert.alert(copy.deleteOne.title, row.title, [
+      { text: copy.deleteOne.cancel, style: 'cancel' },
+      { text: copy.deleteOne.confirm, style: 'destructive', onPress: () => { screen.remove(row); } },
+    ]);
+  };
+  const askClear = () => {
+    Alert.alert(copy.deleteMany.title, copy.deleteMany.message, [
+      ...(screen.hasRead ? [{ text: copy.deleteMany.read, onPress: () => { screen.clear(true); } }] : []),
+      { text: copy.deleteMany.all, style: 'destructive' as const, onPress: () => { screen.clear(false); } },
+      { text: copy.deleteMany.cancel, style: 'cancel' as const },
+    ]);
+  };
   const empty = screen.loadFailed ? (
     <EmptyState
       icon="alert-circle-outline"
@@ -32,13 +47,22 @@ export default function NotificationsScreen() {
           onBack={() => {
             goBack();
           }}
-          right={screen.hasUnread ? <TextLink label={NOTIFICATIONS_COPY.markAll} onPress={screen.markAll} /> : undefined}
+          right={
+            <View className="flex-row items-center gap-4">
+              {screen.hasUnread ? <TextLink label={NOTIFICATIONS_COPY.markAll} onPress={screen.markAll} /> : null}
+              {screen.rows.length > 0 ? <TextLink label={NOTIFICATIONS_COPY.delete} onPress={askClear} /> : null}
+            </View>
+          }
         />
       }
     >
       <NotificationList
         items={screen.rows.map((row) => ({
           ...row,
+          longPressHint: NOTIFICATIONS_COPY.deleteHint,
+          onLongPress: () => {
+            askRemove(row);
+          },
           onPress: () => {
             const target = screen.open(row);
             if (target) router.push(target);
