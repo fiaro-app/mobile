@@ -6,6 +6,7 @@ import { SETTINGS_COPY } from '@/features/settings/content/messages';
 import { useSettingsScreen } from '@/features/settings/hooks/use-settings-screen';
 import { WEEKDAYS, type Weekday } from '@/features/settings/lib/settings-schemas';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
+import { MAX_PORTFOLIOS } from '@/features/settings/lib/portfolio-limit';
 
 /** Ruta `/admin/settings`: configuración del negocio (nombre, color de marca, días sin cobro, carteras y plan). */
 export default function SettingsScreen() {
@@ -45,6 +46,7 @@ export default function SettingsScreen() {
           error: portfolios.error,
           notice: portfolios.notice,
           items: screen.portfolioItems,
+          limitMessage: screen.portfolioItems.length >= MAX_PORTFOLIOS ? copy.portfolios.limit(MAX_PORTFOLIOS) : null,
           texts: { ...copy.portfolios, save: 'Guardar' },
           editing: portfolios.mode,
           name: portfolios.name,
