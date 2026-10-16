@@ -31,8 +31,10 @@ export interface ClientDetailModel {
   readonly overdueAlert: boolean;
   readonly nextVisitLabel: string;
   readonly history: HistoryRowModel[];
-  /** Cuota de hoy para precargar el monto al registrar la visita. */
+  /** Cuota del préstamo; el pago se clasifica de "completo" o "parcial" frente a ella. */
   readonly installmentValue: number;
+  /** Monto a precargar al registrar la visita: lo que toca cobrar hoy (mora + cuota), sin pasar del saldo. */
+  readonly suggestedAmount: number;
   readonly canRegisterVisit: boolean;
 }
 
@@ -84,6 +86,7 @@ export function buildClientDetail(
     nextVisitLabel: nextVisit,
     history: ordered.map(historyRow),
     installmentValue: loan.installmentValue,
+    suggestedAmount: Math.min(balance.balance, balance.overdueAmount > 0 ? balance.overdueAmount : loan.installmentValue),
     canRegisterVisit: loan.status === 'ACTIVE',
   };
 }
