@@ -56,6 +56,13 @@ export default function RouteScreen() {
           right={
             <View className="flex-row items-center gap-1">
               <IconButton
+                icon="add-circle-outline"
+                label="Sugerir un préstamo"
+                onPress={() => {
+                  router.push('/request-loan');
+                }}
+              />
+              <IconButton
                 icon="search"
                 label="Buscar clientes"
                 onPress={() => {

@@ -4,6 +4,7 @@ export const ADMIN_NAV = [
   { key: 'collectors', label: 'Cobradores', href: '/admin/collectors' },
   { key: 'clients', label: 'Clientes', href: '/admin/clients' },
   { key: 'loans', label: 'Préstamos', href: '/admin/loans' },
+  { key: 'requests', label: 'Solicitudes', href: '/admin/requests' },
   { key: 'settlements', label: 'Cuadres', href: '/admin/settlements' },
   { key: 'payments', label: 'Cobros del día', href: '/admin/payments' },
   { key: 'stats', label: 'Estadísticas', href: '/admin/stats' },
