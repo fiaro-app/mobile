@@ -106,4 +106,36 @@ describe('useAttachment', () => {
     });
     expect(result.current.confirmingRemove).toBe(false);
   });
+
+  it('reports an unreadable picture without calling the api', async () => {
+    pick.pickImage.mockResolvedValue({ uri: 'file:///a.png', mimeType: 'image/png', size: 1000 });
+    s.readImageBlob.mockResolvedValue(null);
+    const { result } = await ready();
+    await act(async () => {
+      result.current.choose();
+    });
+    await waitFor(() => {
+      expect(result.current.error).toMatch(/No pudimos leer/);
+    });
+    expect(a.requestAttachmentUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it('keeps the upload error when the signed url request fails, and can reload', async () => {
+    pick.pickImage.mockResolvedValue({ uri: 'file:///a.png', mimeType: 'image/png', size: 1000 });
+    s.readImageBlob.mockResolvedValue({ size: 1000 } as Blob);
+    a.requestAttachmentUploadUrl.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
+    const { result } = await ready();
+    await act(async () => {
+      result.current.choose();
+    });
+    await waitFor(() => {
+      expect(result.current.error).toMatch(/Sin conexión/);
+    });
+    await act(async () => {
+      result.current.reload();
+      result.current.askRemove();
+      result.current.cancelRemove();
+    });
+    expect(result.current.confirmingRemove).toBe(false);
+  });
 });

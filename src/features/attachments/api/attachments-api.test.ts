@@ -15,6 +15,7 @@ describe('attachments-api', () => {
 
   it('uses the payment proof routes', async () => {
     request.mockResolvedValue({ ok: true });
+    request.mockImplementationOnce((_p: string, parse: (body: unknown) => unknown) => Promise.resolve(parse({ uploadUrl: 'u', key: 'k' })));
     await requestAttachmentUploadUrl('payment', 'p1', 'image/png', 10);
     await saveAttachment('payment', 'p1', 'k');
     await deleteAttachment('payment', 'p1');
