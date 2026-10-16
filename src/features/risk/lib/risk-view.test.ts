@@ -1,4 +1,4 @@
-import { toRiskView } from '@/features/risk/lib/risk-view';
+import { toRiskCardProps, toRiskView } from '@/features/risk/lib/risk-view';
 
 const BASE = { clientId: 'c', loansCount: 2, score: 80, level: 'VERY_HIGH' as const };
 
@@ -29,5 +29,16 @@ describe('toRiskView', () => {
     expect(view.hasHistory).toBe(false);
     expect(view.tone).toBe('success');
     expect(view.factors[0]).toBe('Ya pagó 2 préstamos (resta riesgo).');
+  });
+});
+
+describe('toRiskCardProps', () => {
+  it('arma la tarjeta con el medidor y avisa cuando no hay historial', () => {
+    const view = toRiskView({ clientId: 'c1', score: 40, level: 'MEDIUM', loansCount: 0, factors: [] });
+    const card = toRiskCardProps(view);
+
+    expect(card.gauge).toEqual({ score: 40, tone: 'primary', label: view.ariaLabel });
+    expect(card.noHistory).toEqual(expect.any(String));
+    expect(toRiskCardProps({ ...view, hasHistory: true }).noHistory).toBeNull();
   });
 });

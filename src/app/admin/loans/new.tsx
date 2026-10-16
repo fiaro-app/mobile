@@ -1,3 +1,4 @@
+import { toRiskCardProps } from '@/features/risk/lib/risk-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientPickerSheet } from '@/components/organisms/ClientPickerSheet';
@@ -37,6 +38,7 @@ export default function NewLoanScreen() {
         texts={copy}
         totalSuggested={form.totalSuggested}
         riskWarning={form.riskWarning}
+        risk={form.risk ? toRiskCardProps(form.risk) : null}
         submitting={form.submitting}
         formError={form.formError}
         createdLoanId={form.createdLoanId}

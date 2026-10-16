@@ -4,6 +4,7 @@ import { Button } from '@/components/atoms/Button';
 import { SelectButton } from '@/components/atoms/SelectButton';
 import { TextField } from '@/components/atoms/TextField';
 import { Alert } from '@/components/molecules/Alert';
+import { RiskCard, type RiskCardProps } from '@/components/molecules/RiskCard';
 import { FormField } from '@/components/molecules/FormField';
 import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
 import { OptionSheet } from '@/components/organisms/OptionSheet';
@@ -18,6 +19,8 @@ export interface LoanFormViewProps {
   readonly totalSuggested: boolean;
   /** Aviso de riesgo muy alto del cliente elegido; no bloquea el envío. */
   readonly riskWarning?: string | null;
+  /** Tarjeta de riesgo del cliente elegido, bajo el formulario. */
+  readonly risk?: RiskCardProps | null;
   readonly submitting: boolean;
   readonly formError: string | null;
   readonly createdLoanId: string | null;
@@ -65,6 +68,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
           </FormField>
           <FormField label={texts.collector}>{() => <SelectButton label={labels.collector} active={values.collectorId !== ''} onPress={() => { props.onOpen('collector'); }} />}</FormField>
         </View>
+        {props.risk ? <RiskCard {...props.risk} /> : null}
         {props.createdLoanId ? (
           <Button label={texts.seeLoan} onPress={props.onSeeLoan} />
         ) : (

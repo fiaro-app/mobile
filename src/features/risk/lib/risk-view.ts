@@ -1,4 +1,5 @@
 import { RISK_COPY } from '@/features/risk/content/messages';
+import type { RiskCardProps } from '@/components/molecules/RiskCard';
 import type { ClientRisk, RiskLevel } from '@/features/risk/lib/risk-schemas';
 
 /** Color del medidor según el nivel. */
@@ -29,5 +30,17 @@ export function toRiskView(risk: ClientRisk): RiskView {
     ariaLabel: `Riesgo ${levelLabel}: ${String(risk.score)} de 100`,
     factors: risk.factors.map((factor) => RISK_COPY.factor(factor)),
     hasHistory: risk.loansCount > 0,
+  };
+}
+
+/** Lo que dibuja `RiskCard` para un riesgo ya convertido; compartido por la ficha y el nuevo préstamo. */
+export function toRiskCardProps(view: RiskView): RiskCardProps {
+  return {
+    title: RISK_COPY.title,
+    levelLabel: view.levelLabel,
+    gauge: { score: view.score, tone: view.tone, label: view.ariaLabel },
+    factors: view.factors,
+    noFactors: RISK_COPY.noFactors,
+    noHistory: view.hasHistory ? null : RISK_COPY.noHistory,
   };
 }
