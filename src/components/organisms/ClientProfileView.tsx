@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Avatar } from '@/components/atoms/Avatar';
@@ -23,6 +24,8 @@ export interface ClientProfileViewProps {
   readonly onNewLoan: () => void;
   /** El riesgo del cliente; `null` si no se pudo consultar. */
   readonly risk?: RiskCardProps | null;
+  /** Contenido extra bajo el riesgo (la foto del cliente). */
+  readonly extra?: ReactNode;
 }
 
 /** Ficha del cliente: cabecera con estado, datos de contacto, llamar/editar, sus préstamos y "Nuevo préstamo". Solo dibuja. */
@@ -51,6 +54,7 @@ export function ClientProfileView(props: Readonly<ClientProfileViewProps>) {
       </View>
       {props.notice ? <AppText variant="small">{props.notice}</AppText> : null}
       {props.risk ? <RiskCard {...props.risk} /> : null}
+      {props.extra}
       <View className="flex-row gap-3">
         <Button label={props.callLabel} variant="outline" className="flex-1" onPress={props.onCall} />
         <Button label={props.editLabel} variant="outline" className="flex-1" onPress={props.onEdit} />

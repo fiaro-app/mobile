@@ -7,6 +7,8 @@ import { ClientDetailView } from '@/components/organisms/ClientDetailView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { DETAIL_COPY } from '@/features/client-detail/content/messages';
 import { useClientDetailScreen } from '@/features/client-detail/hooks/use-client-detail-screen';
+import { AttachmentPanel } from '@/features/attachments/components/AttachmentPanel';
+import { ATTACHMENT_COPY } from '@/features/attachments/content/messages';
 import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
 import { useDayPhase } from '@/features/settlement/hooks/use-settlement-data';
 import { useGoBack } from '@/features/workspace/hooks/use-go-back';
@@ -35,6 +37,17 @@ export default function ClientDetailScreen() {
         onRefresh={screen.refresh}
         callLabel={DETAIL_COPY.call}
         onCall={screen.call}
+        extra={
+          <AttachmentPanel
+            target="client"
+            id={clientId}
+            canEdit={false}
+            title={ATTACHMENT_COPY.clientPhoto.title}
+            description={ATTACHMENT_COPY.clientPhoto.description}
+            alt={ATTACHMENT_COPY.clientPhoto.alt(model.name)}
+            none={ATTACHMENT_COPY.clientPhoto.none}
+          />
+        }
         registerLabel={DETAIL_COPY.register}
         onRegister={
           model.canRegisterVisit
