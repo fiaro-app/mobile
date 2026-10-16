@@ -57,7 +57,7 @@ function interpret(outcome: SubmitOutcome): { done: VisitDone | null; error: str
 }
 
 /**
- * Lógica de "Registrar visita": monto editable (precargado con la cuota), medio de pago, confirmación del
+ * Lógica de "Registrar visita": monto editable (precargado con lo que toca cobrar hoy: mora + cuota, tope el saldo), medio de pago, confirmación del
  * pago y las otras salidas (no lo encontré, se negó, reprogramar con fecha obligatoria: el API la exige).
  *
  * El `id` de la visita se genera al abrir y se conserva para reintentar el mismo envío sin duplicarlo; se
@@ -88,7 +88,7 @@ export function useRegisterVisit(clientId: string, loanId: string, onDone: (done
   const dateOptions = rescheduleOptions(businessDateOf());
   const [rescheduleDate, setRescheduleDate] = useState(dateOptions[0]?.value ?? '');
 
-  const shownAmount = amountText ?? (model ? formatAmountInput(String(model.installmentValue)) : '');
+  const shownAmount = amountText ?? (model ? formatAmountInput(String(model.suggestedAmount)) : '');
   const amount = parseAmountInput(shownAmount);
 
   const send = async (request: VisitRequest, paid: boolean) => {

@@ -13,7 +13,7 @@ jest.mock('@/features/visit/lib/visit-id', () => ({ newVisitId: jest.fn().mockRe
 
 const useDetail = jest.mocked(detailHook.useClientDetail);
 const submitVisit = jest.mocked(submit.submitVisit);
-const model = { name: 'Marta Gómez', balance: 420000, balanceLabel: '$420.000', installmentValue: 35000 } as ClientDetailModel;
+const model = { name: 'Marta Gómez', balance: 420000, balanceLabel: '$420.000', installmentValue: 35000, suggestedAmount: 35000 } as ClientDetailModel;
 const user = { id: 'u1', fullName: 'Ana Pérez', phone: '+573001234567', mustChangePassword: false };
 
 function wrapper({ children }: Readonly<{ children: ReactNode }>) {
