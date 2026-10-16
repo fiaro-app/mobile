@@ -4,6 +4,8 @@ import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { ClientProfileView } from '@/components/organisms/ClientProfileView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
+import { AttachmentPanel } from '@/features/attachments/components/AttachmentPanel';
+import { ATTACHMENT_COPY } from '@/features/attachments/content/messages';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
 import { toRiskCardProps } from '@/features/risk/lib/risk-view';
 import { useClientProfile } from '@/features/clients/hooks/use-client-profile';
@@ -40,6 +42,17 @@ export default function ClientProfileScreen() {
         }}
         notice={profile.notice}
         risk={profile.risk ? toRiskCardProps(profile.risk) : null}
+        extra={
+          <AttachmentPanel
+            target="client"
+            id={id}
+            canEdit
+            title={ATTACHMENT_COPY.clientPhoto.title}
+            description={ATTACHMENT_COPY.clientPhoto.description}
+            alt={ATTACHMENT_COPY.clientPhoto.alt(client.name)}
+            none={ATTACHMENT_COPY.clientPhoto.none}
+          />
+        }
         loansTitle={copy.loans}
         loansEmpty={copy.noLoans}
         loans={profile.loans}

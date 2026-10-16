@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { Avatar } from '@/components/atoms/Avatar';
@@ -22,6 +23,8 @@ export interface ClientDetailViewProps {
   readonly registerLabel: string;
   /** Sin esta función el botón de registrar visita no se muestra (préstamo ya cerrado). */
   readonly onRegister?: () => void;
+  /** Contenido extra bajo los datos (la foto del cliente). */
+  readonly extra?: ReactNode;
 }
 
 function Divider() {
@@ -56,6 +59,7 @@ export function ClientDetailView(props: Readonly<ClientDetailViewProps>) {
             </View>
           ))}
         </View>
+        {props.extra ? <View className="mt-6">{props.extra}</View> : null}
         <AppText variant="body" className="mb-3 mt-6 font-sans-semibold">
           {props.historyTitle}
         </AppText>

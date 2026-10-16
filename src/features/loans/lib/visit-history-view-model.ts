@@ -16,6 +16,8 @@ export interface VisitRowModel {
   readonly trailing: string;
   /** `id` del pago que se puede revertir (solo pagos no revertidos); `null` si no aplica. */
   readonly reversiblePaymentId: string | null;
+  /** `id` del pago de la visita (revertido o no), al que se le adjunta el comprobante; `null` si no hubo pago. */
+  readonly paymentId: string | null;
 }
 
 /**
@@ -31,10 +33,10 @@ export function toVisitRow(visit: LoanVisit, names: ReadonlyMap<string, string>)
   if (visit.outcome === 'PAID' && payment) {
     const method = METHOD_LABELS[payment.method];
     if (payment.reversal) {
-      return { id: visit.id, title: `Pago · ${method}`, subtitle: when, detail: `Motivo: ${payment.reversal.reason}`, badge: { label: 'REVERTIDO', kind: 'neutral' }, trailing: formatCop(payment.amount), reversiblePaymentId: null };
+      return { id: visit.id, title: `Pago · ${method}`, subtitle: when, detail: `Motivo: ${payment.reversal.reason}`, badge: { label: 'REVERTIDO', kind: 'neutral' }, trailing: formatCop(payment.amount), reversiblePaymentId: null, paymentId: payment.id };
     }
-    return { id: visit.id, title: `Pago · ${method}`, subtitle: when, detail: '', badge: null, trailing: formatCop(payment.amount), reversiblePaymentId: payment.id };
+    return { id: visit.id, title: `Pago · ${method}`, subtitle: when, detail: '', badge: null, trailing: formatCop(payment.amount), reversiblePaymentId: payment.id, paymentId: payment.id };
   }
   const detail = visit.outcome === 'RESCHEDULED' && visit.promisedDate ? `Promete pagar el ${formatShortDate(visit.promisedDate)}` : '';
-  return { id: visit.id, title: OUTCOME_LABELS[visit.outcome], subtitle: when, detail, badge: null, trailing: '', reversiblePaymentId: null };
+  return { id: visit.id, title: OUTCOME_LABELS[visit.outcome], subtitle: when, detail, badge: null, trailing: '', reversiblePaymentId: null, paymentId: null };
 }
