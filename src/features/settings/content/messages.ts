@@ -17,6 +17,7 @@ export const SETTINGS_COPY = {
     title: 'Carteras',
     hint: 'Agrupan a tus cobradores. La cartera por defecto no se puede borrar.',
     add: 'Agregar cartera',
+    limit: (max: number) => `Llegaste al máximo de ${String(max)} carteras. Borra una que no uses para poder agregar otra.`,
     newName: 'Nombre de la cartera',
     create: 'Crear cartera',
     created: 'Cartera creada.',
@@ -44,6 +45,8 @@ export function settingsFailureMessage(failure: ApiFailure): string {
   switch (failure.code) {
     case 'CONFLICT':
       return 'Ya tienes una cartera con ese nombre.';
+    case 'PLAN_LIMIT_REACHED':
+      return 'Tu negocio ya tiene el máximo de carteras. Borra una que no uses antes de crear otra.';
     case 'FORBIDDEN':
       return 'No tienes permiso para cambiar la configuración del negocio.';
     case 'SUBSCRIPTION_READ_ONLY':

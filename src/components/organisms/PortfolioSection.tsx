@@ -9,6 +9,8 @@ export interface PortfolioSectionProps {
   readonly items: readonly { readonly id: string; readonly name: string; readonly isDefault: boolean }[];
   readonly texts: { readonly add: string; readonly newName: string; readonly create: string; readonly rename: string; readonly delete: string; readonly cancel: string; readonly defaultBadge: string; readonly save: string };
   readonly editing: { readonly kind: 'none' | 'create' | 'rename' | 'delete'; readonly id?: string };
+  /** Aviso cuando el negocio ya tiene el máximo de carteras: reemplaza al botón de agregar. */
+  readonly limitMessage?: string | null;
   readonly name: string;
   readonly nameError: string | null;
   readonly busy: boolean;
@@ -52,9 +54,13 @@ export function PortfolioSection(props: Readonly<PortfolioSectionProps>) {
             <Button label={props.editing.kind === 'create' ? props.texts.create : props.texts.save} className="flex-1" onPress={props.onSubmit} loading={props.busy} />
           </View>
         </View>
-      ) : (
-        <Button label={props.texts.add} variant="outline" onPress={props.onCreate} />
-      )}
+      ) : null}
+      {!form && props.limitMessage ? (
+        <AppText variant="small" tone="muted">
+          {props.limitMessage}
+        </AppText>
+      ) : null}
+      {!form && !props.limitMessage ? <Button label={props.texts.add} variant="outline" onPress={props.onCreate} /> : null}
     </View>
   );
 }
