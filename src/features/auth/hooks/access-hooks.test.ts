@@ -126,6 +126,14 @@ describe('usePasswordRecovery', () => {
 });
 
 describe('useRegisterForm', () => {
+  const acceptAll = async (result: { current: ReturnType<typeof useRegisterForm> }) => {
+    await act(async () => {
+      result.current.setConsent('terms', true);
+      result.current.setConsent('privacy', true);
+      result.current.setConsent('responsibility', true);
+    });
+  };
+
   const fillAccount = async (result: { current: ReturnType<typeof useRegisterForm> }) => {
     await act(async () => {
       result.current.setField('fullName', valid.fullName);
@@ -157,6 +165,13 @@ describe('useRegisterForm', () => {
     await act(async () => {
       result.current.submit();
     });
+    expect(result.current.consentErrors).toEqual(['terms', 'privacy', 'responsibility']);
+    expect(a.registerOwner).not.toHaveBeenCalled();
+    await acceptAll(result);
+    expect(result.current.consentErrors).toEqual([]);
+    await act(async () => {
+      result.current.submit();
+    });
     await waitFor(() => {
       expect(result.current.step).toBe('done');
     });
@@ -171,6 +186,7 @@ describe('useRegisterForm', () => {
       result.current.next();
       result.current.setField('businessName', valid.businessName);
     });
+    await acceptAll(result);
     await act(async () => {
       result.current.submit();
     });

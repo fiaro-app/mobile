@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { registerOwner } from '@/features/auth/api/access-api';
 import { TURNSTILE_LOAD_ERROR, TURNSTILE_PENDING, accessFailureMessage } from '@/features/auth/content/access-messages';
 import { validateAccountStep, validateCompanyStep, type FieldErrors, type RegisterValues } from '@/features/auth/lib/access-forms';
+import { EMPTY_CONSENTS, missingConsents, type Consents } from '@/features/auth/lib/consents';
 import { formatPhoneInput } from '@/features/auth/lib/phone';
 import { TURNSTILE_SITE_KEY } from '@/lib/config';
 
@@ -16,6 +17,10 @@ export interface RegisterForm {
   readonly errors: FieldErrors<Field>;
   readonly formError: string | null;
   readonly busy: boolean;
+  readonly consents: Consents;
+  /** Autorizaciones obligatorias que faltan tras intentar enviar. */
+  readonly consentErrors: readonly (keyof Consents)[];
+  readonly setConsent: (key: keyof Consents, value: boolean) => void;
   readonly setField: (field: Field, text: string) => void;
   readonly next: () => void;
   readonly back: () => void;
@@ -42,6 +47,8 @@ export function useRegisterForm(): RegisterForm {
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [consents, setConsents] = useState<Consents>(EMPTY_CONSENTS);
+  const [consentErrors, setConsentErrors] = useState<readonly (keyof Consents)[]>([]);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const turnstileError = useCallback(() => {
@@ -57,6 +64,12 @@ export function useRegisterForm(): RegisterForm {
     turnstileResetKey,
     setTurnstileToken,
     turnstileError,
+    consents,
+    consentErrors,
+    setConsent: (key, value) => {
+      setConsents((current) => ({ ...current, [key]: value }));
+      setConsentErrors((current) => current.filter((item) => item !== key));
+    },
     setField: (field, text) => {
       setValues((current) => ({ ...current, [field]: field === 'phone' ? formatPhoneInput(text) : text }));
       setErrors((current) => ({ ...current, [field]: undefined }));
@@ -75,6 +88,11 @@ export function useRegisterForm(): RegisterForm {
       const problems = validateCompanyStep(values);
       setErrors(problems);
       if (Object.keys(problems).length > 0) return;
+      const missing = missingConsents(consents);
+      if (missing.length > 0) {
+        setConsentErrors(missing);
+        return;
+      }
       if (TURNSTILE_SITE_KEY && !turnstileToken) {
         setFormError(TURNSTILE_PENDING);
         return;
@@ -82,7 +100,7 @@ export function useRegisterForm(): RegisterForm {
       void (async () => {
         setBusy(true);
         setFormError(null);
-        const result = await registerOwner({ ...values, fullName: values.fullName.trim(), businessName: values.businessName.trim(), contactEmail: values.contactEmail.trim(), turnstileToken: turnstileToken ?? undefined });
+        const result = await registerOwner({ ...values, fullName: values.fullName.trim(), businessName: values.businessName.trim(), contactEmail: values.contactEmail.trim(), marketingConsent: consents.marketing, turnstileToken: turnstileToken ?? undefined });
         setBusy(false);
         if (result.ok) {
           setStep('done');
