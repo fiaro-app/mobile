@@ -7,7 +7,7 @@ import { StatCard } from '@/components/molecules/StatCard';
 
 export interface DashboardViewProps {
   readonly kpis: readonly { readonly key: string; readonly label: string; readonly value: string; readonly tone: 'neutral' | 'good' | 'warning' | 'bad' }[];
-  readonly banner: { readonly kind: 'warning' | 'error'; readonly message: string } | null;
+  readonly banner: { readonly kind: 'warning' | 'error'; readonly message: string; readonly action?: { readonly label: string; readonly onPress: () => void } } | null;
   readonly alertsTitle: string;
   readonly alerts: readonly string[];
   readonly pendingTitle: string;
@@ -25,7 +25,7 @@ export interface DashboardViewProps {
 export function DashboardView(props: Readonly<DashboardViewProps>) {
   return (
     <ScrollView contentContainerClassName="gap-5 px-5 pb-8 pt-5" refreshControl={<RefreshControl refreshing={props.refreshing} onRefresh={props.onRefresh} />}>
-      {props.banner ? <AlertBanner message={props.banner.message} kind={props.banner.kind} /> : null}
+      {props.banner ? <AlertBanner message={props.banner.message} kind={props.banner.kind} action={props.banner.action} /> : null}
       {props.period}
       <View className="flex-row flex-wrap gap-3">
         {props.kpis.map((kpi) => (
