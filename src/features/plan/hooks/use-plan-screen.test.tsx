@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import * as planApi from '@/features/plan/api/plan-api';
 import { usePlanScreen } from '@/features/plan/hooks/use-plan-screen';
@@ -30,6 +30,11 @@ describe('usePlanScreen', () => {
     expect(result.current.currentCode).toBe('PRO');
     expect(result.current.plan?.bars.length).toBeGreaterThan(0);
     expect(result.current.payments[0]?.amount).toBe('$69.000');
+
+    await act(async () => {
+      result.current.refresh();
+    });
+    expect(settingsApi.fetchSubscription).toHaveBeenCalledTimes(2);
   });
 
   it('flags a failure to load the plan', async () => {
