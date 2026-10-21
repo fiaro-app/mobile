@@ -1,3 +1,4 @@
+import { openRenewal, RENEW_LABEL } from '@/features/settings/lib/renew';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { SettingsView } from '@/components/organisms/SettingsView';
@@ -65,7 +66,7 @@ export default function SettingsScreen() {
             if (target) portfolios.startDelete(target);
           },
         }}
-        plan={screen.plan ? { title: copy.plan.title, rows: screen.plan.rows, bars: screen.plan.bars, notice: screen.plan.notice } : null}
+        plan={screen.plan ? { title: copy.plan.title, renew: { label: RENEW_LABEL, onPress: openRenewal }, rows: screen.plan.rows, bars: screen.plan.bars, notice: screen.plan.notice } : null}
         deleteDialog={{
           visible: deleting !== null,
           title: copy.portfolios.deleteTitle,

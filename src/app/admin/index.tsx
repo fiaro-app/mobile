@@ -1,3 +1,4 @@
+import { openRenewal, RENEW_LABEL } from '@/features/settings/lib/renew';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { DateRangeFields } from '@/components/molecules/DateRangeFields';
@@ -26,7 +27,7 @@ export default function AdminSummaryScreen() {
     body = (
       <DashboardView
         kpis={model.kpis}
-        banner={screen.banner}
+        banner={screen.banner ? { ...screen.banner, action: { label: RENEW_LABEL, onPress: openRenewal } } : null}
         alertsTitle={DASHBOARD_COPY.alerts}
         alerts={model.alerts}
         pendingTitle={DASHBOARD_COPY.pending}

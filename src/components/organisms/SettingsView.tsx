@@ -27,7 +27,7 @@ export interface SettingsViewProps {
   readonly logo: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & LogoSectionProps;
   readonly removeLogoDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
   readonly portfolios: { readonly title: string; readonly hint: string; readonly error: string | null; readonly notice: string | null } & PortfolioSectionProps;
-  readonly plan: { readonly title: string; readonly rows: readonly { label: string; value: string }[]; readonly bars: readonly { label: string; value: string; percent: number }[]; readonly notice: { readonly kind: 'warning' | 'error'; readonly message: string } | null } | null;
+  readonly plan: { readonly title: string; readonly renew: { readonly label: string; readonly onPress: () => void }; readonly rows: readonly { label: string; value: string }[]; readonly bars: readonly { label: string; value: string; percent: number }[]; readonly notice: { readonly kind: 'warning' | 'error'; readonly message: string } | null } | null;
   readonly deleteDialog: Pick<ConfirmDialogProps, 'visible' | 'title' | 'message' | 'cancelLabel' | 'confirmLabel' | 'onCancel' | 'onConfirm' | 'destructive'>;
 }
 
@@ -37,7 +37,7 @@ export function SettingsView(props: Readonly<SettingsViewProps>) {
   return (
     <View className="flex-1">
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-5 px-5 pb-8 pt-5">
-        {plan?.notice ? <AlertBanner message={plan.notice.message} kind={plan.notice.kind} /> : null}
+        {plan?.notice ? <AlertBanner message={plan.notice.message} kind={plan.notice.kind} action={plan.renew} /> : null}
         <SettingsSection title={business.title} error={business.error} notice={business.notice}>
           <TextField accessibilityLabel={business.label} value={business.name} onChangeText={business.onName} invalid={business.error !== null} maxLength={120} editable={!business.busy} />
           <Button label={business.save} onPress={business.onSave} loading={business.busy} disabled={!business.dirty} />
@@ -79,6 +79,7 @@ export function SettingsView(props: Readonly<SettingsViewProps>) {
                 </AppText>
               </View>
             ))}
+            <Button label={plan.renew.label} variant="outline" onPress={plan.renew.onPress} />
           </SettingsSection>
         ) : null}
       </ScrollView>

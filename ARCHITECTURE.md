@@ -389,6 +389,7 @@ cobrador. La mora por antigüedad se dibuja con barras rojas (`ProgressBar tone=
   plan de pago ("Tu plan vence/venció…"). El tope de carteras sale del plan, ya no es fijo. Si el plan no carga simplemente no se muestra. El schema es propio (no usa
   `@fiaro-app/contracts`, M-11): sigue la forma de contracts 0.12.0. **`PLAN_LIMIT_REACHED`** se explica según `errorCode` (`planLimitMessage`: `M003A` cobradores, `M007A`
   administradores, `L004A` préstamos, `B007A` carteras) en cobradores, administradores, préstamos, solicitudes y configuración. En solo lectura el API deja registrar cobros y cuadres.
+  **Renovar:** el aviso del plan (Resumen y Configuración) y el bloque «Tu plan» ofrecen «Renovar en la web», que abre `${SITE_URL}/plan` («Plan y pagos» de la web, api D-149) en el navegador. **La app no vende ni cobra nada**: pagar se hace en la web con Wompi, así no hay compras dentro de la app ni condiciones de tiendas, y la dueña ve la misma pantalla que en el computador (si no tiene sesión en el navegador, la web se la pide y la devuelve ahí).
 - **Cambiar contraseña** (`account-password`): igual que el cambio obligatorio pero voluntario (sin "Cerrar sesión" como salida) y al terminar vuelve al Perfil.
 - **Sesiones abiertas** (`account-sessions`): `GET /account/sessions`; cerrar una (`DELETE`) o todas las demás (`POST /auth/revoke-other-sessions`). La de este
   teléfono no se puede cerrar aquí (el API da 409): para salir está "Cerrar sesión".
