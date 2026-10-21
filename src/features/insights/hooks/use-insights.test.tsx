@@ -61,4 +61,11 @@ describe('useInsights', () => {
       expect(fetchInsights).toHaveBeenCalledTimes(2);
     });
   });
+
+  it('con enabled en false (el plan no trae estadísticas avanzadas) no pide nada', async () => {
+    const { result } = await renderHook(() => useInsights(RANGE, false), { wrapper });
+
+    expect(fetchInsights).not.toHaveBeenCalled();
+    expect(result.current.model).toBeNull();
+  });
 });

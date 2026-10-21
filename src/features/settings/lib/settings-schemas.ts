@@ -36,6 +36,8 @@ export const SubscriptionSchema = z.object({
   daysRemaining: z.int(),
   graceDaysRemaining: z.int(),
   isReadOnly: z.boolean(),
+  /** Funciones propias del plan (D-151 del API); un API anterior no las manda: se asume el plan completo. */
+  features: z.array(z.enum(['ADVANCED_STATS', 'EXCEL_IMPORT'])).default(['ADVANCED_STATS', 'EXCEL_IMPORT']),
   limits: z.object({
     maxCollectors: z.int(),
     maxAdmins: z.int(),
