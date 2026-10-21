@@ -10,6 +10,7 @@ export const ADMIN_NAV = [
   { key: 'routes', label: 'Rutas', href: '/admin/routes' },
   { key: 'stats', label: 'Estadísticas', href: '/admin/stats' },
   { key: 'admins', label: 'Administradores', href: '/admin/admins' },
+  { key: 'plan', label: 'Plan y pagos', href: '/admin/plan' },
   { key: 'settings', label: 'Configuración', href: '/admin/settings' },
 ] as const;
 
