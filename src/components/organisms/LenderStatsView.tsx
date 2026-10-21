@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Button } from '@/components/atoms/Button';
+import { AlertBanner } from '@/components/molecules/AlertBanner';
 import { Alert } from '@/components/molecules/Alert';
 import { AppText } from '@/components/atoms/AppText';
 import { FilterPill } from '@/components/atoms/FilterPill';
@@ -41,7 +42,10 @@ export interface LenderStatsViewProps {
   readonly topMore?: MoreButton | null;
   readonly collectorsMore?: MoreButton | null;
   readonly empty: string | null;
-  readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void };
+  /** El botón del PDF; `null` lo oculta (el plan no lo trae). */
+  readonly exportPdf: { readonly label: string; readonly busy: boolean; readonly error: string | null; readonly onPress: () => void } | null;
+  /** Aviso de que lo avanzado viene con otro plan; si está, solo se dibujan los indicadores y se ofrece subir de plan. */
+  readonly upgrade?: { readonly message: string; readonly action: { readonly label: string; readonly onPress: () => void } } | null;
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
   /** «Cómo va tu negocio»; `null` si no cargó (la pantalla se muestra igual). */
@@ -68,8 +72,9 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
         <AppText variant="caption" tone="muted">
           {props.periodLabel}
         </AppText>
-        <Button label={props.exportPdf.label} variant="outline" loading={props.exportPdf.busy} onPress={props.exportPdf.onPress} />
-        {props.exportPdf.error ? <Alert message={props.exportPdf.error} /> : null}
+        {props.exportPdf ? <Button label={props.exportPdf.label} variant="outline" loading={props.exportPdf.busy} onPress={props.exportPdf.onPress} /> : null}
+        {props.exportPdf?.error ? <Alert message={props.exportPdf.error} /> : null}
+        {props.upgrade ? <AlertBanner message={props.upgrade.message} action={props.upgrade.action} /> : null}
         {props.empty ? <AppText variant="small">{props.empty}</AppText> : null}
         {props.insights ? <InsightsSection {...props.insights} /> : null}
         <View className="flex-row flex-wrap gap-3">
@@ -77,24 +82,26 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
             <StatCard key={kpi.key} label={kpi.label} value={kpi.value} tone={kpi.tone} trend={kpi.trend} className="min-w-[45%] flex-1" />
           ))}
         </View>
-        <View className="gap-3">
-          <AppText variant="title">{props.bucketsTitle}</AppText>
-          <View className="gap-4 rounded-lg bg-surface p-5">
-            {props.buckets.map((bucket) => (
-              <View key={bucket.label} className="gap-1.5">
-                <View className="flex-row justify-between">
-                  <AppText variant="label">{bucket.label}</AppText>
-                  <AppText variant="label">{bucket.amount}</AppText>
+        {props.upgrade ? null : (
+          <View className="gap-3">
+            <AppText variant="title">{props.bucketsTitle}</AppText>
+            <View className="gap-4 rounded-lg bg-surface p-5">
+              {props.buckets.map((bucket) => (
+                <View key={bucket.label} className="gap-1.5">
+                  <View className="flex-row justify-between">
+                    <AppText variant="label">{bucket.label}</AppText>
+                    <AppText variant="label">{bucket.amount}</AppText>
+                  </View>
+                  <ProgressBar tone="destructive" percent={bucket.percent} label={`${bucket.label}: ${bucket.amount}`} />
+                  <AppText variant="caption" tone="muted">
+                    {bucket.clients}
+                  </AppText>
                 </View>
-                <ProgressBar tone="destructive" percent={bucket.percent} label={`${bucket.label}: ${bucket.amount}`} />
-                <AppText variant="caption" tone="muted">
-                  {bucket.clients}
-                </AppText>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
-        {props.top.length > 0 ? (
+        )}
+        {props.top.length > 0 && !props.upgrade ? (
           <View className="gap-3">
             <AppText variant="title">{props.topTitle}</AppText>
             <View className="overflow-hidden rounded-lg bg-surface">
@@ -120,7 +127,7 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
             {props.topMore ? <Button label={props.topMore.label} variant="outline" loading={props.topMore.busy} onPress={props.topMore.onPress} /> : null}
           </View>
         ) : null}
-        {props.collectors.length > 0 ? (
+        {props.collectors.length > 0 && !props.upgrade ? (
           <View className="gap-3">
             <AppText variant="title">{props.collectorsTitle}</AppText>
             <View className="overflow-hidden rounded-lg bg-surface">

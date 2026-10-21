@@ -22,7 +22,7 @@ jest.mock('@/lib/business-date', () => ({ ...jest.requireActual('@/lib/business-
 
 const a = jest.mocked(api);
 const settings = (over = {}) => ({ id: 'l1', name: 'El Águila', logoUrl: null, brandColor: null, nonWorkingWeekdays: ['SUNDAY' as const], skipNationalHolidays: false, ...over });
-const sub = (over: Record<string, unknown> = {}) => ({ planCode: 'TRIAL' as const, status: 'ACTIVE' as const, currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 20, graceDaysRemaining: 7, isReadOnly: false, limits: { maxCollectors: 5, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 7 }, ...over });
+const sub = (over: Record<string, unknown> = {}) => ({ planCode: 'TRIAL' as const, status: 'ACTIVE' as const, currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 20, graceDaysRemaining: 7, isReadOnly: false, features: ['ADVANCED_STATS' as const, 'EXCEL_IMPORT' as const], limits: { maxCollectors: 5, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 7 }, ...over });
 const portfolios = [{ id: 'p1', name: 'General', isDefault: true }, { id: 'p2', name: 'Norte', isDefault: false }];
 const http = (status: number, code: string | null = null) => ({ ok: false, failure: { kind: 'http', status, code, retryAfterSeconds: null } }) as const;
 
@@ -104,6 +104,13 @@ describe('lógica de configuración', () => {
     expect(subscriptionNotice(sub({ planCode: 'PRO', daysRemaining: 3 }))?.message).toBe('Tu plan vence en 3 días.');
     expect(subscriptionNotice(sub({ planCode: 'PRO', daysRemaining: 0 }))?.message).toBe('Tu plan vence hoy.');
     expect(subscriptionNotice(sub({ planCode: 'PRO', status: 'GRACE_PERIOD', graceDaysRemaining: 1 }))?.message).toBe('Tu plan venció. Tienes 1 día para renovarlo antes de pasar a solo lectura.');
+  });
+
+  it('un API anterior que no manda las funciones del plan se lee como plan completo', () => {
+    const { features: _omitted, ...legacy } = sub();
+
+    expect(SubscriptionSchema.parse(legacy).features).toEqual(['ADVANCED_STATS', 'EXCEL_IMPORT']);
+    expect(SubscriptionSchema.parse(sub({ features: [] })).features).toEqual([]);
   });
 
   it('valida las respuestas y traduce los fallos', () => {

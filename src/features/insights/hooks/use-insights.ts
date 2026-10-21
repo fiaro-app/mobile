@@ -6,10 +6,10 @@ import { useApiQuery } from '@/lib/hooks/use-api-query';
 
 /**
  * «Cómo va tu negocio» del período que muestran las estadísticas. Es un complemento: si no carga, `model` queda en `null`
- * y el resto de la pantalla se muestra igual.
+ * y el resto de la pantalla se muestra igual. Con `enabled` en `false` (el plan no trae estadísticas avanzadas) no pide nada.
  */
-export function useInsights(range: DateRange): { readonly model: InsightsModel | null; readonly refresh: () => void } {
-  const query = useApiQuery(['admin', 'insights', range.from, range.to], () => fetchInsights(range));
+export function useInsights(range: DateRange, enabled = true): { readonly model: InsightsModel | null; readonly refresh: () => void } {
+  const query = useApiQuery(['admin', 'insights', range.from, range.to], () => fetchInsights(range), enabled);
   const model = useMemo(() => (query.data ? buildInsightsModel(query.data) : null), [query.data]);
   return {
     model,

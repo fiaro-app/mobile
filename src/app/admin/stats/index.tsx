@@ -1,3 +1,5 @@
+import { usePlanFeatures } from '@/features/settings/hooks/use-plan-features';
+import { openRenewal } from '@/features/settings/lib/renew';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
@@ -15,7 +17,8 @@ import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 export default function AdminStatsScreen() {
   const menu = useAdminMenu('stats');
   const screen = useLenderStatsScreen();
-  const insights = useInsights(screen.range);
+  const plan = usePlanFeatures();
+  const insights = useInsights(screen.range, plan.advancedStats);
   const copy = LENDER_STATS_COPY;
   const model = screen.model;
 
@@ -44,8 +47,9 @@ export default function AdminStatsScreen() {
         collectors={screen.collectors.rows}
         collectorsMore={screen.collectors.more}
         empty={model.isEmpty ? copy.empty : null}
-        exportPdf={{ label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start }}
-        insights={insights.model}
+        exportPdf={plan.advancedStats ? { label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start } : null}
+        upgrade={plan.advancedStats ? null : { message: copy.upgrade, action: { label: copy.upgradeAction, onPress: openRenewal } }}
+        insights={plan.advancedStats ? insights.model : null}
         refreshing={screen.refreshing}
         onRefresh={() => {
           screen.refresh();
