@@ -31,7 +31,7 @@ describe('access-api', () => {
   it('registra normalizando cédula y celular y enviando el correo', async () => {
     const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: 'd@correo.com', marketingConsent: false };
     await registerOwner(base);
-    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: 'd@correo.com', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, marketingConsent: false, legalVersion: '2026-10-16' });
+    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: 'd@correo.com', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, acceptedCookies: true, marketingConsent: false, legalVersion: '2026-11-14' });
   });
 
   it('envía el token de Turnstile solo cuando lo hay', async () => {

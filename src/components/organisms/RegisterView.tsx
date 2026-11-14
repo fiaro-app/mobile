@@ -9,7 +9,7 @@ import { FormField } from '@/components/molecules/FormField';
 import { ToggleRow } from '@/components/molecules/ToggleRow';
 import { AppText } from '@/components/atoms/AppText';
 
-type ConsentKey = 'terms' | 'privacy' | 'responsibility' | 'marketing';
+type ConsentKey = 'terms' | 'privacy' | 'responsibility' | 'cookies' | 'marketing';
 type Field = 'fullName' | 'nationalId' | 'phone' | 'contactEmail' | 'password' | 'businessName';
 
 export interface RegisterViewProps {
@@ -18,19 +18,19 @@ export interface RegisterViewProps {
     readonly accountTitle: string; readonly companyTitle: string; readonly accountSubtitle: string; readonly companySubtitle: string; readonly fullName: string; readonly fullNamePlaceholder: string;
     readonly nationalId: string; readonly nationalIdPlaceholder: string; readonly phone: string; readonly phonePlaceholder: string; readonly email: string; readonly emailPlaceholder: string;
     readonly secretLabel: string; readonly hint: string; readonly business: string; readonly businessPlaceholder: string; readonly next: string; readonly submit: string; readonly back: string;
-    readonly consentsTitle: string; readonly termsLabel: string; readonly privacyLabel: string; readonly responsibilityLabel: string; readonly marketingLabel: string;
-    readonly consentRequired: string; readonly readTerms: string; readonly readPrivacy: string;
+    readonly consentsTitle: string; readonly termsLabel: string; readonly privacyLabel: string; readonly responsibilityLabel: string; readonly cookiesLabel: string; readonly marketingLabel: string;
+    readonly consentRequired: string; readonly readTerms: string; readonly readPrivacy: string; readonly readCookies: string;
     readonly doneTitle: string; readonly doneSubtitle: string; readonly toLogin: string;
   };
   readonly values: Record<Field, string>;
   readonly errors: Partial<Record<Field, string>>;
   readonly formError: string | null;
   readonly busy: boolean;
-  readonly consents: { readonly terms: boolean; readonly privacy: boolean; readonly responsibility: boolean; readonly marketing: boolean };
+  readonly consents: { readonly terms: boolean; readonly privacy: boolean; readonly responsibility: boolean; readonly cookies: boolean; readonly marketing: boolean };
   readonly consentErrors: readonly ConsentKey[];
   readonly onConsent: (key: ConsentKey, value: boolean) => void;
   /** Abre el texto legal completo (en la web). */
-  readonly onOpenLegal: (document: 'terms' | 'privacy') => void;
+  readonly onOpenLegal: (document: 'terms' | 'privacy' | 'cookies') => void;
   readonly onField: (field: Field, text: string) => void;
   readonly onNext: () => void;
   readonly onBack: () => void;
@@ -94,6 +94,8 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
               <TextLink label={texts.readTerms} onPress={() => { props.onOpenLegal('terms'); }} />
               {consentRow('privacy', texts.privacyLabel)}
               <TextLink label={texts.readPrivacy} onPress={() => { props.onOpenLegal('privacy'); }} />
+              {consentRow('cookies', texts.cookiesLabel)}
+              <TextLink label={texts.readCookies} onPress={() => { props.onOpenLegal('cookies'); }} />
               {consentRow('responsibility', texts.responsibilityLabel)}
               {consentRow('marketing', texts.marketingLabel)}
             </View>

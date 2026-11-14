@@ -67,6 +67,7 @@ describe('con Turnstile activo', () => {
       result.current.setConsent('terms', true);
       result.current.setConsent('privacy', true);
       result.current.setConsent('responsibility', true);
+      result.current.setConsent('cookies', true);
     });
     await act(async () => {
       result.current.submit();

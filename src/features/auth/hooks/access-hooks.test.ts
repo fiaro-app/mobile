@@ -131,6 +131,7 @@ describe('useRegisterForm', () => {
       result.current.setConsent('terms', true);
       result.current.setConsent('privacy', true);
       result.current.setConsent('responsibility', true);
+      result.current.setConsent('cookies', true);
     });
   };
 
@@ -166,7 +167,7 @@ describe('useRegisterForm', () => {
     await act(async () => {
       result.current.submit();
     });
-    expect(result.current.consentErrors).toEqual(['terms', 'privacy', 'responsibility']);
+    expect(result.current.consentErrors).toEqual(['terms', 'privacy', 'responsibility', 'cookies']);
     expect(a.registerOwner).not.toHaveBeenCalled();
     await acceptAll(result);
     expect(result.current.consentErrors).toEqual([]);
