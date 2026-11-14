@@ -3,6 +3,7 @@ export const ADMIN_NAV = [
   { key: 'summary', label: 'Resumen', href: '/admin' },
   { key: 'collectors', label: 'Cobradores', href: '/admin/collectors' },
   { key: 'clients', label: 'Clientes', href: '/admin/clients' },
+  { key: 'import', label: 'Importar', href: '/admin/import' },
   { key: 'loans', label: 'Préstamos', href: '/admin/loans' },
   { key: 'requests', label: 'Solicitudes', href: '/admin/requests' },
   { key: 'settlements', label: 'Cuadres', href: '/admin/settlements' },

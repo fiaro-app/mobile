@@ -34,6 +34,7 @@ describe('usePlanFeatures', () => {
     const { result } = await renderHook(() => usePlanFeatures(), { wrapper });
 
     expect(result.current.advancedStats).toBe(true);
+    expect(result.current.excelImport).toBe(true);
   });
 
   it('Individual no trae las estadísticas avanzadas', async () => {
@@ -42,6 +43,7 @@ describe('usePlanFeatures', () => {
 
     await waitFor(() => {
       expect(result.current.advancedStats).toBe(false);
+      expect(result.current.excelImport).toBe(false);
     });
   });
 
@@ -53,5 +55,6 @@ describe('usePlanFeatures', () => {
       expect(fetchSubscription).toHaveBeenCalled();
     });
     expect(result.current.advancedStats).toBe(true);
+    expect(result.current.excelImport).toBe(true);
   });
 });
