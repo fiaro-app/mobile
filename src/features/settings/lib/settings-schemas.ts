@@ -37,7 +37,9 @@ export const SubscriptionSchema = z.object({
   graceDaysRemaining: z.int(),
   isReadOnly: z.boolean(),
   /** Funciones propias del plan (D-151 del API); un API anterior no las manda: se asume el plan completo. */
-  features: z.array(z.enum(['ADVANCED_STATS', 'EXCEL_IMPORT'])).default(['ADVANCED_STATS', 'EXCEL_IMPORT']),
+  features: z.array(z.enum(['ADVANCED_STATS', 'EXCEL_IMPORT', 'CONSOLIDATED_STATS', 'PRIORITY_SUPPORT'])).default(['ADVANCED_STATS', 'EXCEL_IMPORT']),
+  /** Enlace del soporte prioritario (D-155 del API): solo si el plan lo trae y está configurado. */
+  prioritySupportUrl: z.string().nullable().default(null),
   limits: z.object({
     maxCollectors: z.int(),
     maxAdmins: z.int(),

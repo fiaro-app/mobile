@@ -10,7 +10,7 @@ import { SettingsSection } from '@/components/molecules/SettingsSection';
 export interface PlanViewProps {
   readonly texts: {
     readonly current: string; readonly offers: string; readonly offersHint: string; readonly perMonth: string;
-    readonly history: string; readonly historyEmpty: string; readonly payOnWeb: string; readonly payHint: string;
+    readonly history: string; readonly historyEmpty: string; readonly payOnWeb: string; readonly payHint: string; readonly supportAction: string;
   };
   readonly plan: {
     readonly rows: readonly { readonly label: string; readonly value: string }[];
@@ -25,10 +25,12 @@ export interface PlanViewProps {
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
   readonly onPay: () => void;
+  /** Abre el soporte prioritario; `null` lo oculta (el plan no lo trae o no hay enlace). */
+  readonly onSupport?: (() => void) | null;
 }
 
 /** «Plan y pagos»: el plan en curso con su uso, los planes que se ofrecen, el botón para pagar en la web y el historial de pagos. Solo dibuja. */
-export function PlanView({ texts, plan, currentCode, offers, payments, paymentsLoading, refreshing, onRefresh, onPay }: Readonly<PlanViewProps>) {
+export function PlanView({ texts, plan, currentCode, offers, payments, paymentsLoading, refreshing, onRefresh, onPay, onSupport = null }: Readonly<PlanViewProps>) {
   return (
     <ScrollView contentContainerClassName="gap-5 p-5 pb-10" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       {plan.notice ? <AlertBanner message={plan.notice.message} kind={plan.notice.kind} /> : null}
@@ -38,6 +40,7 @@ export function PlanView({ texts, plan, currentCode, offers, payments, paymentsL
             <InfoRow key={row.label} label={row.label} value={row.value} />
           ))}
         </View>
+        {onSupport ? <Button label={texts.supportAction} variant="outline" onPress={onSupport} /> : null}
         {plan.bars.map((bar) => (
           <View key={bar.label} className="gap-1">
             <ProgressBar percent={bar.percent} label={`${bar.label}: ${bar.value}`} />

@@ -82,6 +82,7 @@ export function toSubscriptionView(subscription: Subscription): SubscriptionView
       { label: 'Días restantes', value: String(subscription.daysRemaining) },
       ...(limits.maxActiveLoans === null ? [{ label: 'Préstamos activos', value: `${String(usage.activeLoans)} (sin tope)` }] : []),
       { label: 'Carteras', value: `Hasta ${String(limits.maxPortfolios)}` },
+      ...(subscription.features.includes('PRIORITY_SUPPORT') ? [{ label: 'Soporte', value: 'Prioritario' }] : []),
     ],
     bars,
     maxPortfolios: limits.maxPortfolios,
