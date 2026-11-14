@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { identifierToSignIn } from '@/features/auth/lib/identifier';
 import { AUTH_COPY } from '@/features/auth/content/messages';
-import { toMobileE164 } from '@/features/auth/lib/phone';
 
 /**
  * Validación del formulario de inicio de sesión, la misma que ve la persona mientras escribe. La
@@ -9,7 +9,7 @@ import { toMobileE164 } from '@/features/auth/lib/phone';
  * API). Por eso el mock "Validación en tiempo real" no pide mínimo de largo aquí.
  */
 export const loginSchema = z.object({
-  phone: z.string().refine((value) => toMobileE164(value) !== null, { message: AUTH_COPY.validation.phone }),
+  identifier: z.string().refine((value) => identifierToSignIn(value) !== null, { message: AUTH_COPY.validation.identifier }),
   password: z.string().min(1, AUTH_COPY.validation.passwordRequired),
 });
 export type LoginValues = z.infer<typeof loginSchema>;

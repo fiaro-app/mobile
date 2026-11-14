@@ -6,10 +6,12 @@ export const ACCOUNT_COPY = {
   editTitle: 'Editar perfil',
   nameLabel: 'Nombre completo',
   emailLabel: 'Correo de contacto',
-  emailHint: 'Lo usamos para recuperar tu contraseña y enviarte avisos. Es opcional.',
+  emailHint: 'Lo usamos para recuperar tu contraseña y enviarte avisos. Con él también puedes iniciar sesión, una vez verificado.',
   save: 'Guardar cambios',
   saved: 'Cambios guardados.',
   nothingToSave: 'No hay cambios por guardar.',
+  gateTitle: 'Verifica tu correo',
+  gateSignOut: 'Cerrar sesión',
   verifyTitle: 'Verifica tu correo',
   verifyMessage: 'Te enviaremos un código de 6 dígitos para confirmar que el correo es tuyo.',
   sendCode: 'Enviar código',
@@ -27,6 +29,8 @@ export function accountFailureMessage(failure: ApiFailure): string {
   if (failure.kind === 'offline') return 'Sin conexión. Intenta de nuevo cuando tengas internet.';
   if (failure.kind === 'maintenance') return 'Fiaro está en mantenimiento. Intenta más tarde.';
   switch (failure.code) {
+    case 'CONFLICT':
+      return 'Ya existe una cuenta con ese correo. Usa otro.';
     case 'CONTACT_EMAIL_NOT_SET':
       return 'Primero agrega un correo de contacto.';
     case 'CONTACT_EMAIL_ALREADY_VERIFIED':

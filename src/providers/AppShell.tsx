@@ -7,6 +7,7 @@ import { useBootstrap } from '@/features/auth/hooks/use-bootstrap';
 import { useAccess, useSessionStore } from '@/features/auth/store/session-store';
 import { LoadingScreen } from '@/components/templates/LoadingScreen';
 import { useWorkspace } from '@/features/workspace/hooks/use-workspace';
+import { ownerMustVerifyEmail } from '@/features/workspace/lib/roles';
 import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import { usePushRegistration } from '@/features/notifications/hooks/use-push-registration';
 import { setCurrentScreen } from '@/lib/http/trace-headers';
@@ -32,6 +33,9 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
   useWorkspace(access === 'signed-in' ? userId : null);
   const workspace = useWorkspaceStore((state) => state.status);
   const mode = useWorkspaceStore((state) => state.mode);
+  const roles = useWorkspaceStore((state) => state.roles);
+  const emailVerified = useSessionStore((state) => state.user?.contactEmailVerified === true);
+  const mustVerifyEmail = access === 'signed-in' && ownerMustVerifyEmail(roles, emailVerified);
   const settled = fontsLoaded && (boot.ready || boot.blocked !== null);
 
   useEffect(() => {
@@ -61,7 +65,10 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
       <Stack.Protected guard={access === 'offer-pin'}>
         <Stack.Screen name="create-pin" />
       </Stack.Protected>
-      <Stack.Protected guard={access === 'signed-in' && mode === 'admin'}>
+      <Stack.Protected guard={mustVerifyEmail}>
+        <Stack.Screen name="verify-email" />
+      </Stack.Protected>
+      <Stack.Protected guard={access === 'signed-in' && !mustVerifyEmail && mode === 'admin'}>
         <Stack.Screen name="admin/index" />
         <Stack.Screen name="admin/collectors/index" />
         <Stack.Screen name="admin/collectors/new" />
@@ -81,7 +88,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="admin/loans/[id]/calendar" />
         <Stack.Screen name="admin/loans/[id]/history" />
       </Stack.Protected>
-      <Stack.Protected guard={access === 'signed-in' && mode === 'collector'}>
+      <Stack.Protected guard={access === 'signed-in' && !mustVerifyEmail && mode === 'collector'}>
         <Stack.Screen name="index" />
         <Stack.Screen name="clients" />
         <Stack.Screen name="settlement" />
@@ -90,7 +97,7 @@ export function AppShell({ fontsLoaded }: Readonly<{ fontsLoaded: boolean }>) {
         <Stack.Screen name="visit/[loanId]" />
         <Stack.Screen name="visit-done" />
       </Stack.Protected>
-      <Stack.Protected guard={access === 'signed-in'}>
+      <Stack.Protected guard={access === 'signed-in' && !mustVerifyEmail}>
         <Stack.Screen name="profile" />
         <Stack.Screen name="profile-edit" />
         <Stack.Screen name="account-password" />

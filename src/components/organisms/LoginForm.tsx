@@ -12,8 +12,8 @@ import type { FieldProps } from '@/lib/forms/field-props';
 export interface LoginFormTexts {
   readonly title: string;
   readonly subtitle: string;
-  readonly phoneLabel: string;
-  readonly phonePlaceholder: string;
+  readonly identifierLabel: string;
+  readonly identifierPlaceholder: string;
   readonly secretLabel: string;
   readonly maskedPlaceholder: string;
   readonly forgot: string;
@@ -22,7 +22,7 @@ export interface LoginFormTexts {
 
 export interface LoginFormProps {
   readonly texts: LoginFormTexts;
-  readonly phone: FieldProps;
+  readonly identifier: FieldProps;
   readonly password: FieldProps;
   readonly submitting: boolean;
   readonly formError: string | null;
@@ -37,25 +37,26 @@ export interface LoginFormProps {
  * Solo dibuja: los valores, errores y el envío llegan por props desde `useLoginForm`. Los textos
  * también llegan por props para que este archivo no dependa de `features`.
  */
-export function LoginForm({ texts, phone, password, submitting, formError, onSubmit, onForgotPassword, register }: Readonly<LoginFormProps>) {
+export function LoginForm({ texts, identifier, password, submitting, formError, onSubmit, onForgotPassword, register }: Readonly<LoginFormProps>) {
   const passwordRef = useRef<TextInput>(null);
   return (
     <View className="gap-8">
       <AuthHeader title={texts.title} subtitle={texts.subtitle} />
       <View className="gap-5">
         {formError ? <Alert message={formError} /> : null}
-        <FormField label={texts.phoneLabel} error={phone.error}>
+        <FormField label={texts.identifierLabel} error={identifier.error}>
           {(a11y) => (
             <TextField
               {...a11y}
-              value={phone.value}
-              onChangeText={phone.onChangeText}
-              onBlur={phone.onBlur}
-              invalid={Boolean(phone.error) || phone.invalid === true}
-              placeholder={texts.phonePlaceholder}
-              keyboardType="phone-pad"
-              autoComplete="tel"
-              textContentType="telephoneNumber"
+              value={identifier.value}
+              onChangeText={identifier.onChangeText}
+              onBlur={identifier.onBlur}
+              invalid={Boolean(identifier.error) || identifier.invalid === true}
+              placeholder={texts.identifierPlaceholder}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="username"
+              textContentType="username"
               returnKeyType="next"
               onSubmitEditing={() => passwordRef.current?.focus()}
               editable={!submitting}

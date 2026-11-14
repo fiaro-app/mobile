@@ -9,7 +9,7 @@ jest.mock('@/features/auth/api/access-api', () => ({ requestPasswordReset: jest.
 
 const a = jest.mocked(api);
 const http = (status: number, code: string | null = null) => ({ ok: false, failure: { kind: 'http', status, code, retryAfterSeconds: null } }) as const;
-const valid = { fullName: 'Daniel Rojas', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: '', password: 'clave-larga-de-prueba-1', businessName: 'Préstamos El Águila' };
+const valid = { fullName: 'Daniel Rojas', nationalId: '1.020.304.050', phone: '300 123 4567', contactEmail: 'd@correo.com', password: 'clave-larga-de-prueba-1', businessName: 'Préstamos El Águila' };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -37,7 +37,7 @@ describe('validaciones de acceso', () => {
   it('pasos del registro', () => {
     expect(validateAccountStep(valid)).toEqual({});
     expect(Object.keys(validateAccountStep({ ...valid, fullName: 'A', nationalId: '12', phone: '1', contactEmail: 'mal', password: 'x' }))).toEqual(['fullName', 'nationalId', 'phone', 'contactEmail', 'password']);
-    expect(validateAccountStep({ ...valid, contactEmail: 'd@correo.com' })).toEqual({});
+    expect(validateAccountStep({ ...valid, contactEmail: '' })).toHaveProperty('contactEmail');
     expect(validateCompanyStep(valid)).toEqual({});
     expect(validateCompanyStep({ ...valid, businessName: ' ' })).toHaveProperty('businessName');
   });
@@ -139,6 +139,7 @@ describe('useRegisterForm', () => {
       result.current.setField('fullName', valid.fullName);
       result.current.setField('nationalId', valid.nationalId);
       result.current.setField('phone', '3001234567');
+      result.current.setField('contactEmail', valid.contactEmail);
       result.current.setField('password', valid.password);
     });
   };

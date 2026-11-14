@@ -12,7 +12,7 @@ export default function LoginScreen() {
     <AuthTemplate>
       <LoginForm
         texts={AUTH_COPY.login}
-        phone={form.phone}
+        identifier={form.identifier}
         password={form.password}
         submitting={form.submitting}
         formError={form.formError}

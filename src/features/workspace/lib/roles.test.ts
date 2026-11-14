@@ -1,4 +1,4 @@
-import { canAdminister, canCollect, defaultMode, roleLabel } from '@/features/workspace/lib/roles';
+import { canAdminister, canCollect, defaultMode, ownerMustVerifyEmail, roleLabel } from '@/features/workspace/lib/roles';
 
 describe('roles', () => {
   it('Owner y Lender administran; Collector cobra', () => {
@@ -18,5 +18,14 @@ describe('roles', () => {
   it('etiqueta el rol', () => {
     expect(roleLabel(['LENDER'])).toBe('Administrador');
     expect(roleLabel(['COLLECTOR'])).toBe('Cobrador');
+  });
+});
+
+describe('ownerMustVerifyEmail', () => {
+  it('bloquea a la dueña sin correo verificado, pero no a un cobrador ni a quien ya verificó', () => {
+    expect(ownerMustVerifyEmail(['OWNER', 'LENDER', 'COLLECTOR'], false)).toBe(true);
+    expect(ownerMustVerifyEmail(['OWNER'], true)).toBe(false);
+    expect(ownerMustVerifyEmail(['COLLECTOR'], false)).toBe(false);
+    expect(ownerMustVerifyEmail(['LENDER'], false)).toBe(false);
   });
 });

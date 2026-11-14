@@ -1,11 +1,11 @@
 import { authClient, STORAGE_PREFIX } from '@/features/auth/api/auth-client';
-import { changePassword, restoreSession, signInWithPhone, signOut } from '@/features/auth/api/auth-api';
+import { changePassword, restoreSession, signInWithIdentifier, signOut } from '@/features/auth/api/auth-api';
 import { secureStorage } from '@/lib/storage/secure-storage';
 
 jest.mock('@/features/auth/api/auth-client', () => ({
   STORAGE_PREFIX: 'fiaro',
   authClient: {
-    signIn: { phoneNumber: jest.fn() },
+    $fetch: jest.fn(),
     getSession: jest.fn(),
     changePassword: jest.fn(),
     signOut: jest.fn(),
@@ -25,49 +25,59 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('signInWithPhone', () => {
+describe('signInWithIdentifier', () => {
+  it('manda un correo tal cual como identificador', async () => {
+    mockClient.$fetch.mockResolvedValue({ data: { user: authUser }, error: null });
+    await signInWithIdentifier('ana@correo.com', 'clave');
+    expect(mockClient.$fetch).toHaveBeenCalledWith(
+      '/sign-in',
+      expect.objectContaining({ body: { identifier: 'ana@correo.com', password: 'clave' } }),
+    );
+  });
+
   it('devuelve la persona de la respuesta', async () => {
-    mockClient.signIn.phoneNumber.mockResolvedValue({ data: { user: authUser }, error: null });
-    expect(await signInWithPhone('+573001234567', 'clave')).toEqual({ ok: true, value: asUser });
-    expect(mockClient.signIn.phoneNumber).toHaveBeenCalledWith(
-      expect.objectContaining({ phoneNumber: '+573001234567', password: 'clave' }),
+    mockClient.$fetch.mockResolvedValue({ data: { user: authUser }, error: null });
+    expect(await signInWithIdentifier('+573001234567', 'clave')).toEqual({ ok: true, value: asUser });
+    expect(mockClient.$fetch).toHaveBeenCalledWith(
+      '/sign-in',
+      expect.objectContaining({ method: 'POST', body: { identifier: '+573001234567', password: 'clave' } }),
     );
   });
 
   it('clasifica un error HTTP con su código', async () => {
-    mockClient.signIn.phoneNumber.mockResolvedValue({
+    mockClient.$fetch.mockResolvedValue({
       data: null,
       error: { status: 401, code: 'INVALID_PHONE_NUMBER_OR_PASSWORD' },
     });
-    expect(await signInWithPhone('+573001234567', 'mala')).toEqual({
+    expect(await signInWithIdentifier('+573001234567', 'mala')).toEqual({
       ok: false,
       failure: { kind: 'http', status: 401, code: 'INVALID_PHONE_NUMBER_OR_PASSWORD', retryAfterSeconds: null },
     });
   });
 
   it('captura Retry-After desde las cabeceras del error', async () => {
-    mockClient.signIn.phoneNumber.mockImplementation(
+    mockClient.$fetch.mockImplementation(
       async (...args: unknown[]) => {
-        const options = args[0] as { fetchOptions?: { onError?: (context: unknown) => void } };
-        options.fetchOptions?.onError?.({ response: { headers: { get: () => '900' } } });
+        const options = args[1] as { onError?: (context: unknown) => void };
+        options.onError?.({ response: { headers: { get: () => '900' } } });
         return { data: null, error: { status: 429, code: 'SIGN_IN_LOCKED' } };
       },
     );
-    expect(await signInWithPhone('+573001234567', 'mala')).toMatchObject({
+    expect(await signInWithIdentifier('+573001234567', 'mala')).toMatchObject({
       failure: { code: 'SIGN_IN_LOCKED', retryAfterSeconds: 900 },
     });
   });
 
   it('un error sin estado o una excepción es "sin conexión"', async () => {
-    mockClient.signIn.phoneNumber.mockResolvedValueOnce({ data: null, error: {} });
-    expect(await signInWithPhone('+573001234567', 'x')).toEqual({ ok: false, failure: { kind: 'offline' } });
-    mockClient.signIn.phoneNumber.mockRejectedValueOnce(new TypeError('Network request failed'));
-    expect(await signInWithPhone('+573001234567', 'x')).toEqual({ ok: false, failure: { kind: 'offline' } });
+    mockClient.$fetch.mockResolvedValueOnce({ data: null, error: {} });
+    expect(await signInWithIdentifier('+573001234567', 'x')).toEqual({ ok: false, failure: { kind: 'offline' } });
+    mockClient.$fetch.mockRejectedValueOnce(new TypeError('Network request failed'));
+    expect(await signInWithIdentifier('+573001234567', 'x')).toEqual({ ok: false, failure: { kind: 'offline' } });
   });
 
   it('una respuesta sin persona válida es un fallo, no una excepción', async () => {
-    mockClient.signIn.phoneNumber.mockResolvedValue({ data: { user: { id: 1 } }, error: null });
-    expect(await signInWithPhone('+573001234567', 'x')).toMatchObject({ ok: false });
+    mockClient.$fetch.mockResolvedValue({ data: { user: { id: 1 } }, error: null });
+    expect(await signInWithIdentifier('+573001234567', 'x')).toMatchObject({ ok: false });
   });
 });
 
