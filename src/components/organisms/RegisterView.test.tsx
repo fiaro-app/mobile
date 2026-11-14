@@ -1,6 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { RegisterView, type RegisterViewProps } from '@/components/organisms/RegisterView';
-import { ACCESS_COPY } from '@/features/auth/content/access-messages';
 
 jest.mock('@/components/atoms/Button', () => {
   const { Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');
@@ -13,6 +12,12 @@ jest.mock('@/components/atoms/Button', () => {
   };
 });
 
+const TEXTS = {
+  accountTitle: 'a', companyTitle: 'c', accountSubtitle: 's', companySubtitle: 's', fullName: 'n', fullNamePlaceholder: 'n', nationalId: 'c', nationalIdPlaceholder: 'c', phone: 'p', phonePlaceholder: 'p', email: 'e', emailPlaceholder: 'e',
+  secretLabel: 'x', hint: 'h', business: 'b', businessPlaceholder: 'b', next: 'Continuar', submit: 'Crear cuenta', back: 'Atrás', consentsTitle: 'Autorizaciones', termsLabel: 't', privacyLabel: 'p', responsibilityLabel: 'r', cookiesLabel: 'k', marketingLabel: 'm',
+  consentRequired: 'Requerido', consentsPending: 'Marca las cuatro autorizaciones obligatorias.', readTerms: 'rt', readPrivacy: 'rp', readCookies: 'rc', doneTitle: 'd', doneSubtitle: 'd', toLogin: 'Ir',
+};
+
 const noop = jest.fn();
 const ALL = { terms: true, privacy: true, responsibility: true, cookies: true, marketing: false };
 
@@ -20,7 +25,7 @@ function view(consents: RegisterViewProps['consents'], onSubmit = noop) {
   return (
     <RegisterView
       step="company"
-      texts={{ ...ACCESS_COPY.register }}
+      texts={TEXTS}
       values={{ fullName: '', nationalId: '', phone: '', contactEmail: '', password: '', businessName: '' }}
       errors={{}}
       formError={null}
@@ -45,9 +50,9 @@ describe('RegisterView — autorizaciones', () => {
   it.each(['terms', 'privacy', 'responsibility', 'cookies'] as const)('deshabilita «Crear cuenta» y avisa si falta %s', async (missing) => {
     const onSubmit = jest.fn();
     await render(view({ ...ALL, [missing]: false }, onSubmit));
-    const button = screen.getByRole('button', { name: ACCESS_COPY.register.submit });
+    const button = screen.getByRole('button', { name: TEXTS.submit });
     expect(button).toBeDisabled();
-    expect(screen.getByText(ACCESS_COPY.register.consentsPending)).toBeTruthy();
+    expect(screen.getByText(TEXTS.consentsPending)).toBeTruthy();
     await fireEvent.press(button);
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -55,9 +60,9 @@ describe('RegisterView — autorizaciones', () => {
   it('habilita el botón con las cuatro obligatorias, aunque las novedades estén sin marcar', async () => {
     const onSubmit = jest.fn();
     await render(view(ALL, onSubmit));
-    const button = screen.getByRole('button', { name: ACCESS_COPY.register.submit });
+    const button = screen.getByRole('button', { name: TEXTS.submit });
     expect(button).toBeEnabled();
-    expect(screen.queryByText(ACCESS_COPY.register.consentsPending)).toBeNull();
+    expect(screen.queryByText(TEXTS.consentsPending)).toBeNull();
     await fireEvent.press(button);
     expect(onSubmit).toHaveBeenCalled();
   });
