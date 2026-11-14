@@ -12,11 +12,8 @@ jest.mock('@/components/atoms/Button', () => {
   };
 });
 
-const TEXTS = {
-  accountTitle: 'a', companyTitle: 'c', accountSubtitle: 's', companySubtitle: 's', fullName: 'n', fullNamePlaceholder: 'n', nationalId: 'c', nationalIdPlaceholder: 'c', phone: 'p', phonePlaceholder: 'p', email: 'e', emailPlaceholder: 'e',
-  secretLabel: 'x', hint: 'h', business: 'b', businessPlaceholder: 'b', next: 'Continuar', submit: 'Crear cuenta', back: 'Atrás', consentsTitle: 'Autorizaciones', termsLabel: 't', privacyLabel: 'p', responsibilityLabel: 'r', cookiesLabel: 'k', marketingLabel: 'm',
-  consentRequired: 'Requerido', consentsPending: 'Marca las cuatro autorizaciones obligatorias.', readTerms: 'rt', readPrivacy: 'rp', readCookies: 'rc', doneTitle: 'd', doneSubtitle: 'd', toLogin: 'Ir',
-};
+/** Cada texto es su propia clave (`TEXTS.submit === 'submit'`): la prueba no depende de la redacción. */
+const TEXTS = new Proxy({}, { get: (_target, key) => String(key) }) as RegisterViewProps['texts'];
 
 const noop = jest.fn();
 const ALL = { terms: true, privacy: true, responsibility: true, cookies: true, marketing: false };
