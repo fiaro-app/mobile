@@ -1,13 +1,7 @@
 import type { ApiFailure } from '@/lib/http/failure';
 
-/** Textos de la foto del cliente y del comprobante de un pago. */
+/** Textos del comprobante de un pago. */
 export const ATTACHMENT_COPY = {
-  clientPhoto: {
-    title: 'Foto del cliente',
-    description: 'La ven solo quienes administran el negocio y el cobrador de este cliente.',
-    alt: (name: string) => `Foto de ${name}`,
-    none: 'Todavía no hay foto.',
-  },
   paymentProof: {
     title: 'Comprobante del pago',
     description: 'La captura de Nequi o de la transferencia.',

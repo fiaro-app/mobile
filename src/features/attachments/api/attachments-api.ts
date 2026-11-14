@@ -5,15 +5,14 @@ import type { Result } from '@/lib/result';
 
 type Response<T> = Promise<Result<T, ApiFailure>>;
 
-/** Lo que se adjunta: la foto de un cliente o el comprobante de un pago (D-145 del API). */
-export type AttachmentTarget = 'client' | 'payment';
+/** Lo que se adjunta: el comprobante de un pago (D-145 del API). */
+export type AttachmentTarget = 'payment';
 
 const BASE: Record<AttachmentTarget, (id: string) => string> = {
-  client: (id) => `/clients/${id}/photo`,
   payment: (id) => `/payments/${id}/proof`,
 };
 
-/** `GET .../photo|proof`: la URL firmada para ver la imagen (vence en minutos), o `null` si no hay. */
+/** `GET .../proof`: la URL firmada para ver la imagen (vence en minutos), o `null` si no hay. */
 export function fetchAttachmentUrl(target: AttachmentTarget, id: string): Response<string | null> {
   return authedRequest(BASE[target](id), (body) => z.object({ url: z.string().nullable() }).parse(body).url);
 }
