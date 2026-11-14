@@ -41,6 +41,7 @@ export function registerOwner(input: RegisterInput): Promise<Result<unknown, Api
       acceptedTerms: true,
       acceptedPrivacy: true,
       acceptedDataResponsibility: true,
+      acceptedCookies: true,
       marketingConsent: input.marketingConsent,
       legalVersion: LEGAL_VERSION,
       ...(input.contactEmail === '' ? {} : { contactEmail: input.contactEmail }),

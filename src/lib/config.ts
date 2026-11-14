@@ -26,5 +26,5 @@ export const TURNSTILE_SITE_KEY: string | undefined = process.env.EXPO_PUBLIC_TU
  */
 export const TURNSTILE_ORIGIN: string = process.env.EXPO_PUBLIC_TURNSTILE_ORIGIN ?? 'http://localhost';
 
-/** Origen público de la web, donde están los textos legales (`/terminos`, `/privacidad`). */
+/** Origen público de la web, donde están los textos legales (`/terminos`, `/privacidad`, `/cookies`). */
 export const SITE_URL: string = process.env.EXPO_PUBLIC_SITE_URL ?? 'https://fiaro.co';

@@ -7,6 +7,9 @@ import { ACCESS_COPY } from '@/features/auth/content/access-messages';
 import { useRegisterForm } from '@/features/auth/hooks/use-register-form';
 import { SITE_URL } from '@/lib/config';
 
+/** Dónde está cada texto legal en la web. */
+const LEGAL_PATHS = { terms: 'terminos', privacy: 'privacidad', cookies: 'cookies' } as const;
+
 /** Ruta `/register`: registrar un negocio nuevo (dueño y empresa) en dos pasos; después se inicia sesión. */
 export default function RegisterScreen() {
   const router = useRouter();
@@ -27,7 +30,7 @@ export default function RegisterScreen() {
         consentErrors={form.consentErrors}
         onConsent={form.setConsent}
         onOpenLegal={(document) => {
-          void Linking.openURL(`${SITE_URL}/${document === 'terms' ? 'terminos' : 'privacidad'}`);
+          void Linking.openURL(`${SITE_URL}/${LEGAL_PATHS[document]}`);
         }}
         onField={form.setField}
         onNext={form.next}

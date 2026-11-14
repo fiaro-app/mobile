@@ -32,7 +32,7 @@ describe('access-api', () => {
     const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: '', marketingConsent: false };
     await registerOwner(base);
     await registerOwner({ ...base, contactEmail: 'd@correo.com' });
-    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, marketingConsent: false, legalVersion: '2026-10-16' });
+    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, acceptedCookies: true, marketingConsent: false, legalVersion: '2026-11-14' });
     expect(post.mock.calls[1]?.[1]).toMatchObject({ contactEmail: 'd@correo.com' });
   });
 
