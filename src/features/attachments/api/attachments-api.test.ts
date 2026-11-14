@@ -9,8 +9,8 @@ describe('attachments-api', () => {
 
   it('reads the signed url of a client photo', async () => {
     request.mockImplementation((_path: string, parse: (body: unknown) => unknown) => Promise.resolve(parse({ url: 'https://s/x', expiresAt: 'e' })));
-    expect(await fetchAttachmentUrl('client', 'c1')).toBe('https://s/x');
-    expect(request.mock.calls[0][0]).toBe('/clients/c1/photo');
+    expect(await fetchAttachmentUrl('payment', 'c1')).toBe('https://s/x');
+    expect(request.mock.calls[0][0]).toBe('/payments/c1/proof');
   });
 
   it('uses the payment proof routes', async () => {

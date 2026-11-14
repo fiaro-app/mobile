@@ -20,7 +20,7 @@ function wrapper({ children }: Readonly<{ children: ReactNode }>) {
 }
 
 const ready = async () => {
-  const hook = await renderHook(() => useAttachment('client', 'c1'), { wrapper });
+  const hook = await renderHook(() => useAttachment('payment', 'c1'), { wrapper });
   await waitFor(() => {
     expect(hook.result.current.loading).toBe(false);
   });
@@ -41,7 +41,7 @@ describe('useAttachment', () => {
 
   it('flags a load failure', async () => {
     a.fetchAttachmentUrl.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
-    const { result } = await renderHook(() => useAttachment('client', 'c1'), { wrapper });
+    const { result } = await renderHook(() => useAttachment('payment', 'c1'), { wrapper });
     await waitFor(() => {
       expect(result.current.loadFailed).toBe(true);
     });
@@ -72,7 +72,7 @@ describe('useAttachment', () => {
     await waitFor(() => {
       expect(result.current.notice).toBe('Imagen guardada.');
     });
-    expect(a.saveAttachment).toHaveBeenCalledWith('client', 'c1', 'k');
+    expect(a.saveAttachment).toHaveBeenCalledWith('payment', 'c1', 'k');
   });
 
   it('reports a storage failure with its own message and does not save', async () => {

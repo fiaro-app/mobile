@@ -24,7 +24,7 @@ export interface Attachment {
 }
 
 /**
- * Una imagen privada (foto de cliente, comprobante): se trae con su URL firmada, se elige de la galería (PNG o JPG de hasta 5 MB),
+ * Una imagen privada (comprobante): se trae con su URL firmada, se elige de la galería (PNG o JPG de hasta 5 MB),
  * se pide una URL de subida, se sube directo al almacenamiento y se guarda. Un fallo del almacenamiento (red, permiso) no es un
  * error del API y tiene su propio mensaje.
  */
