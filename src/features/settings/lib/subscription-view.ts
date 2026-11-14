@@ -17,38 +17,74 @@ function days(count: number): string {
 /** Aviso a mostrar según el plan, o `null` si no hay nada que avisar (activo y con tiempo). */
 export function subscriptionNotice(subscription: Subscription): SubscriptionNotice | null {
   if (subscription.isReadOnly || subscription.status === 'READ_ONLY') {
-    return { kind: 'error', message: 'Tu negocio está en modo de solo lectura: puedes consultar tus datos, pero no hacer cambios.' };
+    return { kind: 'error', message: 'Tu negocio está en modo de solo lectura: puedes consultar tus datos y seguir registrando cobros y cuadres, pero no hacer otros cambios.' };
   }
+  const trial = subscription.planCode === 'TRIAL';
   if (subscription.status === 'GRACE_PERIOD') {
-    return { kind: 'warning', message: `Tu prueba terminó. Tienes ${days(subscription.graceDaysRemaining)} para activar tu plan antes de pasar a solo lectura.` };
+    const left = days(subscription.graceDaysRemaining);
+    return {
+      kind: 'warning',
+      message: trial
+        ? `Tu prueba terminó. Tienes ${left} para activar tu plan antes de pasar a solo lectura.`
+        : `Tu plan venció. Tienes ${left} para renovarlo antes de pasar a solo lectura.`,
+    };
   }
   if (subscription.daysRemaining <= WARN_FROM_DAYS) {
-    return { kind: 'warning', message: subscription.daysRemaining === 0 ? 'Tu prueba gratis termina hoy.' : `Tu prueba gratis termina en ${days(subscription.daysRemaining)}.` };
+    const what = trial ? 'Tu prueba gratis termina' : 'Tu plan vence';
+    return { kind: 'warning', message: subscription.daysRemaining === 0 ? `${what} hoy.` : `${what} en ${days(subscription.daysRemaining)}.` };
   }
   return null;
+}
+
+/** Una barra de uso de «Tu plan»: cuánto se usa de un tope. */
+export interface UsageBar {
+  readonly label: string;
+  readonly value: string;
+  readonly percent: number;
 }
 
 /** Bloque "Tu plan" de Configuración. */
 export interface SubscriptionView {
   readonly rows: readonly { readonly label: string; readonly value: string }[];
-  readonly collectorsPercent: number;
+  /** Cobradores, administradores y préstamos activos que tienen tope, cada uno con su barra. */
+  readonly bars: readonly UsageBar[];
+  /** Cuántas carteras admite el plan, la «General» incluida. */
+  readonly maxPortfolios: number;
   readonly notice: SubscriptionNotice | null;
 }
 
 const STATUS_LABELS = { ACTIVE: 'Activo', GRACE_PERIOD: 'En gracia', READ_ONLY: 'Solo lectura' } as const;
+const PLAN_LABELS = { TRIAL: 'Prueba gratis', INDIVIDUAL: 'Individual', PRO: 'Pro', TEAM: 'Team' } as const;
 
-/** Convierte el plan del API en filas de lectura y el uso de cobradores en porcentaje. */
+function percentOf(used: number, max: number): number {
+  return max === 0 ? 0 : Math.min(100, Math.round((used / max) * 100));
+}
+
+function usageOf(used: number, max: number): string {
+  return `${String(used)} de ${String(max)}`;
+}
+
+/** Convierte el plan del API en filas de lectura y el uso de cada tope en barras. */
 export function toSubscriptionView(subscription: Subscription): SubscriptionView {
   const { usage, limits } = subscription;
+  const bars: UsageBar[] = [
+    { label: 'Cobradores activos', value: usageOf(usage.activeCollectors, limits.maxCollectors), percent: percentOf(usage.activeCollectors, limits.maxCollectors) },
+    { label: 'Administradores', value: usageOf(usage.activeAdmins, limits.maxAdmins), percent: percentOf(usage.activeAdmins, limits.maxAdmins) },
+  ];
+  if (limits.maxActiveLoans !== null) {
+    bars.push({ label: 'Préstamos activos', value: usageOf(usage.activeLoans, limits.maxActiveLoans), percent: percentOf(usage.activeLoans, limits.maxActiveLoans) });
+  }
   return {
     rows: [
-      { label: 'Plan', value: subscription.planCode === 'TRIAL' ? 'Prueba gratis' : subscription.planCode },
+      { label: 'Plan', value: PLAN_LABELS[subscription.planCode] },
       { label: 'Estado', value: STATUS_LABELS[subscription.status] },
       { label: 'Vence el', value: formatShortDate(subscription.currentPeriodEndsAt) },
       { label: 'Días restantes', value: String(subscription.daysRemaining) },
-      { label: 'Cobradores activos', value: `${String(usage.activeCollectors)} de ${String(limits.maxCollectors)}` },
+      ...(limits.maxActiveLoans === null ? [{ label: 'Préstamos activos', value: `${String(usage.activeLoans)} (sin tope)` }] : []),
+      { label: 'Carteras', value: `Hasta ${String(limits.maxPortfolios)}` },
     ],
-    collectorsPercent: limits.maxCollectors === 0 ? 0 : Math.min(100, Math.round((usage.activeCollectors / limits.maxCollectors) * 100)),
+    bars,
+    maxPortfolios: limits.maxPortfolios,
     notice: subscriptionNotice(subscription),
   };
 }

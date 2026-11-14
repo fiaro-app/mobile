@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 
 /** Textos de Configuración. */
@@ -17,6 +18,7 @@ export const SETTINGS_COPY = {
     title: 'Carteras',
     hint: 'Agrupan a tus cobradores. La cartera por defecto no se puede borrar.',
     add: 'Agregar cartera',
+    limit: (max: number) => `Llegaste al máximo de ${String(max)} carteras. Borra una que no uses para poder agregar otra.`,
     newName: 'Nombre de la cartera',
     create: 'Crear cartera',
     created: 'Cartera creada.',
@@ -44,6 +46,8 @@ export function settingsFailureMessage(failure: ApiFailure): string {
   switch (failure.code) {
     case 'CONFLICT':
       return 'Ya tienes una cartera con ese nombre.';
+    case 'PLAN_LIMIT_REACHED':
+      return planLimitMessage(failure, 'B007A');
     case 'FORBIDDEN':
       return 'No tienes permiso para cambiar la configuración del negocio.';
     case 'SUBSCRIPTION_READ_ONLY':

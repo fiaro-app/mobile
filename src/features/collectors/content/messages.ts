@@ -1,3 +1,4 @@
+import { planLimitMessage } from '@/features/settings/content/plan-limit';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { CollectorStatusFilter } from '@/features/collectors/lib/collector-view-model';
 
@@ -6,9 +7,9 @@ export const COLLECTORS_COPY = {
   title: 'Cobradores',
   searchPlaceholder: 'Buscar cobrador',
   statusOptions: [
-    { value: 'all', label: 'Todos' },
     { value: 'active', label: 'Activos' },
     { value: 'inactive', label: 'Inactivos' },
+    { value: 'all', label: 'Todos' },
   ] satisfies readonly { value: CollectorStatusFilter; label: string }[],
   register: 'Registrar cobrador',
   emptyTitle: 'Aún no tienes cobradores',
@@ -27,7 +28,7 @@ export const COLLECTORS_COPY = {
     nationalIdPlaceholder: '1.020.304.050',
     phone: 'Teléfono',
     phonePlaceholder: '300 123 4567',
-    email: 'Correo electrónico (opcional)',
+    email: 'Correo electrónico',
     emailPlaceholder: 'carlos.ramirez@correo.com',
     portfolio: 'Cartera asignada',
     portfolioPlaceholder: 'Elige una cartera',
@@ -63,7 +64,24 @@ export const COLLECTORS_COPY = {
     deactivateMessage: (name: string) => `${name} perderá el acceso de inmediato. Su historial se conserva.`,
     deactivateConfirm: 'Desactivar',
     deactivated: 'Cobrador desactivado.',
+    handoverTitle: 'Pasar sus préstamos a',
+    handoverMessage: (name: string, count: number) =>
+      count === 1
+        ? `${name} tiene 1 préstamo activo. Elige a qué cobrador pasarlo: ningún préstamo puede quedar sin cobrador.`
+        : `${name} tiene ${String(count)} préstamos activos. Elige a qué cobrador pasarlos: ningún préstamo puede quedar sin cobrador.`,
+    noDestinations: 'No hay otro cobrador activo que pueda recibir sus préstamos. Registra o reactiva uno antes de darlo de baja.',
+    handoverFailed: 'No pudimos revisar sus préstamos. Intenta de nuevo.',
+    reactivate: 'Reactivar cobrador',
+    reactivateTitle: '¿Reactivar al cobrador?',
+    reactivateMessage: (name: string) => `${name} vuelve a ingresar con su misma cartera y ocupa un cupo de tu plan. Sus préstamos se asignan aparte.`,
+    reactivateConfirm: 'Reactivar',
+    reactivated: 'Cobrador reactivado.',
+    remove: 'Borrar cobrador',
+    removeTitle: '¿Borrar al cobrador?',
+    removeMessage: (name: string) => `Solo se puede si ${name} nunca tuvo préstamos asignados, cobros ni cuadres (un registro por error). No se puede deshacer.`,
+    removeConfirm: 'Borrar',
     inactiveNote: 'Este cobrador está desactivado y no puede iniciar sesión.',
+    selfNote: 'Eres tú. Tu contraseña la cambias desde Perfil, y tu cartera o tu baja, otra persona que administre el negocio.',
     cancel: 'Cancelar',
     notFoundTitle: 'Cobrador no encontrado',
     notFoundMessage: 'Ese cobrador ya no existe. Vuelve a la lista y actualiza.',
@@ -83,6 +101,12 @@ export function collectorFailureMessage(failure: ApiFailure): string {
       return 'Ese cobrador ya no existe. Actualiza la lista.';
     case 'CONFLICT':
       return 'Esa persona ya trabaja con tu negocio.';
+    case 'COLLABORATOR_NATIONAL_ID_TAKEN':
+      return 'Ya hay un colaborador con esa cédula en tu negocio.';
+    case 'PLAN_LIMIT_REACHED':
+      return planLimitMessage(failure, 'M003A');
+    case 'COLLECTOR_HAS_HISTORY':
+      return 'Este cobrador ya tiene historial: dalo de baja en lugar de borrarlo.';
     default:
       return failure.status === 429 ? 'Demasiados intentos. Espera un momento.' : 'No pudimos completar la acción. Intenta de nuevo.';
   }

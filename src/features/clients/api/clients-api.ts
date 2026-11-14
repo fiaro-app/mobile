@@ -7,7 +7,7 @@ import type { Result } from '@/lib/result';
 type Response<T> = Promise<Result<T, ApiFailure>>;
 
 /** Clientes por página: llena la pantalla y se pide la siguiente al llegar al final de la lista. */
-export const CLIENTS_PAGE_SIZE = 30;
+export const CLIENTS_PAGE_SIZE = 10;
 
 /** Una página de clientes con su total. */
 export interface ClientsPage {

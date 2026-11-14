@@ -4,6 +4,7 @@ import type { RouteEntry } from '@/features/route/lib/route-entry';
 
 const row = (name: string, days: number): RouteEntry => ({
   loanId: name, clientId: name, clientFullName: name, balance: 1000, overdueAmount: days ? 100 : 0, overdueDays: days, nextDueDate: null,
+  collectedToday: 0,
 });
 const entries = [row('Marta Gómez', 12), row('Carlos Restrepo', 0), row('Yolanda Pérez', 3)];
 

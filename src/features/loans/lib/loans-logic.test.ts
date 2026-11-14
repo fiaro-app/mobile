@@ -89,7 +89,7 @@ describe('historial de cobros', () => {
   const visit = (over = {}) => ({ id: 'v1', collectorMembershipId: 'm1', outcome: 'PAID' as const, promisedDate: null, occurredAt: '2026-09-24T21:12:00Z', payment: { id: 'p1', amount: 35000, method: 'CASH' as const, reversal: null }, ...over });
 
   it('un pago vigente se puede revertir', () => {
-    expect(toVisitRow(visit(), names)).toEqual({ id: 'v1', title: 'Pago · Efectivo', subtitle: '24 sep 2026 · Ana Gómez', detail: '', badge: null, trailing: '$35.000', reversiblePaymentId: 'p1' });
+    expect(toVisitRow(visit(), names)).toEqual({ id: 'v1', title: 'Pago · Efectivo', subtitle: '24 sep 2026 · Ana Gómez', detail: '', badge: null, trailing: '$35.000', reversiblePaymentId: 'p1', paymentId: 'p1' });
   });
 
   it('un pago revertido muestra el motivo y ya no se puede revertir', () => {
@@ -109,7 +109,7 @@ describe('mensajes', () => {
   const http = (status: number, code: string | null = null) => ({ kind: 'http', status, code, retryAfterSeconds: null }) as const;
   it.each([
     [{ kind: 'offline' }, /Sin conexión/], [{ kind: 'maintenance' }, /mantenimiento/], [http(409, 'LOAN_NOT_CANCELABLE'), /dejó de estar activo/], [http(403, 'FORBIDDEN'), /permiso/],
-    [http(403, 'SUBSCRIPTION_READ_ONLY'), /solo lectura/], [http(404, 'NOT_FOUND'), /ya no existe/], [http(409, 'CONFLICT'), /ya estaba revertido/], [http(429), /Demasiados/], [http(500), /No pudimos/],
+    [http(403, 'SUBSCRIPTION_READ_ONLY'), /solo lectura/], [http(403, 'PLAN_LIMIT_REACHED'), /préstamos activos/], [http(404, 'NOT_FOUND'), /ya no existe/], [http(409, 'CONFLICT'), /ya estaba revertido/], [http(429), /Demasiados/], [http(500), /No pudimos/],
   ] as const)('%j', (failure, expected) => {
     expect(loanFailureMessage(failure)).toMatch(expected);
   });

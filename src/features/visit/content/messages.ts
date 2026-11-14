@@ -28,7 +28,7 @@ export const VISIT_COPY = {
     save: 'Guardar visita',
   },
   confirm: { title: '¿Confirmar pago?', cancel: 'Cancelar', accept: 'Confirmar' },
-  rejected: 'No pudimos registrar la visita. Revisa los datos e intenta de nuevo.',
+  rejected: 'No pudimos registrar la visita. Revisa los datos e intenta de nuevo. Si ya enviaste el cuadre de hoy, no se pueden registrar más cobros: cancélalo primero.',
   sessionExpired: 'Tu sesión venció. Inicia sesión de nuevo.',
 } as const;
 

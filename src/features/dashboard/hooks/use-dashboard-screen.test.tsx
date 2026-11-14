@@ -25,7 +25,7 @@ function wrapper({ children }: Readonly<{ children: ReactNode }>) {
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(api).fetchDashboard.mockResolvedValue({ ok: true, value: dashboard });
-  jest.mocked(settings).fetchSubscription.mockResolvedValue({ ok: true, value: { planCode: 'TRIAL', status: 'GRACE_PERIOD', currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 0, graceDaysRemaining: 3, isReadOnly: false, limits: { maxCollectors: 5 }, usage: { activeCollectors: 1 } } });
+  jest.mocked(settings).fetchSubscription.mockResolvedValue({ ok: true, value: { planCode: 'TRIAL', status: 'GRACE_PERIOD', currentPeriodEndsAt: '2026-11-01T15:00:00Z', daysRemaining: 0, graceDaysRemaining: 3, isReadOnly: false, features: ['ADVANCED_STATS' as const, 'EXCEL_IMPORT' as const], limits: { maxCollectors: 5, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 0 } } });
   jest.mocked(team).fetchMembers.mockResolvedValue({ ok: true, value: [{ id: 'm1', userId: 'u', fullName: 'Ana Gómez', phone: '+573001234567', roles: ['COLLECTOR'], status: 'ACTIVE', portfolioId: null }] });
 });
 
@@ -38,6 +38,23 @@ describe('useDashboardScreen', () => {
     expect(result.current.loadFailed).toBe(false);
     await waitFor(() => {
       expect(result.current.banner?.kind).toBe('warning');
+    });
+  });
+
+  it('con fechas pide el resumen de ese período', async () => {
+    const { result } = await renderHook(() => useDashboardScreen(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.model).not.toBeNull();
+    });
+    expect(jest.mocked(api).fetchDashboard).toHaveBeenCalledWith(null);
+    await act(async () => {
+      result.current.dates.open('from');
+    });
+    await act(async () => {
+      result.current.dates.pick('2026-10-01');
+    });
+    await waitFor(() => {
+      expect(jest.mocked(api).fetchDashboard).toHaveBeenLastCalledWith({ from: '2026-10-01', to: '2026-10-01' });
     });
   });
 

@@ -1,17 +1,23 @@
 import { useRouter } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { Avatar } from '@/components/atoms/Avatar';
+import { Button } from '@/components/atoms/Button';
+import { ConfirmSlider } from '@/components/molecules/ConfirmSlider';
 import { IconButton } from '@/components/atoms/IconButton';
 import { BellButton } from '@/components/molecules/BellButton';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { SyncBanner } from '@/components/molecules/SyncBanner';
 import { ClientList } from '@/components/organisms/ClientList';
+import { OptionSheet } from '@/components/organisms/OptionSheet';
+import { RouteFilterBar } from '@/components/molecules/RouteFilterBar';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { bellLabel } from '@/features/notifications/content/messages';
 import { useUnreadCount } from '@/features/notifications/hooks/use-notifications';
 import { ROUTE_COPY } from '@/features/route/content/messages';
 import { useRouteScreen } from '@/features/route/hooks/use-route-screen';
+import { SETTLEMENT_COPY } from '@/features/settlement/content/messages';
+import { useDayPhase } from '@/features/settlement/hooks/use-settlement-data';
 import { syncBannerMessage } from '@/features/visit/content/sync-message';
 import { useSyncStore } from '@/features/visit/queue/sync-store';
 
@@ -21,7 +27,23 @@ export default function RouteScreen() {
   const openClient = (row: { id: string; clientId: string }) => {
     router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
   };
+  const pressRow = (row: { id: string; clientId: string; name: string; collectedLabel: string | null }) => {
+    if (!row.collectedLabel) {
+      openClient(row);
+      return;
+    }
+    Alert.alert('Ya se le cobró hoy', `${row.name}: ${row.collectedLabel.toLowerCase()}. ¿Abrirlo de todos modos?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Abrir',
+        onPress: () => {
+          openClient(row);
+        },
+      },
+    ]);
+  };
   const screen = useRouteScreen();
+  const dayPhase = useDayPhase();
   const unread = useUnreadCount().data ?? 0;
   const pending = useSyncStore((state) => state.pending);
   const rejected = useSyncStore((state) => state.rejected);
@@ -33,6 +55,13 @@ export default function RouteScreen() {
           title={ROUTE_COPY.routeTitle}
           right={
             <View className="flex-row items-center gap-1">
+              <IconButton
+                icon="add-circle-outline"
+                label="Sugerir un préstamo"
+                onPress={() => {
+                  router.push('/request-loan');
+                }}
+              />
               <IconButton
                 icon="search"
                 label="Buscar clientes"
@@ -65,12 +94,50 @@ export default function RouteScreen() {
     >
       {banner ? <SyncBanner message={banner} /> : null}
       <ClientList
-        items={screen.rows.map((row) => ({ ...row, onPress: () => openClient(row) }))}
+        items={screen.rows.map((row) => ({ ...row, onPress: () => {
+            pressRow(row);
+          } }))}
         loading={screen.loading}
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
+        header={
+          <RouteFilterBar
+            filters={screen.filters}
+            filter={screen.filter}
+            onFilter={screen.setFilter}
+            sortLabel={screen.sortLabel}
+            sortActive={screen.sort !== 'urgent'}
+            onOpenSort={screen.openSortSheet}
+          />
+        }
         empty={<EmptyState {...screen.empty} onAction={screen.refresh} />}
       />
+      <OptionSheet
+        visible={screen.sortSheetOpen}
+        title={ROUTE_COPY.sortTitle}
+        options={ROUTE_COPY.sortOptions}
+        selected={screen.sort}
+        onSelect={screen.setSort}
+        onClose={screen.closeSortSheet}
+      />
+      <View className="border-t border-surface-2 bg-surface px-4 py-3">
+        {dayPhase === 'open' ? (
+          <ConfirmSlider
+            label={SETTLEMENT_COPY.slide}
+            onConfirm={() => {
+              router.push('/settlement');
+            }}
+          />
+        ) : (
+          <Button
+            label={dayPhase === 'approved' ? SETTLEMENT_COPY.approved : SETTLEMENT_COPY.inReview}
+            variant="outline"
+            onPress={() => {
+              router.push('/settlement');
+            }}
+          />
+        )}
+      </View>
     </ScreenTemplate>
   );
 }

@@ -4,7 +4,9 @@ import { Button } from '@/components/atoms/Button';
 import { SelectButton } from '@/components/atoms/SelectButton';
 import { TextField } from '@/components/atoms/TextField';
 import { Alert } from '@/components/molecules/Alert';
+import { RiskCard, type RiskCardProps } from '@/components/molecules/RiskCard';
 import { FormField } from '@/components/molecules/FormField';
+import { DatePickerSheet } from '@/components/organisms/DatePickerSheet';
 import { OptionSheet } from '@/components/organisms/OptionSheet';
 
 type Option = { readonly value: string; readonly label: string; readonly description?: string };
@@ -15,10 +17,14 @@ export interface LoanFormViewProps {
   readonly labels: { readonly client: string; readonly frequency: string; readonly startDate: string; readonly collector: string };
   readonly texts: { readonly clientField: string; readonly principal: string; readonly count: string; readonly installment: string; readonly total: string; readonly totalHint: string; readonly frequency: string; readonly startDate: string; readonly collector: string; readonly submit: string; readonly cancel: string; readonly seeLoan: string };
   readonly totalSuggested: boolean;
+  /** Aviso de riesgo muy alto del cliente elegido; no bloquea el envío. */
+  readonly riskWarning?: string | null;
+  /** Tarjeta de riesgo del cliente elegido, bajo el formulario. */
+  readonly risk?: RiskCardProps | null;
   readonly submitting: boolean;
   readonly formError: string | null;
   readonly createdLoanId: string | null;
-  readonly sheets: { readonly active: 'none' | 'client' | 'frequency' | 'startDate' | 'collector'; readonly frequency: readonly Option[]; readonly startDate: readonly Option[]; readonly collector: readonly Option[]; readonly onClose: () => void };
+  readonly sheets: { readonly active: 'none' | 'client' | 'frequency' | 'startDate' | 'collector'; readonly frequency: readonly Option[]; readonly today: string; readonly collector: readonly Option[]; readonly onClose: () => void };
   readonly onOpen: (sheet: 'client' | 'frequency' | 'startDate' | 'collector') => void;
   readonly onAmount: (field: 'principal' | 'installment' | 'total', text: string) => void;
   readonly onCount: (text: string) => void;
@@ -47,6 +53,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
           <FormField label={texts.clientField} error={errors.clientId}>
             {() => <SelectButton label={labels.client} active={!errors.clientId} onPress={() => { props.onOpen('client'); }} />}
           </FormField>
+          {props.riskWarning ? <Alert message={props.riskWarning} /> : null}
           {money('principal', texts.principal)}
           <FormField label={texts.count} error={errors.count}>
             {(a11y) => <TextField {...a11y} value={values.count} onChangeText={props.onCount} invalid={Boolean(errors.count)} keyboardType="number-pad" placeholder="30" editable={editable} />}
@@ -61,6 +68,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
           </FormField>
           <FormField label={texts.collector}>{() => <SelectButton label={labels.collector} active={values.collectorId !== ''} onPress={() => { props.onOpen('collector'); }} />}</FormField>
         </View>
+        {props.risk ? <RiskCard {...props.risk} /> : null}
         {props.createdLoanId ? (
           <Button label={texts.seeLoan} onPress={props.onSeeLoan} />
         ) : (
@@ -74,7 +82,7 @@ export function LoanFormView(props: Readonly<LoanFormViewProps>) {
         </AppText>
       </ScrollView>
       <OptionSheet visible={props.sheets.active === 'frequency'} title={texts.frequency} options={props.sheets.frequency} selected={values.frequency} onSelect={props.onFrequency} onClose={props.sheets.onClose} />
-      <OptionSheet visible={props.sheets.active === 'startDate'} title={texts.startDate} options={props.sheets.startDate} selected={values.startDate} onSelect={props.onStartDate} onClose={props.sheets.onClose} />
+      <DatePickerSheet visible={props.sheets.active === 'startDate'} title={texts.startDate} value={values.startDate} today={props.sheets.today} onSelect={props.onStartDate} onClose={props.sheets.onClose} />
       <OptionSheet visible={props.sheets.active === 'collector'} title={texts.collector} options={props.sheets.collector} selected={values.collectorId} onSelect={props.onCollector} onClose={props.sheets.onClose} />
     </View>
   );

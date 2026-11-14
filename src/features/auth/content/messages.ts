@@ -15,7 +15,7 @@ export const AUTH_COPY = {
   validation: {
     phone: 'Ingresa un celular colombiano válido de 10 dígitos.',
     passwordRequired: 'Ingresa tu contraseña.',
-    passwordMin: 'La contraseña debe tener mínimo 8 caracteres.',
+    passwordMin: 'La contraseña debe tener mínimo 15 caracteres.',
     passwordMatch: 'Las contraseñas no coinciden.',
     currentRequired: 'Ingresa tu contraseña actual.',
   },
@@ -25,7 +25,7 @@ export const AUTH_COPY = {
     currentLabel: 'Contraseña temporal',
     newLabel: 'Nueva contraseña',
     confirmLabel: 'Confirmar contraseña',
-    hint: 'Mínimo 8 caracteres.',
+    hint: 'Mínimo 15 caracteres. Sirve una frase fácil de recordar, como «la tienda abre a las seis».',
     submit: 'Guardar y continuar',
   },
 } as const;
@@ -52,7 +52,7 @@ export function signInFailureMessage(failure: SignInFailure): string {
 const CHANGE_PASSWORD_MESSAGES = {
   'wrong-current': 'La contraseña temporal no es correcta.',
   weak: 'Esa contraseña es muy fácil de adivinar. Elige otra más difícil.',
-  'invalid-length': 'La contraseña debe tener entre 8 y 128 caracteres.',
+  'invalid-length': 'La contraseña debe tener entre 15 y 128 caracteres.',
   'session-expired': 'Tu sesión venció. Inicia sesión de nuevo.',
   'rate-limited': 'Demasiados intentos. Espera un momento y vuelve a intentar.',
   offline: 'Sin conexión a internet. Revisa tu conexión e intenta de nuevo.',

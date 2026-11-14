@@ -24,5 +24,5 @@ export function paidPercent(totalPayable: number, balance: number): number {
 export function currentAssignment(assignments: readonly Assignment[], today: string): Assignment | null {
   const active = assignments.filter((assignment) => assignment.effectiveFrom <= today && (assignment.effectiveTo === null || assignment.effectiveTo >= today));
   const rank = (assignment: Assignment) => (assignment.effectiveTo === null ? 0 : 1);
-  return active.toSorted((a, b) => rank(a) - rank(b) || b.effectiveFrom.localeCompare(a.effectiveFrom))[0] ?? null;
+  return [...active].sort((a, b) => rank(a) - rank(b) || b.effectiveFrom.localeCompare(a.effectiveFrom))[0] ?? null;
 }

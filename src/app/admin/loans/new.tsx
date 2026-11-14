@@ -1,3 +1,7 @@
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
+import { toRiskCardProps } from '@/features/risk/lib/risk-view';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientPickerSheet } from '@/components/organisms/ClientPickerSheet';
@@ -6,15 +10,18 @@ import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { useClientPicker } from '@/features/clients/hooks/use-client-picker';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanForm } from '@/features/loans/hooks/use-loan-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/loans/new?clientId=...`: crear un préstamo (el cliente puede venir precargado desde su ficha). */
 export default function NewLoanScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { clientId } = useLocalSearchParams<{ clientId?: string }>();
   const openLoan = (id: string) => {
     router.replace({ pathname: '/admin/loans/[id]', params: { id } });
   };
   const form = useLoanForm(clientId ?? '', openLoan);
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.loan);
   const picker = useClientPicker(form.sheet === 'client');
   const copy = LOANS_COPY.form;
   return (
@@ -23,7 +30,7 @@ export default function NewLoanScreen() {
         <TopBar
           title={LOANS_COPY.newLoan}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
@@ -34,19 +41,21 @@ export default function NewLoanScreen() {
         labels={{ client: form.clientLabel, frequency: form.frequencyLabel, startDate: form.startDateLabel, collector: form.collectorLabel }}
         texts={copy}
         totalSuggested={form.totalSuggested}
+        riskWarning={form.riskWarning}
+        risk={form.risk ? toRiskCardProps(form.risk) : null}
         submitting={form.submitting}
         formError={form.formError}
         createdLoanId={form.createdLoanId}
-        sheets={{ active: form.sheet, frequency: form.frequencyOptions, startDate: form.startDateOptions, collector: form.collectorOptions, onClose: form.closeSheet }}
+        sheets={{ active: form.sheet, frequency: form.frequencyOptions, today: form.today, collector: form.collectorOptions, onClose: form.closeSheet }}
         onOpen={form.openSheet}
         onAmount={form.setAmount}
         onCount={form.setCount}
         onFrequency={form.setFrequency}
         onStartDate={form.setStartDate}
         onCollector={form.setCollector}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={() => {
-          router.back();
+          goBack();
         }}
         onSeeLoan={() => {
           if (form.createdLoanId) openLoan(form.createdLoanId);
@@ -64,6 +73,7 @@ export default function NewLoanScreen() {
         onSelect={form.setClient}
         onClose={form.closeSheet}
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }

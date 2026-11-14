@@ -15,7 +15,7 @@ export interface StatsExport {
  * Descarga el PDF de las estadísticas con los filtros actuales y abre la hoja de compartir (guardar o enviar). Los fallos se
  * explican en un mensaje; un 401 cierra la sesión local.
  */
-export function useStatsExport(range: DateRange, collectorId: string): StatsExport {
+export function useStatsExport(range: DateRange, collectorId: string, portfolioId = ''): StatsExport {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return {
@@ -26,7 +26,7 @@ export function useStatsExport(range: DateRange, collectorId: string): StatsExpo
       void (async () => {
         setBusy(true);
         setError(null);
-        const result = await exportStatsPdf(range, collectorId === '' ? undefined : collectorId);
+        const result = await exportStatsPdf(range, collectorId === '' ? undefined : collectorId, portfolioId === '' ? undefined : portfolioId);
         if (!result.ok) {
           setBusy(false);
           signOutIfSessionExpired(result.failure);

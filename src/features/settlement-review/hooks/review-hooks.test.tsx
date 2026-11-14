@@ -33,18 +33,24 @@ describe('useReviewScreen', () => {
     await waitFor(() => {
       expect(result.current.rows[0]?.title).toBe('Ana Gómez');
     });
-    expect(a.fetchSettlements).toHaveBeenCalledWith(1, 'PENDING');
+    expect(a.fetchSettlements).toHaveBeenCalledWith(1, { status: 'PENDING', range: null, collectorId: null });
     await act(async () => {
       result.current.loadMore();
     });
     await waitFor(() => {
-      expect(a.fetchSettlements).toHaveBeenCalledWith(2, 'PENDING');
+      expect(a.fetchSettlements).toHaveBeenCalledWith(2, { status: 'PENDING', range: null, collectorId: null });
     });
     await act(async () => {
       result.current.setStatus('APPROVED');
     });
     await waitFor(() => {
-      expect(a.fetchSettlements).toHaveBeenCalledWith(1, 'APPROVED');
+      expect(a.fetchSettlements).toHaveBeenCalledWith(1, { status: 'APPROVED', range: null, collectorId: null });
+    });
+    await act(async () => {
+      result.current.setStatus('ALL');
+    });
+    await waitFor(() => {
+      expect(a.fetchSettlements).toHaveBeenCalledWith(1, { status: null, range: null, collectorId: null });
     });
   });
 

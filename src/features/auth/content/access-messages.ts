@@ -13,7 +13,7 @@ export const ACCESS_COPY = {
     code: 'Código',
     newPassword: 'Nueva contraseña',
     confirmPassword: 'Confirmar contraseña',
-    hint: 'Mínimo 8 caracteres.',
+    hint: 'Mínimo 15 caracteres. Sirve una frase fácil de recordar, como «la tienda abre a las seis».',
     reset: 'Cambiar contraseña',
     resend: 'Reenviar código',
     resent: 'Te enviamos un código nuevo.',
@@ -37,12 +37,20 @@ export const ACCESS_COPY = {
     email: 'Correo de contacto (opcional)',
     emailPlaceholder: 'tu@correo.com',
     secretLabel: 'Contraseña',
-    hint: 'Mínimo 8 caracteres.',
+    hint: 'Mínimo 15 caracteres. Sirve una frase fácil de recordar, como «la tienda abre a las seis».',
     business: 'Nombre de tu financiera',
     businessPlaceholder: 'Ej: Préstamos El Águila',
     next: 'Continuar',
     submit: 'Crear cuenta',
     back: 'Atrás',
+    consentsTitle: 'Autorizaciones',
+    termsLabel: 'Acepto los Términos y Condiciones',
+    privacyLabel: 'Autorizo el tratamiento de mis datos (Política de Privacidad)',
+    responsibilityLabel: 'Tengo la autorización de mis clientes, mi cobranza cumple la ley (Ley 2300 de 2023) y no cobraré por encima de la tasa de usura. Fiaro solo es una herramienta y no presta ni cobra dinero.',
+    marketingLabel: 'Quiero recibir novedades y ofertas (opcional)',
+    consentRequired: 'Debes aceptar esto para crear tu cuenta.',
+    readTerms: 'Leer los Términos y Condiciones',
+    readPrivacy: 'Leer la Política de Privacidad',
     doneTitle: 'Cuenta creada',
     doneSubtitle: 'Inicia sesión con tu celular y tu contraseña.',
     toLogin: 'Ir a iniciar sesión',
@@ -74,7 +82,7 @@ export function accessFailureMessage(failure: ApiFailure): string {
     case 'PASSWORD_TOO_WEAK':
       return 'Esa contraseña es muy fácil de adivinar. Elige una más larga o menos común.';
     case 'INVALID_PASSWORD_LENGTH':
-      return 'La contraseña debe tener entre 8 y 128 caracteres.';
+      return 'La contraseña debe tener entre 15 y 128 caracteres.';
     case 'RATE_LIMITED':
       return 'Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.';
     case 'TURNSTILE_FAILED':

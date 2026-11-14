@@ -13,6 +13,8 @@ export interface RowViewModel {
   readonly status: EntryStatus;
   readonly daysLabel: string;
   readonly daysAlert: boolean;
+  /** `Cobrado hoy $X` si ya se le cobró hoy; `null` si no. */
+  readonly collectedLabel: string | null;
 }
 
 /**
@@ -29,5 +31,6 @@ export function toRowViewModel(entry: RouteEntry): RowViewModel {
     status: classifyEntry(entry),
     daysLabel: overdueDaysLabel(entry.overdueDays),
     daysAlert: entry.overdueDays > 0 && entry.balance > 0,
+    collectedLabel: entry.collectedToday > 0 ? `Cobrado hoy ${formatCop(entry.collectedToday)}` : null,
   };
 }

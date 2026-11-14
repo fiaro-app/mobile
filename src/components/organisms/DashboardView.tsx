@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { AppText } from '@/components/atoms/AppText';
 import { AlertBanner } from '@/components/molecules/AlertBanner';
@@ -6,26 +7,45 @@ import { StatCard } from '@/components/molecules/StatCard';
 
 export interface DashboardViewProps {
   readonly kpis: readonly { readonly key: string; readonly label: string; readonly value: string; readonly tone: 'neutral' | 'good' | 'warning' | 'bad' }[];
-  readonly banner: { readonly kind: 'warning' | 'error'; readonly message: string } | null;
+  readonly banner: { readonly kind: 'warning' | 'error'; readonly message: string; readonly action?: { readonly label: string; readonly onPress: () => void } } | null;
   readonly alertsTitle: string;
   readonly alerts: readonly string[];
   readonly pendingTitle: string;
   readonly pendingEmpty: string;
   readonly pending: readonly (SettlementRowProps & { readonly id: string })[];
+  /** «Rutas de hoy»: cómo va la ruta de cada cobrador; `null` si no cargó (el Resumen se dibuja igual). */
+  readonly routes: { readonly title: string; readonly summary: string; readonly rows: readonly (SettlementRowProps & { readonly id: string })[] } | null;
   readonly refreshing: boolean;
   readonly onRefresh: () => void;
+  /** Filtro de período de lo cobrado (va sobre los indicadores). */
+  readonly period: ReactNode;
 }
 
 /** Resumen del administrador: indicadores, alertas del día y cuadres por revisar. Solo dibuja. */
 export function DashboardView(props: Readonly<DashboardViewProps>) {
   return (
     <ScrollView contentContainerClassName="gap-5 px-5 pb-8 pt-5" refreshControl={<RefreshControl refreshing={props.refreshing} onRefresh={props.onRefresh} />}>
-      {props.banner ? <AlertBanner message={props.banner.message} kind={props.banner.kind} /> : null}
+      {props.banner ? <AlertBanner message={props.banner.message} kind={props.banner.kind} action={props.banner.action} /> : null}
+      {props.period}
       <View className="flex-row flex-wrap gap-3">
         {props.kpis.map((kpi) => (
           <StatCard key={kpi.key} label={kpi.label} value={kpi.value} tone={kpi.tone} className="min-w-[45%] flex-1" />
         ))}
       </View>
+      {props.routes ? (
+        <View className="gap-3">
+          <AppText variant="title">{props.routes.title}</AppText>
+          <AppText variant="small">{props.routes.summary}</AppText>
+          <View className="overflow-hidden rounded-lg">
+            {props.routes.rows.map((row, index) => (
+              <View key={row.id}>
+                {index > 0 ? <View className="h-px bg-surface-2" /> : null}
+                <SettlementRow {...row} />
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
       {props.alerts.length > 0 ? (
         <View className="gap-3">
           <AppText variant="title">{props.alertsTitle}</AppText>

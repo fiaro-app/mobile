@@ -1,4 +1,4 @@
-import { fetchNotifications, fetchUnreadCount, markAllRead, markRead, registerPushToken, revokePushToken } from '@/features/notifications/api/notifications-api';
+import { clearNotifications, deleteNotification, fetchNotifications, fetchUnreadCount, markAllRead, markRead, registerPushToken, revokePushToken } from '@/features/notifications/api/notifications-api';
 import { authedRequest } from '@/lib/http/authed-request';
 
 jest.mock('@/lib/http/authed-request', () => ({ authedRequest: jest.fn() }));
@@ -34,5 +34,14 @@ describe('notifications-api', () => {
     await revokePushToken('ExponentPushToken[abc]');
     expect(request.mock.calls[0]).toMatchObject(['/push-tokens', expect.any(Function), { method: 'POST', body: { token: 'ExponentPushToken[abc]' } }]);
     expect(request.mock.calls[1]?.[0]).toBe('/push-tokens/revoke');
+  });
+
+  it('borra una y borra varias, leyendo cuántas borró', async () => {
+    await deleteNotification('n1');
+    await clearNotifications(true);
+    expect(request.mock.calls[0]).toMatchObject(['/notifications/n1', expect.any(Function), { method: 'DELETE' }]);
+    expect(request.mock.calls[1]).toMatchObject(['/notifications/clear', expect.any(Function), { method: 'POST', body: { onlyRead: true } }]);
+    expect(parserOf(1)({ deleted: 3 })).toBe(3);
+    expect(() => parserOf(1)({})).toThrow();
   });
 });

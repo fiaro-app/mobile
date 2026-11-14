@@ -7,7 +7,7 @@ import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 import * as brand from '@/lib/theme/brand';
 
 jest.mock('@react-native-async-storage/async-storage', () => jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'));
-jest.mock('@/features/workspace/api/workspace-api', () => ({ fetchOwnRoles: jest.fn(), fetchLender: jest.fn() }));
+jest.mock('@/features/workspace/api/workspace-api', () => ({ fetchOwnMembership: jest.fn(), fetchLender: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 jest.mock('@/lib/theme/brand', () => ({ applyBrandColor: jest.fn() }));
 
@@ -25,16 +25,16 @@ describe('useWorkspace', () => {
   it('no hace nada sin sesión', async () => {
     await renderHook(() => useWorkspace(null));
     expect(store().status).toBe('idle');
-    expect(a.fetchOwnRoles).not.toHaveBeenCalled();
+    expect(a.fetchOwnMembership).not.toHaveBeenCalled();
   });
 
   it('carga los roles, elige el modo, guarda el caché y aplica el color de marca', async () => {
-    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: ['OWNER', 'COLLECTOR'] });
+    a.fetchOwnMembership.mockResolvedValue({ ok: true, value: { id: 'm-own', roles: ['OWNER', 'COLLECTOR'] } });
     await renderHook(() => useWorkspace('u1'));
     await waitFor(() => {
       expect(store().status).toBe('ready');
     });
-    expect(store()).toMatchObject({ roles: ['OWNER', 'COLLECTOR'], mode: 'admin' });
+    expect(store()).toMatchObject({ roles: ['OWNER', 'COLLECTOR'], membershipId: 'm-own', mode: 'admin' });
     expect(await AsyncStorage.getItem('fiaro.roles.u1')).toBe('["OWNER","COLLECTOR"]');
     await waitFor(() => {
       expect(brand.applyBrandColor).toHaveBeenCalledWith('#112233');
@@ -42,7 +42,7 @@ describe('useWorkspace', () => {
   });
 
   it('sin roles conocidos entra como cobrador', async () => {
-    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: [] });
+    a.fetchOwnMembership.mockResolvedValue({ ok: true, value: { id: 'm-own', roles: [] } });
     await renderHook(() => useWorkspace('u1'));
     await waitFor(() => {
       expect(store().status).toBe('ready');
@@ -52,7 +52,7 @@ describe('useWorkspace', () => {
 
   it('sin conexión usa los últimos roles guardados', async () => {
     await AsyncStorage.setItem('fiaro.roles.u1', '["LENDER"]');
-    a.fetchOwnRoles.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
+    a.fetchOwnMembership.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
     await renderHook(() => useWorkspace('u1'));
     await waitFor(() => {
       expect(store().status).toBe('ready');
@@ -63,7 +63,7 @@ describe('useWorkspace', () => {
 
   it('sin conexión y sin caché (o con caché dañado) entra como cobrador', async () => {
     await AsyncStorage.setItem('fiaro.roles.u1', 'no-es-json');
-    a.fetchOwnRoles.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
+    a.fetchOwnMembership.mockResolvedValue({ ok: false, failure: { kind: 'offline' } });
     await renderHook(() => useWorkspace('u1'));
     await waitFor(() => {
       expect(store().status).toBe('ready');
@@ -74,8 +74,8 @@ describe('useWorkspace', () => {
   it('si los roles tardan abre con los guardados y aplica la respuesta cuando llega', async () => {
     jest.useFakeTimers();
     await AsyncStorage.setItem('fiaro.roles.u1', '["COLLECTOR"]');
-    let resolveRoles: (value: Awaited<ReturnType<typeof api.fetchOwnRoles>>) => void = () => undefined;
-    a.fetchOwnRoles.mockReturnValue(new Promise((resolve) => { resolveRoles = resolve; }));
+    let resolveRoles: (value: Awaited<ReturnType<typeof api.fetchOwnMembership>>) => void = () => undefined;
+    a.fetchOwnMembership.mockReturnValue(new Promise((resolve) => { resolveRoles = resolve; }));
     await renderHook(() => useWorkspace('u1'));
     await act(async () => {
       jest.advanceTimersByTime(ROLES_PATIENCE_MS + 10);
@@ -85,7 +85,7 @@ describe('useWorkspace', () => {
       expect(store()).toMatchObject({ status: 'ready', roles: ['COLLECTOR'], mode: 'collector' });
     });
     await act(async () => {
-      resolveRoles({ ok: true, value: ['OWNER'] });
+      resolveRoles({ ok: true, value: { id: 'm-own', roles: ['OWNER'] } });
     });
     await waitFor(() => {
       expect(store()).toMatchObject({ roles: ['OWNER'], mode: 'admin' });
@@ -93,7 +93,7 @@ describe('useWorkspace', () => {
   });
 
   it('al perder la sesión reinicia el estado', async () => {
-    a.fetchOwnRoles.mockResolvedValue({ ok: true, value: ['OWNER'] });
+    a.fetchOwnMembership.mockResolvedValue({ ok: true, value: { id: 'm-own', roles: ['OWNER'] } });
     const hook = await renderHook(({ id }: { id: string | null }) => useWorkspace(id), { initialProps: { id: 'u1' as string | null } });
     await waitFor(() => {
       expect(store().status).toBe('ready');

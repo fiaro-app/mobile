@@ -1,13 +1,16 @@
 import { useRouter } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
+import { View } from 'react-native';
 import { ListHeader } from '@/components/molecules/ListHeader';
+import { PeriodCollectorFilters } from '@/components/molecules/PeriodCollectorFilters';
+import { PeriodCollectorSheets } from '@/components/organisms/PeriodCollectorSheets';
 import { EntityList } from '@/components/organisms/EntityList';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { REVIEW_COPY } from '@/features/settlement-review/content/messages';
 import { useReviewScreen } from '@/features/settlement-review/hooks/use-review-screen';
 import { useAdminMenu } from '@/features/workspace/hooks/use-admin-menu';
 
-/** Ruta `/admin/settlements`: cuadres por estado (pendientes primero); tocar uno abre su revisión. */
+/** Ruta `/admin/settlements`: cuadres por estado (pendientes primero), fechas y cobrador; tocar uno abre su revisión. */
 export default function SettlementsAdminScreen() {
   const router = useRouter();
   const menu = useAdminMenu('settlements');
@@ -37,7 +40,22 @@ export default function SettlementsAdminScreen() {
         onEndReached={screen.loadMore}
         loadingMore={screen.loadingMore}
         empty={empty}
-        header={<ListHeader filters={{ options: copy.filters, value: screen.status, onChange: screen.setStatus }} />}
+        header={
+          <View>
+            <ListHeader filters={{ options: copy.filters, value: screen.status, onChange: screen.setStatus }} />
+            <PeriodCollectorFilters
+              dates={screen.dates}
+              periodHint={copy.periodHint}
+              collectorLabel={screen.collector.label}
+              collectorActive={screen.collector.applied !== null}
+              onOpenCollector={screen.collector.openSheet}
+            />
+          </View>
+        }
+      />
+      <PeriodCollectorSheets
+        dates={screen.dates}
+        collector={{ open: screen.collector.open, options: screen.collector.options, selected: screen.collector.id, onSelect: screen.collector.select, onClose: screen.collector.closeSheet }}
       />
     </AdminTemplate>
   );

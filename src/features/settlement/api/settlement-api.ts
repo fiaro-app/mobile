@@ -21,6 +21,11 @@ export function postSettlement(request: SettlementRequest): Response<Settlement>
   return authedRequest('/daily-settlements', (body) => SettlementSchema.parse(body), { method: 'POST', body: request });
 }
 
+/** `POST /daily-settlements/:id/cancel`: retira el cuadre mientras está en revisión (se borra; 204). */
+export function cancelSettlement(id: string): Response<null> {
+  return authedRequest(`/daily-settlements/${id}/cancel`, () => null, { method: 'POST' });
+}
+
 /** `GET /daily-settlements/:id`: estado actual de un cuadre ya enviado (el prestamista pudo revisarlo). */
 export function fetchSettlement(id: string): Response<Settlement> {
   return authedRequest(`/daily-settlements/${id}`, (body) => SettlementSchema.parse(body));

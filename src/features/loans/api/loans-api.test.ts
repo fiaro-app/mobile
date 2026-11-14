@@ -17,8 +17,8 @@ describe('loans-api', () => {
   it('lista con QUERY, con y sin estado', async () => {
     await fetchLoans(1);
     await fetchLoans(2, 'PAID_OFF');
-    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 30 } });
-    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 30, status: 'PAID_OFF' } });
+    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10 } });
+    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 10, status: 'PAID_OFF' } });
     expect(parserOf(0)({ data: [], meta: { total: 4 } })).toEqual({ items: [], total: 4 });
   });
 

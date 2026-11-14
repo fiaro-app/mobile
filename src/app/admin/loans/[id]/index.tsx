@@ -6,10 +6,12 @@ import { LoanDetailView } from '@/components/organisms/LoanDetailView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { LOANS_COPY } from '@/features/loans/content/messages';
 import { useLoanDetail } from '@/features/loans/hooks/use-loan-detail';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/loans/[id]`: detalle de un préstamo con saldo, cobrador y accesos a calendario, historial y ficha. */
 export default function LoanDetailScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const detail = useLoanDetail(id);
   const copy = LOANS_COPY.detail;
@@ -75,7 +77,7 @@ export default function LoanDetailScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

@@ -27,8 +27,8 @@ export interface LoansScreen {
 
 /**
  * Lógica del listado de préstamos. El estado (activos, pagados, anulados) lo filtra el API; "En mora" y la búsqueda por
- * nombre de cliente se aplican a lo ya cargado (la lista solo trae el `clientId`, así que el nombre sale de
- * `useClientNames`). Crece por páginas al llegar al final.
+ * nombre de cliente se aplican a lo ya cargado. Cada fila trae el nombre de su cliente (`clientFullName`); solo si una
+ * API anterior no lo manda se busca con `useClientNames`. Crece por páginas al llegar al final.
  */
 export function useLoansScreen(): LoansScreen {
   const [search, setSearch] = useState('');
@@ -46,11 +46,12 @@ export function useLoansScreen(): LoansScreen {
     staleTime: 30_000,
   });
   const loaded = useMemo(() => (query.data?.pages ?? []).flatMap((page) => page.items).filter((loan) => matchesLoanFilter(loan, filter)), [query.data, filter]);
-  const names = useClientNames(useMemo(() => loaded.map((loan) => loan.clientId), [loaded]));
-  const rows = useMemo(
-    () => loaded.filter((loan) => matchesSearch(names.get(loan.clientId) ?? '', search)).map((loan) => toLoanRow(loan, names.get(loan.clientId) ?? 'Cliente')),
-    [loaded, names, search],
-  );
+  const missing = useMemo(() => loaded.filter((loan) => !loan.clientFullName).map((loan) => loan.clientId), [loaded]);
+  const names = useClientNames(missing);
+  const rows = useMemo(() => {
+    const nameOf = (loan: (typeof loaded)[number]) => loan.clientFullName || names.get(loan.clientId) || '';
+    return loaded.filter((loan) => matchesSearch(nameOf(loan), search)).map((loan) => toLoanRow(loan, nameOf(loan) || 'Cliente'));
+  }, [loaded, names, search]);
 
   let empty: LoansEmpty = 'none';
   if (query.data === undefined && failureOf(query.error)) empty = 'error';

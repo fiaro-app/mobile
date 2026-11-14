@@ -3,17 +3,11 @@ import type { ReportEntry } from '@/features/collections-report/lib/report-schem
 import { formatShortDate } from '@/lib/business-date';
 import { formatCop } from '@/lib/format-cop';
 
-/** Filtro del reporte: todo, solo pagos o solo visitas sin pago. */
-export type ReportFilter = 'all' | 'paid' | 'unpaid';
+/** Filtro del reporte: todas las visitas o las de un resultado (lo filtra la API, así la paginación cuadra). */
+export type ReportFilter = 'all' | ReportEntry['outcome'];
 
 const OUTCOME_LABELS = { PAID: 'Pago', NOT_FOUND: 'No encontrado', REFUSED: 'Se negó a pagar', RESCHEDULED: 'Reprogramada' } as const;
 const METHOD_LABELS = { CASH: 'Efectivo', NEQUI: 'Nequi', TRANSFER: 'Transferencia' } as const;
-
-/** `true` si la visita cumple el filtro. */
-export function matchesReport(entry: ReportEntry, filter: ReportFilter): boolean {
-  if (filter === 'all') return true;
-  return (entry.outcome === 'PAID') === (filter === 'paid');
-}
 
 /** Hora de la visita en hora de Colombia (`4:12 p. m.`). */
 export function timeOf(iso: string): string {
@@ -34,7 +28,8 @@ export interface ReportRowModel {
 /** Fila: cliente, cobrador, hora y medio; el monto a la derecha, o el resultado si no hubo pago. Un pago revertido se marca. */
 export function toReportRow(entry: ReportEntry): ReportRowModel {
   const base = { id: entry.visitId, loanId: entry.loan.id, title: entry.client.fullName };
-  const when = `${entry.collector.fullName} · ${timeOf(entry.occurredAt)}`;
+  // Con un rango de varios días la hora sola no basta: va el día (sin el año) delante.
+  const when = `${entry.collector.fullName} · ${formatShortDate(entry.occurredAt).replace(/ \d{4}$/, '')}, ${timeOf(entry.occurredAt)}`;
   if (entry.payment) {
     const method = METHOD_LABELS[entry.payment.method];
     return { ...base, subtitle: when, detail: method, badge: entry.payment.reversed ? { label: 'REVERTIDO', kind: 'neutral' } : null, trailing: formatCop(entry.payment.amount) };

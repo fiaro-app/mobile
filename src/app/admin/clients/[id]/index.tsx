@@ -4,12 +4,17 @@ import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { ClientProfileView } from '@/components/organisms/ClientProfileView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
+import { AttachmentPanel } from '@/features/attachments/components/AttachmentPanel';
+import { ATTACHMENT_COPY } from '@/features/attachments/content/messages';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
+import { toRiskCardProps } from '@/features/risk/lib/risk-view';
 import { useClientProfile } from '@/features/clients/hooks/use-client-profile';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/clients/[id]`: ficha del cliente con sus datos, sus préstamos y los accesos para llamar o editar. */
 export default function ClientProfileScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const profile = useClientProfile(id);
   const copy = CLIENTS_COPY.profile;
@@ -36,6 +41,18 @@ export default function ClientProfileScreen() {
           router.push({ pathname: '/admin/clients/[id]/edit', params: { id } });
         }}
         notice={profile.notice}
+        risk={profile.risk ? toRiskCardProps(profile.risk) : null}
+        extra={
+          <AttachmentPanel
+            target="client"
+            id={id}
+            canEdit
+            title={ATTACHMENT_COPY.clientPhoto.title}
+            description={ATTACHMENT_COPY.clientPhoto.description}
+            alt={ATTACHMENT_COPY.clientPhoto.alt(client.name)}
+            none={ATTACHMENT_COPY.clientPhoto.none}
+          />
+        }
         loansTitle={copy.loans}
         loansEmpty={copy.noLoans}
         loans={profile.loans}
@@ -53,7 +70,7 @@ export default function ClientProfileScreen() {
         <TopBar
           title={copy.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

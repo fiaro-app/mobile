@@ -53,14 +53,17 @@ export const UNKNOWN_COLLECTOR = 'Cobrador sin nombre';
  * (faltante) en rojo, positiva (sobrante) en ámbar, y cero se muestra sin cifra (cuadra).
  *
  * @param names - Nombre de cada colaborador por `membershipId`.
+ * @param periodFiltered - Si se pidió un período: lo cobrado y la efectividad pasan a ser los de ese período (como en la web).
  */
-export function buildDashboardModel(dashboard: Dashboard, names: ReadonlyMap<string, string>): DashboardModel {
+export function buildDashboardModel(dashboard: Dashboard, names: ReadonlyMap<string, string>, periodFiltered = false): DashboardModel {
+  const collected = periodFiltered ? (dashboard.collectedInPeriod ?? dashboard.collectedToday) : dashboard.collectedToday;
+  const effectiveness = periodFiltered ? (dashboard.effectivenessInPeriod ?? null) : dashboard.effectivenessToday;
   return {
     kpis: [
       { key: 'portfolio', label: 'Cartera total', value: formatCopCompact(dashboard.totalPortfolio), tone: 'neutral' },
-      { key: 'collected', label: 'Cobrado hoy', value: formatCopCompact(dashboard.collectedToday), tone: 'good' },
+      { key: 'collected', label: periodFiltered ? 'Cobrado en el período' : 'Cobrado hoy', value: formatCopCompact(collected), tone: 'good' },
       { key: 'collectors', label: 'Cobradores activos', value: `${String(dashboard.activeCollectors)} / ${String(dashboard.totalCollectors)}`, tone: 'neutral' },
-      { key: 'effectiveness', label: 'Efectividad de hoy', value: formatPercent(dashboard.effectivenessToday), tone: effectivenessTone(dashboard.effectivenessToday) },
+      { key: 'effectiveness', label: periodFiltered ? 'Efectividad del período' : 'Efectividad de hoy', value: formatPercent(effectiveness), tone: effectivenessTone(effectiveness) },
       { key: 'arrears', label: 'Clientes en mora', value: String(dashboard.clientsInArrears), tone: dashboard.clientsInArrears > 0 ? 'bad' : 'neutral' },
     ],
     alerts: dashboard.alerts,

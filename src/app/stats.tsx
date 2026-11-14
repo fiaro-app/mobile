@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -7,10 +6,11 @@ import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { STATS_COPY } from '@/features/stats/content/messages';
 import { useStatsScreen } from '@/features/stats/hooks/use-stats-screen';
 import type { Period } from '@/features/stats/lib/period-range';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/stats`: cifras del cobrador por semana, mes o año, con comparativo y cartera vencida. */
 export default function StatsScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const screen = useStatsScreen();
   const model = screen.model;
 
@@ -53,7 +53,7 @@ export default function StatsScreen() {
         <TopBar
           title={STATS_COPY.title}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

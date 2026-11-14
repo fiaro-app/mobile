@@ -36,7 +36,15 @@ describe('buildClientDetail', () => {
       overdueLabel: '12 días',
       overdueAlert: true,
       installmentValue: 35000,
+      suggestedAmount: 90000,
     });
+  });
+
+  it('el monto sugerido es mora + cuota, la cuota si está al día y nunca pasa del saldo', () => {
+    const suggested = (over: Partial<Balance>) => buildClientDetail({ client, loan, balance: { ...balance, ...over }, visits: [] }).suggestedAmount;
+    expect(suggested({ overdueAmount: 0, overdueDays: 0 })).toBe(35000);
+    expect(suggested({ balance: 50000 })).toBe(50000);
+    expect(suggested({ balance: 20000, overdueAmount: 0 })).toBe(20000);
   });
 
   it('la próxima visita es "Hoy" si vence hoy o ya venció (fecha de Colombia)', () => {

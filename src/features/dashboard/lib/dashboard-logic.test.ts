@@ -33,6 +33,13 @@ describe('resumen', () => {
     expect(buildDashboardModel({ ...dashboard, clientsInArrears: 0 }, new Map()).kpis[4]?.tone).toBe('neutral');
   });
 
+  it('con un período muestra lo cobrado y la efectividad de ese período', () => {
+    const model = buildDashboardModel({ ...dashboard, collectedInPeriod: 9_000_000, effectivenessInPeriod: 0.5 }, new Map(), true);
+    expect(model.kpis[1]).toMatchObject({ label: 'Cobrado en el período', value: '$9M' });
+    expect(model.kpis[3]).toMatchObject({ label: 'Efectividad del período', value: '50 %' });
+    expect(buildDashboardModel(dashboard, new Map(), true).kpis[3]?.value).toBe(buildDashboardModel({ ...dashboard, effectivenessToday: null }, new Map()).kpis[3]?.value);
+  });
+
   it('describe cada cuadre con nombre y diferencia', () => {
     const model = buildDashboardModel(dashboard, new Map([['m1', 'Alejo Zuleta']]));
     expect(model.pending).toEqual([

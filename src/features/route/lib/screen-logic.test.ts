@@ -1,9 +1,13 @@
 import { emptyContentFor } from '@/features/route/content/empty-content';
 import { toRowViewModel } from '@/features/route/lib/row-view-model';
 
-const base = { loanId: 'l1', clientId: 'c1', clientFullName: 'Marta Gómez', balance: 420000, overdueAmount: 90000, overdueDays: 12, nextDueDate: null };
+const base = { loanId: 'l1', clientId: 'c1', clientFullName: 'Marta Gómez', balance: 420000, overdueAmount: 90000, overdueDays: 12, nextDueDate: null, collectedToday: 0 };
 
 describe('toRowViewModel', () => {
+  it('marca "Cobrado hoy" cuando ya pagó', () => {
+    expect(toRowViewModel({ ...base, collectedToday: 20000 }).collectedLabel).toBe('Cobrado hoy $20.000');
+  });
+
   it('formatea nombre, saldo, estado y días', () => {
     expect(toRowViewModel(base)).toEqual({
       id: 'l1',
@@ -14,6 +18,7 @@ describe('toRowViewModel', () => {
       status: 'delinquent',
       daysLabel: '12 días',
       daysAlert: true,
+      collectedLabel: null,
     });
   });
 

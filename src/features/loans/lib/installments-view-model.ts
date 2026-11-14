@@ -30,8 +30,8 @@ export function summarizeInstallments(installments: readonly Installment[]): str
 
 /** Cuotas ordenadas por número, con valor esperado y, si ya hay algo pagado, lo pagado. */
 export function toInstallmentRows(installments: readonly Installment[]): InstallmentRowModel[] {
-  return installments
-    .toSorted((a, b) => a.number - b.number)
+  return [...installments]
+    .sort((a, b) => a.number - b.number)
     .map((item) => ({
       id: String(item.number),
       title: `Cuota ${String(item.number)}`,

@@ -6,10 +6,12 @@ import { RegisterVisitView } from '@/components/organisms/RegisterVisitView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { VISIT_COPY } from '@/features/visit/content/messages';
 import { useRegisterVisit } from '@/features/visit/hooks/use-register-visit';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/visit/[loanId]?clientId=...`: registrar el resultado de una visita de cobro. */
 export default function RegisterVisitScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { loanId, clientId } = useLocalSearchParams<{ loanId: string; clientId: string }>();
   const visit = useRegisterVisit(clientId, loanId, (done) => {
     router.replace({ pathname: '/visit-done', params: { kind: done.kind, paid: done.paid ? '1' : '0' } });
@@ -83,7 +85,7 @@ export default function RegisterVisitScreen() {
         <TopBar
           title={model?.name ?? 'Registrar visita'}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

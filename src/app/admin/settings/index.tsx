@@ -1,3 +1,4 @@
+import { openRenewal, RENEW_LABEL } from '@/features/settings/lib/renew';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
 import { SettingsView } from '@/components/organisms/SettingsView';
@@ -19,6 +20,7 @@ export default function SettingsScreen() {
   } else if (!screen.loading) {
     const { business, brand, days, portfolios } = screen;
     const deleting = portfolios.deleting;
+    const maxPortfolios = screen.plan?.maxPortfolios ?? null;
     body = (
       <SettingsView
         business={{ ...business, title: copy.business.title, label: copy.business.name, save: copy.business.save, onName: business.setName, onSave: business.save }}
@@ -45,6 +47,7 @@ export default function SettingsScreen() {
           error: portfolios.error,
           notice: portfolios.notice,
           items: screen.portfolioItems,
+          limitMessage: maxPortfolios !== null && screen.portfolioItems.length >= maxPortfolios ? copy.portfolios.limit(maxPortfolios) : null,
           texts: { ...copy.portfolios, save: 'Guardar' },
           editing: portfolios.mode,
           name: portfolios.name,
@@ -63,7 +66,7 @@ export default function SettingsScreen() {
             if (target) portfolios.startDelete(target);
           },
         }}
-        plan={screen.plan ? { title: copy.plan.title, rows: screen.plan.rows, percent: screen.plan.collectorsPercent, notice: screen.plan.notice } : null}
+        plan={screen.plan ? { title: copy.plan.title, renew: { label: RENEW_LABEL, onPress: openRenewal }, rows: screen.plan.rows, bars: screen.plan.bars, notice: screen.plan.notice } : null}
         deleteDialog={{
           visible: deleting !== null,
           title: copy.portfolios.deleteTitle,

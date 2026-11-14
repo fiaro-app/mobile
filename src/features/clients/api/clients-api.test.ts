@@ -16,8 +16,8 @@ describe('clients-api', () => {
   it('lista con QUERY, con y sin búsqueda, devolviendo items y total', async () => {
     await fetchClients(2, ' marta ');
     await fetchClients(1, '');
-    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 30, search: 'marta' } });
-    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 30 } });
+    expect(request.mock.calls[0]?.[2]).toEqual({ method: 'QUERY', body: { page: 2, pageSize: 10, search: 'marta' } });
+    expect(request.mock.calls[1]?.[2]).toEqual({ method: 'QUERY', body: { page: 1, pageSize: 10 } });
     expect(parserOf(0)({ data: [{ ...client, balance: 1, overdueAmount: 0, overdueDays: 0, activeLoans: 1 }], meta: { total: 9 } })).toMatchObject({ total: 9 });
   });
 

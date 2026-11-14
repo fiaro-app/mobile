@@ -16,6 +16,8 @@ export const RouteEntrySchema = z.object({
   /** Días desde la cuota impaga más antigua (0 si está al día). */
   overdueDays: z.number().int(),
   nextDueDate: z.string().nullable(),
+  /** Lo que ya se le cobró hoy, en pesos; mayor que cero = ya pagó (el API lo manda al final). */
+  collectedToday: z.number().int().default(0),
 });
 export type RouteEntry = z.infer<typeof RouteEntrySchema>;
 

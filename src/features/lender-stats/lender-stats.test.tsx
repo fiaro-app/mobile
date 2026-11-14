@@ -11,6 +11,7 @@ import { authedRequest } from '@/lib/http/authed-request';
 
 jest.mock('@/lib/http/authed-request', () => ({ authedRequest: jest.fn() }));
 jest.mock('@/features/team/api/team-api', () => ({ fetchMembers: jest.fn() }));
+jest.mock('@/features/collectors/api/collectors-api', () => ({ fetchPortfolios: () => Promise.resolve({ ok: true, value: [{ id: 'p1', name: 'Zona Norte' }] }) }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
 const request = jest.mocked(authedRequest);
@@ -117,6 +118,37 @@ describe('api y pantalla', () => {
       result.current.closeSheet();
       result.current.refresh();
     });
+    await act(async () => {
+      result.current.dates.open('from');
+    });
+    await act(async () => {
+      result.current.dates.pick('2026-01-01');
+    });
+    expect(result.current.period).toBeNull();
+    await waitFor(() => {
+      expect(request).toHaveBeenLastCalledWith('/lenders/me/stats', expect.any(Function), expect.objectContaining({ body: expect.objectContaining({ dateRange: { from: '2026-01-01', to: '2026-01-01' } }) as unknown }));
+    });
+    await waitFor(() => {
+      expect(result.current.portfolio.options).toHaveLength(2);
+    });
+    await act(async () => {
+      result.current.portfolio.openSheet();
+    });
+    expect(result.current.portfolio.open).toBe(true);
+    await act(async () => {
+      result.current.portfolio.select('p1');
+    });
+    expect(result.current.portfolio).toMatchObject({ label: 'Zona Norte', open: false });
+    await waitFor(() => {
+      expect(request).toHaveBeenLastCalledWith('/lenders/me/stats', expect.any(Function), expect.objectContaining({ body: expect.objectContaining({ portfolioId: 'p1' }) as unknown }));
+    });
+    await act(async () => {
+      result.current.portfolio.openSheet();
+      result.current.portfolio.closeSheet();
+      result.current.setPeriod('week');
+    });
+    expect(result.current.period).toBe('week');
+    expect(result.current.dates.applied).toBeNull();
   });
 
   it('marca el fallo', async () => {

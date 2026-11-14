@@ -51,7 +51,7 @@ export function toCollectorRows(members: readonly Member[], portfolios: readonly
   return collectorsOf(members)
     .filter((member) => (status === 'all' ? true : (member.status === 'ACTIVE') === (status === 'active')))
     .filter((member) => needle === '' || fold(member.fullName).includes(needle) || member.phone.replaceAll(/\D/g, '').includes(needle.replaceAll(/\D/g, '') || '\u0000'))
-    .toSorted(compareMembers)
+    .sort(compareMembers)
     .map((member) => ({
       id: member.id,
       initials: initials(member.fullName),

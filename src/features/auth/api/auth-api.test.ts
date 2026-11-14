@@ -91,8 +91,8 @@ describe('restoreSession', () => {
 describe('changePassword', () => {
   it('manda las dos contraseñas y devuelve la persona actualizada', async () => {
     mockClient.changePassword.mockResolvedValue({ data: { user: { ...authUser } }, error: null });
-    expect(await changePassword('temporal', 'nueva-clave-1')).toEqual({ ok: true, value: asUser });
-    expect(mockClient.changePassword).toHaveBeenCalledWith({ currentPassword: 'temporal', newPassword: 'nueva-clave-1' });
+    expect(await changePassword('temporal', 'nueva-clave-segura-1')).toEqual({ ok: true, value: asUser });
+    expect(mockClient.changePassword).toHaveBeenCalledWith({ currentPassword: 'temporal', newPassword: 'nueva-clave-segura-1' });
   });
 
   it('devuelve el código cuando la contraseña es débil', async () => {

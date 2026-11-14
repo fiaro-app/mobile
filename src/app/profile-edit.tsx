@@ -1,15 +1,19 @@
-import { useRouter } from 'expo-router';
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
 import { TopBar } from '@/components/molecules/TopBar';
 import { EditProfileForm } from '@/components/organisms/EditProfileForm';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ACCOUNT_COPY } from '@/features/account/content/messages';
 import { useEditProfile } from '@/features/account/hooks/use-edit-profile';
 import { useEmailVerification } from '@/features/account/hooks/use-email-verification';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/profile-edit`: cambiar el nombre y el correo de contacto, y verificar el correo. */
 export default function EditProfileScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const form = useEditProfile();
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.save);
   const email = useEmailVerification();
   return (
     <ScreenTemplate
@@ -17,7 +21,7 @@ export default function EditProfileScreen() {
         <TopBar
           title={ACCOUNT_COPY.editTitle}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }
@@ -32,7 +36,7 @@ export default function EditProfileScreen() {
         submitting={form.submitting}
         formError={form.formError}
         notice={form.notice}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         verification={
           email.visible
             ? {
@@ -53,6 +57,7 @@ export default function EditProfileScreen() {
             : null
         }
       />
+      <ConfirmDialog {...confirm.dialog} />
     </ScreenTemplate>
   );
 }

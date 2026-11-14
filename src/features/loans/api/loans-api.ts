@@ -22,7 +22,7 @@ import type { Result } from '@/lib/result';
 type Response<T> = Promise<Result<T, ApiFailure>>;
 
 /** Préstamos por página. */
-export const LOANS_PAGE_SIZE = 30;
+export const LOANS_PAGE_SIZE = 10;
 
 /** Una página de préstamos con su total. */
 export interface LoansPage {

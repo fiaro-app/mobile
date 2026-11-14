@@ -7,10 +7,12 @@ import { OptionSheet } from '@/components/organisms/OptionSheet';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { ROUTE_COPY } from '@/features/route/content/messages';
 import { useClientsScreen } from '@/features/route/hooks/use-clients-screen';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/clients`: "Mis clientes", búsqueda y filtros sobre los clientes de la ruta. */
 export default function ClientsScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const openClient = (row: { id: string; clientId: string }) => {
     router.push({ pathname: '/client/[loanId]', params: { loanId: row.id, clientId: row.clientId } });
   };
@@ -22,7 +24,7 @@ export default function ClientsScreen() {
         <TopBar
           title={ROUTE_COPY.clientsTitle}
           onBack={() => {
-            router.back();
+            goBack();
           }}
         />
       }

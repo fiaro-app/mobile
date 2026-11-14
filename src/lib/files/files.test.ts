@@ -77,7 +77,7 @@ describe('useStatsExport', () => {
     await waitFor(() => {
       expect(share).toHaveBeenCalledWith(new Uint8Array([1]), 'e.pdf', 'application/pdf');
     });
-    expect(api.exportStatsPdf).toHaveBeenCalledWith(range, 'm1');
+    expect(api.exportStatsPdf).toHaveBeenCalledWith(range, 'm1', undefined);
     expect(result.current.error).toBeNull();
   });
 
@@ -92,7 +92,7 @@ describe('useStatsExport', () => {
       expect(result.current.error).toMatch(/no puede compartir/);
     });
     expect(share).toHaveBeenLastCalledWith(expect.anything(), 'estadisticas.pdf', 'application/pdf');
-    expect(api.exportStatsPdf).toHaveBeenLastCalledWith(range, undefined);
+    expect(api.exportStatsPdf).toHaveBeenLastCalledWith(range, undefined, undefined);
     api.exportStatsPdf.mockResolvedValueOnce({ ok: true, value: { bytes: new Uint8Array([1]), filename: 'e.pdf' } });
     share.mockResolvedValueOnce('failed');
     await act(async () => {

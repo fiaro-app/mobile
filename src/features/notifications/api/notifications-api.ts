@@ -1,7 +1,10 @@
+import { z } from 'zod';
 import { NotificationSchema, NotificationsPageSchema, UnreadCountSchema, type AppNotification } from '@/features/notifications/lib/notification-schemas';
 import { authedRequest } from '@/lib/http/authed-request';
 import type { ApiFailure } from '@/lib/http/failure';
 import type { Result } from '@/lib/result';
+
+const ClearedSchema = z.object({ deleted: z.number() });
 
 type Response<T> = Promise<Result<T, ApiFailure>>;
 
@@ -29,6 +32,16 @@ export function markRead(id: string): Response<AppNotification> {
 /** `POST /notifications/read-all`: marca todas como leídas. */
 export function markAllRead(): Response<unknown> {
   return authedRequest('/notifications/read-all', (body) => body, { method: 'POST', body: {} });
+}
+
+/** `DELETE /notifications/:id`: borra una notificación propia (responde 204). */
+export function deleteNotification(id: string): Response<unknown> {
+  return authedRequest(`/notifications/${id}`, (body) => body, { method: 'DELETE' });
+}
+
+/** `POST /notifications/clear`: borra de una vez las propias, solo las leídas o todas; devuelve cuántas borró. */
+export function clearNotifications(onlyRead: boolean): Response<number> {
+  return authedRequest('/notifications/clear', (body) => ClearedSchema.parse(body).deleted, { method: 'POST', body: { onlyRead } });
 }
 
 /** `POST /push-tokens`: registra el token de Expo del teléfono para la persona de la sesión (responde 204). */

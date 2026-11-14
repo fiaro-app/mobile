@@ -22,6 +22,13 @@ module.exports = defineConfig([
         },
       ],
       'max-lines': ['error', { max: 200, skipBlankLines: true, skipComments: true }],
+      // Hermes (el motor de JavaScript de la app en iOS/Android) no trae estos métodos de ES2023: en la vista web funcionan y
+      // en el teléfono revientan con "undefined is not a function". Copia y ordena: `[...lista].sort(...)`.
+      'no-restricted-properties': [
+        'error',
+        ...['toSorted', 'toReversed', 'toSpliced', 'findLast', 'findLastIndex'].map((property) => ({ property, message: 'Hermes no lo soporta en el teléfono; usa `[...lista].sort()` / `.reverse()` / un bucle.' })),
+        { object: 'Object', property: 'groupBy', message: 'Hermes no lo soporta en el teléfono.' },
+      ],
     },
   },
   {

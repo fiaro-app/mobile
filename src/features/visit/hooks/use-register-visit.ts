@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSessionStore } from '@/features/auth/store/session-store';
 import { useClientDetail } from '@/features/client-detail/hooks/use-client-detail';
 import type { ClientDetailModel } from '@/features/client-detail/lib/detail-view-model';
@@ -57,7 +57,7 @@ function interpret(outcome: SubmitOutcome): { done: VisitDone | null; error: str
 }
 
 /**
- * Lógica de "Registrar visita": monto editable (precargado con la cuota), medio de pago, confirmación del
+ * Lógica de "Registrar visita": monto editable (precargado con lo que toca cobrar hoy: mora + cuota, tope el saldo), medio de pago, confirmación del
  * pago y las otras salidas (no lo encontré, se negó, reprogramar con fecha obligatoria: el API la exige).
  *
  * El `id` de la visita se genera al abrir y se conserva para reintentar el mismo envío sin duplicarlo; se
@@ -81,19 +81,23 @@ export function useRegisterVisit(clientId: string, loanId: string, onDone: (done
   const [amountError, setAmountError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // `submitting` es estado y no se actualiza hasta el próximo render: un doble toque entra dos veces.
+  const inFlight = useRef(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sheet, setSheet] = useState<VisitSheet>('none');
   const dateOptions = rescheduleOptions(businessDateOf());
   const [rescheduleDate, setRescheduleDate] = useState(dateOptions[0]?.value ?? '');
 
-  const shownAmount = amountText ?? (model ? formatAmountInput(String(model.installmentValue)) : '');
+  const shownAmount = amountText ?? (model ? formatAmountInput(String(model.suggestedAmount)) : '');
   const amount = parseAmountInput(shownAmount);
 
   const send = async (request: VisitRequest, paid: boolean) => {
-    if (!user || !model) return;
+    if (!user || !model || inFlight.current) return;
+    inFlight.current = true;
     setSubmitting(true);
     setFormError(null);
     const outcome = await submitVisit({ userId: user.id, loanId, clientName: model.name, request });
+    inFlight.current = false;
     setSubmitting(false);
     const result = interpret(outcome);
     if (!result.done) {

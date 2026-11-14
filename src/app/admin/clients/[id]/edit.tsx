@@ -1,4 +1,7 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { useConfirmedSubmit } from '@/lib/hooks/use-confirmed-submit';
+import { CONFIRM_COPY } from '@/lib/content/confirm-messages';
+import { useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { TopBar } from '@/components/molecules/TopBar';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -6,15 +9,17 @@ import { ClientFormView } from '@/components/organisms/ClientFormView';
 import { ScreenTemplate } from '@/components/templates/ScreenTemplate';
 import { CLIENTS_COPY } from '@/features/clients/content/messages';
 import { useClientForm } from '@/features/clients/hooks/use-client-form';
+import { useGoBack } from '@/features/workspace/hooks/use-go-back';
 
 /** Ruta `/admin/clients/[id]/edit`: editar los datos de un cliente (solo se envía lo que cambió). */
 export default function EditClientScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const { id } = useLocalSearchParams<{ id: string }>();
   const form = useClientForm(id, () => undefined);
+  const confirm = useConfirmedSubmit(form.submit, CONFIRM_COPY.save);
   const copy = CLIENTS_COPY.form;
   const back = () => {
-    router.back();
+    goBack();
   };
 
   let body = <ClientDetailSkeleton />;
@@ -34,10 +39,15 @@ export default function EditClientScreen() {
         submitting={form.submitting}
         formError={form.formError}
         notice={form.notice}
-        onSubmit={form.submit}
+        onSubmit={confirm.ask}
         onCancel={back}
       />
     );
   }
-  return <ScreenTemplate topBar={<TopBar title={copy.editTitle} onBack={back} />}>{body}</ScreenTemplate>;
+  return (
+    <ScreenTemplate topBar={<TopBar title={copy.editTitle} onBack={back} />}>
+      {body}
+      <ConfirmDialog {...confirm.dialog} />
+    </ScreenTemplate>
+  );
 }

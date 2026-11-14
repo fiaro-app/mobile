@@ -10,7 +10,15 @@ import * as team from '@/features/team/api/team-api';
 import * as share from '@/lib/share-text';
 
 jest.mock('@/features/collectors/api/collectors-api', () => ({
-  inviteCollector: jest.fn(), deactivateCollector: jest.fn(), resetCollectorPassword: jest.fn(), changeCollectorPortfolio: jest.fn(), fetchPortfolios: jest.fn(), fetchCollectorStats: jest.fn(),
+  inviteCollector: jest.fn(),
+  deactivateCollector: jest.fn(),
+  resetCollectorPassword: jest.fn(),
+  changeCollectorPortfolio: jest.fn(),
+  fetchPortfolios: jest.fn(),
+  fetchCollectorStats: jest.fn(),
+  fetchCollectorActiveLoanIds: jest.fn(),
+  reactivateCollector: jest.fn(),
+  deleteCollector: jest.fn(),
 }));
 jest.mock('@/features/team/api/team-api', () => ({ fetchMembers: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
@@ -36,6 +44,7 @@ beforeEach(() => {
   t.fetchMembers.mockResolvedValue({ ok: true, value: members });
   a.fetchPortfolios.mockResolvedValue({ ok: true, value: portfolios });
   a.fetchCollectorStats.mockResolvedValue({ ok: true, value: stats });
+  a.fetchCollectorActiveLoanIds.mockResolvedValue({ ok: true, value: [] });
 });
 
 describe('useCollectorsScreen', () => {
@@ -43,6 +52,10 @@ describe('useCollectorsScreen', () => {
     const { result } = await renderHook(() => useCollectorsScreen(), { wrapper });
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
+    });
+    expect(result.current.rows.map((row) => row.name)).toEqual(['Ana Gómez']);
+    await act(async () => {
+      result.current.setStatus('all');
     });
     expect(result.current.rows.map((row) => row.name)).toEqual(['Ana Gómez', 'Luis Díaz']);
     await act(async () => {
@@ -83,6 +96,7 @@ describe('useCollectorForm', () => {
       result.current.fullName.onChangeText('Carlos Ramírez');
       result.current.nationalId.onChangeText('1020304050');
       result.current.phone.onChangeText('3001234567');
+      result.current.contactEmail.onChangeText('carlos@correo.com');
     });
   };
 
@@ -101,7 +115,7 @@ describe('useCollectorForm', () => {
   });
 
   it('registra, muestra la contraseña temporal y la comparte', async () => {
-    a.inviteCollector.mockResolvedValue({ ok: true, value: { id: 'm9', tempPassword: 'Kf7-29' } });
+    a.inviteCollector.mockResolvedValue({ ok: true, value: { membership: { id: 'm9' }, tempPassword: 'Kf7-29' } });
     const { result } = await renderHook(() => useCollectorForm(), { wrapper });
     await waitFor(() => {
       expect(result.current.portfolio.value).toBe('p1');
@@ -241,6 +255,9 @@ describe('useCollectorManage', () => {
   it('desactiva y explica los fallos', async () => {
     a.deactivateCollector.mockResolvedValueOnce({ ok: true, value: {} });
     const { result } = await ready();
+    await waitFor(() => {
+      expect(result.current.activeLoanCount).toBe(0);
+    });
     await act(async () => {
       result.current.confirmDeactivate();
     });

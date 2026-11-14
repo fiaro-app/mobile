@@ -11,6 +11,7 @@ const useRoute = jest.mocked(routeHook.useRoute);
 const refresh = jest.fn();
 const row = (name: string, days: number): RouteEntry => ({
   loanId: name, clientId: name, clientFullName: name, balance: 100000, overdueAmount: days ? 1 : 0, overdueDays: days, nextDueDate: null,
+  collectedToday: 0,
 });
 const entries = [row('Marta Gómez', 12), row('Carlos Restrepo', 0)];
 

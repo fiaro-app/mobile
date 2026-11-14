@@ -1,6 +1,9 @@
+import { useRouter } from 'expo-router';
 import { initials, firstName } from '@/features/auth/lib/names';
+import { formatPhone } from '@/features/client-detail/lib/detail-labels';
 import { completeSignOut } from '@/features/auth/store/session-actions';
 import { useSessionStore } from '@/features/auth/store/session-store';
+import { homeOf } from '@/features/workspace/hooks/use-go-back';
 import { canAdminister } from '@/features/workspace/lib/roles';
 import { useWorkspaceStore } from '@/features/workspace/store/workspace-store';
 
@@ -30,9 +33,11 @@ export interface ProfileScreen {
 }
 
 /**
- * Datos de la persona con sesión y la acción de cerrarla.
+ * Datos de la persona con sesión y la acción de cerrarla. Cambiar de modo lleva al inicio del modo nuevo: quedarse
+ * en Perfil dejaba "atrás" apuntando a una pantalla del modo anterior, que ya no existe.
  */
 export function useProfileScreen(): ProfileScreen {
+  const router = useRouter();
   const user = useSessionStore((state) => state.user);
   const fullName = user?.fullName ?? '';
   const roles = useWorkspaceStore((state) => state.roles);
@@ -43,12 +48,14 @@ export function useProfileScreen(): ProfileScreen {
     fullName,
     firstName: firstName(fullName),
     initials: initials(fullName),
-    phone: user?.phone ?? '',
+    phone: formatPhone(user?.phone ?? ''),
     emailStatus: emailStatusOf(user?.contactEmail, user?.contactEmailVerified),
     mode,
     switchLabel: both ? switchLabelOf(mode) : null,
     switchMode: () => {
-      setMode(mode === 'admin' ? 'collector' : 'admin');
+      const next = mode === 'admin' ? 'collector' : 'admin';
+      setMode(next);
+      router.replace(homeOf(next));
     },
     signOut: () => {
       void completeSignOut();

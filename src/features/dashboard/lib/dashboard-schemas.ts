@@ -21,6 +21,9 @@ export const DashboardSchema = z.object({
   totalCollectors: z.int(),
   effectivenessToday: z.number().nullable(),
   clientsInArrears: z.int(),
+  /** Cifras del período pedido con `?from&to` (sin fechas, hoy). */
+  collectedInPeriod: z.int().optional(),
+  effectivenessInPeriod: z.number().nullable().optional(),
   alerts: z.array(z.string()),
   pendingSettlements: z.array(DashboardSettlementSchema),
 });
