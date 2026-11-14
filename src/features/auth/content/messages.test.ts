@@ -2,7 +2,7 @@ import { changePasswordFailureMessage, signInFailureMessage } from '@/features/a
 
 describe('signInFailureMessage', () => {
   it('usa el texto del diseño para credenciales inválidas', () => {
-    expect(signInFailureMessage({ kind: 'invalid-credentials' })).toBe('Teléfono o contraseña incorrectos.');
+    expect(signInFailureMessage({ kind: 'invalid-credentials' })).toBe('Correo, teléfono o contraseña incorrectos.');
   });
 
   it('concuerda el singular y el plural del bloqueo', () => {

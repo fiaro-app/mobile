@@ -34,7 +34,7 @@ export interface RegisterForm {
 const EMPTY: RegisterValues = { fullName: '', nationalId: '', phone: '', contactEmail: '', password: '', businessName: '' };
 
 /** Campos que, si el API los rechaza, hay que mostrar en el paso 1 aunque el error llegue al enviar el paso 2. */
-const ACCOUNT_CODES = new Set(['PHONE_ALREADY_REGISTERED', 'INVALID_PHONE', 'PASSWORD_TOO_WEAK', 'INVALID_PASSWORD_LENGTH']);
+const ACCOUNT_CODES = new Set(['CONFLICT', 'PHONE_ALREADY_REGISTERED', 'INVALID_PHONE', 'PASSWORD_TOO_WEAK', 'INVALID_PASSWORD_LENGTH']);
 
 /**
  * Lógica del registro de un dueño y su negocio, en dos pasos (cuenta y empresa). El paso 2 envía `POST /register`, que NO abre

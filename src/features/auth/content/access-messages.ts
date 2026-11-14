@@ -34,7 +34,7 @@ export const ACCESS_COPY = {
     nationalIdPlaceholder: '1.020.304.050',
     phone: 'Teléfono',
     phonePlaceholder: '300 123 4567',
-    email: 'Correo de contacto (opcional)',
+    email: 'Correo electrónico',
     emailPlaceholder: 'tu@correo.com',
     secretLabel: 'Contraseña',
     hint: 'Mínimo 15 caracteres. Sirve una frase fácil de recordar, como «la tienda abre a las seis».',
@@ -46,11 +46,14 @@ export const ACCESS_COPY = {
     consentsTitle: 'Autorizaciones',
     termsLabel: 'Acepto los Términos y Condiciones',
     privacyLabel: 'Autorizo el tratamiento de mis datos (Política de Privacidad)',
+    cookiesLabel: 'Acepto la Política de Cookies (solo usamos cookies necesarias)',
     responsibilityLabel: 'Tengo la autorización de mis clientes, mi cobranza cumple la ley (Ley 2300 de 2023) y no cobraré por encima de la tasa de usura. Fiaro solo es una herramienta y no presta ni cobra dinero.',
     marketingLabel: 'Quiero recibir novedades y ofertas (opcional)',
     consentRequired: 'Debes aceptar esto para crear tu cuenta.',
+    consentsPending: 'Marca las cuatro autorizaciones obligatorias para poder crear tu cuenta.',
     readTerms: 'Leer los Términos y Condiciones',
     readPrivacy: 'Leer la Política de Privacidad',
+    readCookies: 'Leer la Política de Cookies',
     doneTitle: 'Cuenta creada',
     doneSubtitle: 'Inicia sesión con tu celular y tu contraseña.',
     toLogin: 'Ir a iniciar sesión',
@@ -62,6 +65,7 @@ export const ACCESS_COPY = {
     fullName: 'Escribe tu nombre completo.',
     nationalId: 'Escribe una cédula válida (3 a 10 dígitos).',
     email: 'Escribe un correo válido, por ejemplo tu@correo.com.',
+    emailRequired: 'Escribe tu correo: sirve para entrar y recuperar tu contraseña.',
     business: 'Escribe el nombre de tu financiera (2 a 120 caracteres).',
   },
 } as const;
@@ -75,6 +79,8 @@ export function accessFailureMessage(failure: ApiFailure): string {
       return 'El código no es correcto o ya se usó. Pide uno nuevo.';
     case 'PASSWORD_RESET_CODE_EXPIRED':
       return 'El código venció. Pide uno nuevo.';
+    case 'CONFLICT':
+      return 'Ya existe una cuenta con ese correo. Usa otro o inicia sesión.';
     case 'PHONE_ALREADY_REGISTERED':
       return 'Ya existe una cuenta con ese celular. Inicia sesión o usa otro número.';
     case 'INVALID_PHONE':

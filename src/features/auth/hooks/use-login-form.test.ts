@@ -3,15 +3,15 @@ import * as api from '@/features/auth/api/auth-api';
 import { useLoginForm } from '@/features/auth/hooks/use-login-form';
 import * as actions from '@/features/auth/store/session-actions';
 
-jest.mock('@/features/auth/api/auth-api', () => ({ signInWithPhone: jest.fn() }));
+jest.mock('@/features/auth/api/auth-api', () => ({ signInWithIdentifier: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ completeSignIn: jest.fn() }));
 
-const signIn = jest.mocked(api.signInWithPhone);
+const signIn = jest.mocked(api.signInWithIdentifier);
 const user = { id: '1', fullName: 'Ana Pérez', phone: '+573001234567', mustChangePassword: false };
 
-async function fill(result: { current: ReturnType<typeof useLoginForm> }, phone: string, password: string) {
+async function fill(result: { current: ReturnType<typeof useLoginForm> }, identifier: string, password: string) {
   await act(async () => {
-    result.current.phone.onChangeText(phone);
+    result.current.identifier.onChangeText(identifier);
     result.current.password.onChangeText(password);
   });
 }
@@ -24,9 +24,9 @@ describe('useLoginForm', () => {
   it('da formato al celular mientras se escribe', async () => {
     const { result } = await renderHook(() => useLoginForm());
     await act(async () => {
-      result.current.phone.onChangeText('3001234567');
+      result.current.identifier.onChangeText('3001234567');
     });
-    expect(result.current.phone.value).toBe('300 123 4567');
+    expect(result.current.identifier.value).toBe('300 123 4567');
   });
 
   it('no envía y marca los campos con datos inválidos', async () => {
@@ -36,8 +36,19 @@ describe('useLoginForm', () => {
       result.current.submit();
     });
     expect(signIn).not.toHaveBeenCalled();
-    expect(result.current.phone.error).toBe('Ingresa un celular colombiano válido de 10 dígitos.');
+    expect(result.current.identifier.error).toBe('Ingresa un correo válido o un celular de 10 dígitos.');
     expect(result.current.password.error).toBe('Ingresa tu contraseña.');
+  });
+
+  it('envía un correo en minúsculas sin darle formato de celular', async () => {
+    signIn.mockResolvedValue({ ok: true, value: user });
+    const { result } = await renderHook(() => useLoginForm());
+    await fill(result, ' Ana@Correo.com ', 'clave');
+    expect(result.current.identifier.value).toBe(' Ana@Correo.com ');
+    await act(async () => {
+      result.current.submit();
+    });
+    expect(signIn).toHaveBeenCalledWith('ana@correo.com', 'clave');
   });
 
   it('envía el celular en E.164 y registra la sesión', async () => {
@@ -61,15 +72,15 @@ describe('useLoginForm', () => {
     await act(async () => {
       result.current.submit();
     });
-    expect(result.current.formError).toBe('Teléfono o contraseña incorrectos.');
-    expect(result.current.phone.invalid).toBe(true);
+    expect(result.current.formError).toBe('Correo, teléfono o contraseña incorrectos.');
+    expect(result.current.identifier.invalid).toBe(true);
     expect(result.current.password.invalid).toBe(true);
     expect(result.current.submitting).toBe(false);
     await act(async () => {
       result.current.password.onChangeText('otra');
     });
     expect(result.current.formError).toBeNull();
-    expect(result.current.phone.invalid).toBe(false);
+    expect(result.current.identifier.invalid).toBe(false);
   });
 
   it('un bloqueo muestra la espera pero no marca los campos como erróneos', async () => {
@@ -83,6 +94,6 @@ describe('useLoginForm', () => {
       result.current.submit();
     });
     expect(result.current.formError).toContain('15 minutos');
-    expect(result.current.phone.invalid).toBe(false);
+    expect(result.current.identifier.invalid).toBe(false);
   });
 });

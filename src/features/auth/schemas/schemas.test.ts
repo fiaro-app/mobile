@@ -2,14 +2,15 @@ import { changePasswordSchema } from '@/features/auth/schemas/change-password-sc
 import { loginSchema } from '@/features/auth/schemas/login-schema';
 
 describe('loginSchema', () => {
-  it('acepta un celular y una contraseña cualquiera', () => {
-    expect(loginSchema.safeParse({ phone: '300 123 4567', password: 'x' }).success).toBe(true);
+  it('acepta un celular o un correo y una contraseña cualquiera', () => {
+    expect(loginSchema.safeParse({ identifier: '300 123 4567', password: 'x' }).success).toBe(true);
+    expect(loginSchema.safeParse({ identifier: 'ana@correo.com', password: 'x' }).success).toBe(true);
   });
 
   it('rechaza un celular inválido y una contraseña vacía', () => {
-    const result = loginSchema.safeParse({ phone: '300 12A 45B6', password: '' });
+    const result = loginSchema.safeParse({ identifier: '300 12A 45B6', password: '' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues.map((issue) => issue.path[0])).toEqual(['phone', 'password']);
+    expect(result.error?.issues.map((issue) => issue.path[0])).toEqual(['identifier', 'password']);
   });
 });
 

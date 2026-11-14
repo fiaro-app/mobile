@@ -28,16 +28,14 @@ describe('access-api', () => {
     expect((post.mock.calls[0]?.[2] as (b: unknown) => unknown)({ a: 1 })).toEqual({ a: 1 });
   });
 
-  it('registra normalizando cédula y celular, sin correo vacío', async () => {
-    const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: '', marketingConsent: false };
+  it('registra normalizando cédula y celular y enviando el correo', async () => {
+    const base = { phone: '300 123 4567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1.020.304.050', businessName: 'El Águila', contactEmail: 'd@correo.com', marketingConsent: false };
     await registerOwner(base);
-    await registerOwner({ ...base, contactEmail: 'd@correo.com' });
-    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, marketingConsent: false, legalVersion: '2026-10-16' });
-    expect(post.mock.calls[1]?.[1]).toMatchObject({ contactEmail: 'd@correo.com' });
+    expect(post.mock.calls[0]?.[1]).toEqual({ phone: '+573001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: 'd@correo.com', acceptedTerms: true, acceptedPrivacy: true, acceptedDataResponsibility: true, acceptedCookies: true, marketingConsent: false, legalVersion: '2026-11-14' });
   });
 
   it('envía el token de Turnstile solo cuando lo hay', async () => {
-    const base = { phone: '3001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: '', marketingConsent: false };
+    const base = { phone: '3001234567', fullName: 'Daniel Rojas', password: 'clave-larga-de-prueba', nationalId: '1020304050', businessName: 'El Águila', contactEmail: 'd@correo.com', marketingConsent: false };
     await registerOwner({ ...base, turnstileToken: 'tok' });
     await registerOwner({ ...base, turnstileToken: undefined });
     expect(post.mock.calls[0]?.[1]).toMatchObject({ turnstileToken: 'tok' });
