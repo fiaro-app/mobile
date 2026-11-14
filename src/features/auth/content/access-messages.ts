@@ -50,6 +50,7 @@ export const ACCESS_COPY = {
     responsibilityLabel: 'Tengo la autorización de mis clientes, mi cobranza cumple la ley (Ley 2300 de 2023) y no cobraré por encima de la tasa de usura. Fiaro solo es una herramienta y no presta ni cobra dinero.',
     marketingLabel: 'Quiero recibir novedades y ofertas (opcional)',
     consentRequired: 'Debes aceptar esto para crear tu cuenta.',
+    consentsPending: 'Marca las cuatro autorizaciones obligatorias para poder crear tu cuenta.',
     readTerms: 'Leer los Términos y Condiciones',
     readPrivacy: 'Leer la Política de Privacidad',
     readCookies: 'Leer la Política de Cookies',

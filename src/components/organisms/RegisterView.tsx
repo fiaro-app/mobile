@@ -19,7 +19,7 @@ export interface RegisterViewProps {
     readonly nationalId: string; readonly nationalIdPlaceholder: string; readonly phone: string; readonly phonePlaceholder: string; readonly email: string; readonly emailPlaceholder: string;
     readonly secretLabel: string; readonly hint: string; readonly business: string; readonly businessPlaceholder: string; readonly next: string; readonly submit: string; readonly back: string;
     readonly consentsTitle: string; readonly termsLabel: string; readonly privacyLabel: string; readonly responsibilityLabel: string; readonly cookiesLabel: string; readonly marketingLabel: string;
-    readonly consentRequired: string; readonly readTerms: string; readonly readPrivacy: string; readonly readCookies: string;
+    readonly consentRequired: string; readonly consentsPending: string; readonly readTerms: string; readonly readPrivacy: string; readonly readCookies: string;
     readonly doneTitle: string; readonly doneSubtitle: string; readonly toLogin: string;
   };
   readonly values: Record<Field, string>;
@@ -68,6 +68,8 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
     );
   }
   const account = props.step === 'account';
+  const { terms, privacy, responsibility, cookies } = props.consents;
+  const consentsMissing = !(terms && privacy && responsibility && cookies);
   return (
     <View className="gap-8">
       <AuthHeader title={account ? texts.accountTitle : texts.companyTitle} subtitle={account ? texts.accountSubtitle : texts.companySubtitle} />
@@ -100,7 +102,12 @@ export function RegisterView(props: Readonly<RegisterViewProps>) {
               {consentRow('marketing', texts.marketingLabel)}
             </View>
             {props.verification}
-            <Button label={texts.submit} onPress={props.onSubmit} loading={props.busy} />
+            {consentsMissing ? (
+              <AppText variant="caption" tone="destructive" accessibilityLiveRegion="polite">
+                {texts.consentsPending}
+              </AppText>
+            ) : null}
+            <Button label={texts.submit} onPress={props.onSubmit} loading={props.busy} disabled={consentsMissing} />
             <View className="items-center">
               <TextLink label={texts.back} onPress={props.onBack} />
             </View>
