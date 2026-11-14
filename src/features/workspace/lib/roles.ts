@@ -25,6 +25,14 @@ export function defaultMode(roles: readonly Role[]): Mode {
   return canAdminister(roles) ? 'admin' : 'collector';
 }
 
+/**
+ * La dueña (rol Owner) debe tener un correo de contacto verificado para usar la app: recupera su
+ * contraseña y sirve para iniciar sesión. Cobradores y administradores invitados no se bloquean.
+ */
+export function ownerMustVerifyEmail(roles: readonly Role[], emailVerified: boolean): boolean {
+  return roles.includes('OWNER') && !emailVerified;
+}
+
 /** Etiqueta del rol para mostrar junto al nombre ("Administrador" / "Cobrador"). */
 export function roleLabel(roles: readonly Role[]): string {
   return canAdminister(roles) ? 'Administrador' : 'Cobrador';

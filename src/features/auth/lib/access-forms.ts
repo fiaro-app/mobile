@@ -47,7 +47,7 @@ export interface RegisterValues {
 /** Campos del paso 1 (cuenta). */
 export type AccountField = 'fullName' | 'nationalId' | 'phone' | 'contactEmail' | 'password';
 
-/** Valida el paso 1: nombre, cédula, celular, correo opcional y contraseña. */
+/** Valida el paso 1: nombre, cédula, celular, correo y contraseña. */
 export function validateAccountStep(values: RegisterValues): FieldErrors<AccountField> {
   const errors: FieldErrors<AccountField> = {};
   const name = values.fullName.trim();
@@ -55,7 +55,8 @@ export function validateAccountStep(values: RegisterValues): FieldErrors<Account
   if (!/^[1-9]\d{2,9}$/.test(values.nationalId.replaceAll(/[\s.,-]/g, ''))) errors.nationalId = ACCESS_COPY.validation.nationalId;
   if (toMobileE164(values.phone) === null) errors.phone = AUTH_COPY.validation.phone;
   const email = values.contactEmail.trim();
-  if (email !== '' && !z.email().safeParse(email).success) errors.contactEmail = ACCESS_COPY.validation.email;
+  if (email === '') errors.contactEmail = ACCESS_COPY.validation.emailRequired;
+  else if (!z.email().safeParse(email).success) errors.contactEmail = ACCESS_COPY.validation.email;
   const weak = passwordError(values.password);
   if (weak) errors.password = weak;
   return errors;

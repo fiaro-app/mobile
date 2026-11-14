@@ -4,9 +4,9 @@ import type { ChangePasswordFailure, SignInFailure } from '@/features/auth/lib/a
 export const AUTH_COPY = {
   login: {
     title: 'Inicia sesión',
-    subtitle: 'Ingresa con tu número de teléfono',
-    phoneLabel: 'Teléfono',
-    phonePlaceholder: '300 123 4567',
+    subtitle: 'Ingresa con tu correo o tu número de teléfono',
+    identifierLabel: 'Correo o celular',
+    identifierPlaceholder: 'tu@correo.com o 300 123 4567',
     secretLabel: 'Contraseña',
     maskedPlaceholder: '••••••••',
     forgot: '¿Olvidaste tu contraseña?',
@@ -14,6 +14,7 @@ export const AUTH_COPY = {
   },
   validation: {
     phone: 'Ingresa un celular colombiano válido de 10 dígitos.',
+    identifier: 'Ingresa un correo válido o un celular de 10 dígitos.',
     passwordRequired: 'Ingresa tu contraseña.',
     passwordMin: 'La contraseña debe tener mínimo 15 caracteres.',
     passwordMatch: 'Las contraseñas no coinciden.',
@@ -31,7 +32,7 @@ export const AUTH_COPY = {
 } as const;
 
 const SIGN_IN_MESSAGES = {
-  'invalid-credentials': 'Teléfono o contraseña incorrectos.',
+  'invalid-credentials': 'Correo, teléfono o contraseña incorrectos.',
   deactivated: 'Tu cuenta está desactivada. Habla con tu administrador.',
   'rate-limited': 'Demasiados intentos. Espera un momento y vuelve a intentar.',
   offline: 'Sin conexión a internet. Revisa tu conexión e intenta de nuevo.',

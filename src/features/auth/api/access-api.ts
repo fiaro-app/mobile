@@ -28,7 +28,7 @@ export interface RegisterInput {
   readonly turnstileToken?: string;
 }
 
-/** `POST /register`: registra a un dueño y su negocio. NO abre sesión: después hay que iniciarla. El correo vacío no se envía. */
+/** `POST /register`: registra a un dueño y su negocio. NO abre sesión: después hay que iniciarla. */
 export function registerOwner(input: RegisterInput): Promise<Result<unknown, ApiFailure>> {
   return apiPost(
     '/register',
@@ -44,7 +44,7 @@ export function registerOwner(input: RegisterInput): Promise<Result<unknown, Api
       acceptedCookies: true,
       marketingConsent: input.marketingConsent,
       legalVersion: LEGAL_VERSION,
-      ...(input.contactEmail === '' ? {} : { contactEmail: input.contactEmail }),
+      contactEmail: input.contactEmail,
       ...(input.turnstileToken ? { turnstileToken: input.turnstileToken } : {}),
     },
     (body) => body,

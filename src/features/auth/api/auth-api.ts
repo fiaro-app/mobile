@@ -42,18 +42,17 @@ function userFrom(data: unknown): Result<SessionUser, ApiFailure> {
 }
 
 /**
- * Inicia sesión con celular (E.164) y contraseña (`POST /auth/sign-in/phone-number`). La cookie
- * queda guardada por `expoClient`.
+ * Inicia sesión con celular (E.164) o correo verificado, y contraseña (`POST /auth/sign-in`). Es
+ * una ruta propia de la API, no del cliente de better-auth, por eso se llama con `$fetch`: los
+ * plugins (`expoClient`) siguen guardando la cookie.
  */
-export async function signInWithPhone(phone: string, password: string): Promise<Result<SessionUser, ApiFailure>> {
+export async function signInWithIdentifier(identifier: string, password: string): Promise<Result<SessionUser, ApiFailure>> {
   const response = await run((capture) =>
-    authClient.signIn.phoneNumber({
-      phoneNumber: phone,
-      password,
-      fetchOptions: {
-        onError: (context) => {
-          capture(context.response.headers.get('retry-after'));
-        },
+    authClient.$fetch('/sign-in', {
+      method: 'POST',
+      body: { identifier, password },
+      onError: (context) => {
+        capture(context.response.headers.get('retry-after'));
       },
     }),
   );
