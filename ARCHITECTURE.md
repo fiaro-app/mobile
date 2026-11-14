@@ -510,3 +510,13 @@ Todo lo que se hace en la web se puede hacer en la app (cobrador y administrador
 - **Push de verdad** (§5g): `eas init`, credenciales FCM/APNs y una development build.
 - **Fecha de inicio de un préstamo** fuera de −7/+14 días y la **paginación de colaboradores** (> 100) no están en la app todavía.
 - **Verificación en dispositivo:** el administrador se verificó en la vista web contra el API de desarrollo; falta repasar cada pantalla nueva en Android/iOS.
+
+## Importar desde Excel (D-152 de la API, W-107 de la web)
+
+`/admin/import` (menú «Importar») repite el flujo de la web: elegir archivo, `dryRun`, revisar filas con error y confirmar, en tandas de 200 con tope de 2.000 filas.
+
+- **Selector y lectura:** `expo-document-picker` (SDK 57, incluido en Expo Go, sin config plugin) con `type: '*/*'`; el formato se valida por extensión porque iOS y Android reportan MIME distintos. `.csv` se lee con `File.text()` de `expo-file-system`; `.xlsx` con `read-excel-file/universal` sobre `File.arrayBuffer()` (la web usa la misma librería).
+- **Parser compartido en espíritu:** `lib/parse-sheet.ts` es copia del de la web (mismas columnas y alias); si cambia uno, cambia el otro. El resto de validaciones las hace la API.
+- **Plan:** `usePlanFeatures().excelImport` (`EXCEL_IMPORT`: Pro, Team y la prueba). Individual ve una invitación a «Plan y pagos»; la API igual niega con `PLAN_FEATURE_UNAVAILABLE`.
+- **Plantilla:** se comparte por la hoja del sistema (`shareFile`) en vez de «descargar».
+- **Sin verificar:** el simulador de iOS no estaba disponible; falta probar el `.xlsx` en Hermes (nativo).
