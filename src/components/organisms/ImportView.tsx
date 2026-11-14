@@ -94,12 +94,13 @@ export function ImportView({ texts: copy, state, onPick, onConfirm, onReset, onS
   } else if (state.phase === 'review') {
     const ready = state.items.filter((item) => item.status === 'READY').length;
     const invalid = state.items.length - ready;
+    const summary = [ready > 0 ? copy.review.ready(ready) : copy.review.nothing, ...(invalid > 0 ? [copy.review.invalid(invalid)] : [])].join(' · ');
     body = (
       <>
         <AppText variant="title" accessibilityRole="header">
           {copy.review.title}
         </AppText>
-        <AlertBanner message={`${ready > 0 ? copy.review.ready(ready) : copy.review.nothing}${invalid > 0 ? ` · ${copy.review.invalid(invalid)}` : ''}`} />
+        <AlertBanner message={summary} />
         <Problems items={state.items} texts={copy.problems} />
         <Button label={copy.review.confirm(ready)} disabled={ready === 0} onPress={onConfirm} />
         <Button label={copy.review.cancel} variant="outline" onPress={onReset} />
