@@ -7,6 +7,7 @@ import { LenderStatsView } from '@/components/organisms/LenderStatsView';
 import { OptionSheet } from '@/components/organisms/OptionSheet';
 import { AdminTemplate } from '@/components/templates/AdminTemplate';
 import { LENDER_STATS_COPY } from '@/features/lender-stats/content/messages';
+import { useConsolidated } from '@/features/consolidated/hooks/use-consolidated';
 import { useInsights } from '@/features/insights/hooks/use-insights';
 import { useLenderStatsScreen } from '@/features/lender-stats/hooks/use-lender-stats-screen';
 import { STATS_COPY } from '@/features/stats/content/messages';
@@ -19,6 +20,7 @@ export default function AdminStatsScreen() {
   const screen = useLenderStatsScreen();
   const plan = usePlanFeatures();
   const insights = useInsights(screen.range, plan.advancedStats);
+  const consolidated = useConsolidated(screen.range, plan.consolidatedStats);
   const copy = LENDER_STATS_COPY;
   const model = screen.model;
 
@@ -50,10 +52,12 @@ export default function AdminStatsScreen() {
         exportPdf={plan.advancedStats ? { label: copy.exportPdf, busy: screen.pdf.busy, error: screen.pdf.error, onPress: screen.pdf.start } : null}
         upgrade={plan.advancedStats ? null : { message: copy.upgrade, action: { label: copy.upgradeAction, onPress: openRenewal } }}
         insights={plan.advancedStats ? insights.model : null}
+        consolidated={consolidated.model}
         refreshing={screen.refreshing}
         onRefresh={() => {
           screen.refresh();
           insights.refresh();
+          consolidated.refresh();
         }}
         sheets={
           <>

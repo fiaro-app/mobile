@@ -10,6 +10,8 @@ export interface PlanScreen {
   readonly failed: boolean;
   readonly plan: SubscriptionView | null;
   readonly currentCode: string | null;
+  /** El enlace del soporte prioritario, si el plan lo trae y está configurado. */
+  readonly supportUrl: string | null;
   readonly payments: PaymentRow[];
   readonly paymentsLoading: boolean;
   readonly refreshing: boolean;
@@ -25,6 +27,7 @@ export function usePlanScreen(): PlanScreen {
     failed: subscription.data === undefined && subscription.isError,
     plan: subscription.data ? toSubscriptionView(subscription.data) : null,
     currentCode: subscription.data?.planCode ?? null,
+    supportUrl: subscription.data?.features.includes('PRIORITY_SUPPORT') ? subscription.data.prioritySupportUrl : null,
     payments: toPaymentRows(history.data ?? []),
     paymentsLoading: history.isPending,
     refreshing: subscription.isRefetching || history.isRefetching,

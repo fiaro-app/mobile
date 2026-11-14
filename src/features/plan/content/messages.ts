@@ -11,5 +11,6 @@ export const PLAN_COPY = {
   loadFailedMessage: 'Revisa tu conexión e inténtalo de nuevo.',
   forbidden: 'El plan del negocio lo ve y lo paga quien lo administra.',
   payOnWeb: 'Pagar en la web',
+  supportAction: 'Escribir a soporte prioritario',
   payHint: 'La app no cobra: el pago se hace en el navegador y aquí verás el resultado.',
 } as const;

@@ -50,6 +50,8 @@ export interface LenderStatsViewProps {
   readonly onRefresh: () => void;
   /** «Cómo va tu negocio»; `null` si no cargó (la pantalla se muestra igual). */
   readonly insights?: InsightsSectionProps | null;
+  /** «Todos tus negocios» (plan Team con varios negocios); `null` u omitido lo oculta. */
+  readonly consolidated?: { readonly title: string; readonly rows: readonly { readonly id: string; readonly name: string; readonly lines: readonly string[] }[] } | null;
   /** Hojas de los filtros (cobrador, cartera, calendario): van encima de todo. */
   readonly sheets: ReactNode;
 }
@@ -76,6 +78,23 @@ export function LenderStatsView(props: Readonly<LenderStatsViewProps>) {
         {props.exportPdf?.error ? <Alert message={props.exportPdf.error} /> : null}
         {props.upgrade ? <AlertBanner message={props.upgrade.message} action={props.upgrade.action} /> : null}
         {props.empty ? <AppText variant="small">{props.empty}</AppText> : null}
+        {props.consolidated ? (
+          <View className="gap-3">
+            <AppText variant="title">{props.consolidated.title}</AppText>
+            <View className="gap-3 rounded-lg bg-surface p-5">
+              {props.consolidated.rows.map((row) => (
+                <View key={row.id} className="gap-0.5">
+                  <AppText variant="label">{row.name}</AppText>
+                  {row.lines.map((line) => (
+                    <AppText key={line} variant="caption" tone="muted">
+                      {line}
+                    </AppText>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
         {props.insights ? <InsightsSection {...props.insights} /> : null}
         <View className="flex-row flex-wrap gap-3">
           {props.kpis.map((kpi) => (

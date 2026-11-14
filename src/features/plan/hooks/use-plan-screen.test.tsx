@@ -9,7 +9,7 @@ jest.mock('@/features/plan/api/plan-api', () => ({ fetchPlanPayments: jest.fn() 
 jest.mock('@/features/settings/api/settings-api', () => ({ fetchSubscription: jest.fn() }));
 jest.mock('@/features/auth/store/session-actions', () => ({ signOutIfSessionExpired: jest.fn() }));
 
-const SUBSCRIPTION = { planCode: 'PRO', status: 'ACTIVE', currentPeriodEndsAt: '2026-11-20T00:00:00Z', daysRemaining: 30, graceDaysRemaining: 0, isReadOnly: false, limits: { maxCollectors: 10, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 5 } };
+const SUBSCRIPTION = { planCode: 'PRO', status: 'ACTIVE', currentPeriodEndsAt: '2026-11-20T00:00:00Z', daysRemaining: 30, graceDaysRemaining: 0, isReadOnly: false, features: ['ADVANCED_STATS', 'EXCEL_IMPORT'], prioritySupportUrl: null, limits: { maxCollectors: 10, maxAdmins: 3, maxPortfolios: 4, maxActiveLoans: null }, usage: { activeCollectors: 2, activeAdmins: 1, activeLoans: 5 } };
 
 function wrapper({ children }: Readonly<{ children: ReactNode }>) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
@@ -45,5 +45,16 @@ describe('usePlanScreen', () => {
     await waitFor(() => {
       expect(result.current.failed).toBe(true);
     });
+  });
+
+  it('gives the priority support link only when the plan brings it', async () => {
+    jest.mocked(planApi.fetchPlanPayments).mockResolvedValue({ ok: true, value: [] });
+    jest.mocked(settingsApi.fetchSubscription).mockResolvedValue({ ok: true, value: { ...SUBSCRIPTION, planCode: 'TEAM', features: ['PRIORITY_SUPPORT'], prioritySupportUrl: 'https://wa.me/573000000000' } } as never);
+
+    const { result } = await renderHook(() => usePlanScreen(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.supportUrl).toBe('https://wa.me/573000000000');
+    });
+    expect(result.current.plan?.rows).toContainEqual({ label: 'Soporte', value: 'Prioritario' });
   });
 });

@@ -4,6 +4,8 @@ import { useSubscription } from '@/features/settings/hooks/use-settings-data';
 export interface PlanFeatures {
   /** El PDF de estadísticas, el comparativo y los reportes de riesgo, mora y desempeño. */
   readonly advancedStats: boolean;
+  /** Las cifras de todos los negocios juntas (Team y la prueba). A diferencia de la anterior, mientras el plan no llega no se muestra. */
+  readonly consolidatedStats: boolean;
 }
 
 /**
@@ -13,5 +15,5 @@ export interface PlanFeatures {
 export function usePlanFeatures(): PlanFeatures {
   const subscription = useSubscription();
   const features = subscription.data?.features;
-  return { advancedStats: features === undefined || features.includes('ADVANCED_STATS') };
+  return { advancedStats: features === undefined || features.includes('ADVANCED_STATS'), consolidatedStats: features?.includes('CONSOLIDATED_STATS') ?? false };
 }

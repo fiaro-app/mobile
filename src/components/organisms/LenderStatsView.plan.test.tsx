@@ -50,4 +50,17 @@ describe('LenderStatsView según el plan', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Ver planes en la web' }));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+
+  it('en Team con varios negocios muestra todos y el total', async () => {
+    await render(
+      <LenderStatsView
+        {...BASE}
+        consolidated={{ title: 'Todos tus negocios', rows: [{ id: 'a', name: 'Negocio A', lines: ['Cartera $1.000.000'] }, { id: 'total', name: 'Total', lines: ['Cartera $2.000.000'] }] }}
+      />,
+    );
+
+    expect(screen.getByText('Todos tus negocios')).toBeOnTheScreen();
+    expect(screen.getByText('Negocio A')).toBeOnTheScreen();
+    expect(screen.getByText('Cartera $2.000.000')).toBeOnTheScreen();
+  });
 });

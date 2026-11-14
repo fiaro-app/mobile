@@ -1,3 +1,4 @@
+import { Linking } from 'react-native';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { PlanView } from '@/components/organisms/PlanView';
 import { ClientDetailSkeleton } from '@/components/organisms/ClientDetailSkeleton';
@@ -29,6 +30,7 @@ export default function PlanScreen() {
         refreshing={screen.refreshing}
         onRefresh={screen.refresh}
         onPay={openRenewal}
+        onSupport={screen.supportUrl === null ? null : () => void Linking.openURL(screen.supportUrl as string)}
       />
     );
   }

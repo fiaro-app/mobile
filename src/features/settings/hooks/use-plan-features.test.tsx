@@ -14,7 +14,8 @@ const SUBSCRIPTION = {
   daysRemaining: 20,
   graceDaysRemaining: 7,
   isReadOnly: false,
-  features: [] as ('ADVANCED_STATS' | 'EXCEL_IMPORT')[],
+  features: [] as ('ADVANCED_STATS' | 'EXCEL_IMPORT' | 'CONSOLIDATED_STATS' | 'PRIORITY_SUPPORT')[],
+  prioritySupportUrl: null,
   limits: { maxCollectors: 2, maxAdmins: 1, maxPortfolios: 2, maxActiveLoans: 20 },
   usage: { activeCollectors: 0, activeAdmins: 1, activeLoans: 3 },
 };
@@ -34,6 +35,7 @@ describe('usePlanFeatures', () => {
     const { result } = await renderHook(() => usePlanFeatures(), { wrapper });
 
     expect(result.current.advancedStats).toBe(true);
+    expect(result.current.consolidatedStats).toBe(false);
   });
 
   it('Individual no trae las estadísticas avanzadas', async () => {
@@ -53,5 +55,14 @@ describe('usePlanFeatures', () => {
       expect(fetchSubscription).toHaveBeenCalled();
     });
     expect(result.current.advancedStats).toBe(true);
+  });
+
+  it('Team trae las cifras de todos los negocios juntas', async () => {
+    jest.mocked(fetchSubscription).mockResolvedValue({ ok: true, value: { ...SUBSCRIPTION, planCode: 'TEAM', features: ['ADVANCED_STATS', 'EXCEL_IMPORT', 'CONSOLIDATED_STATS', 'PRIORITY_SUPPORT'] } });
+    const { result } = await renderHook(() => usePlanFeatures(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.consolidatedStats).toBe(true);
+    });
   });
 });
